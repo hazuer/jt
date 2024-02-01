@@ -17,10 +17,4 @@ define('DBNAME','u611824705_jt');
 define('PORT','3306');
 define('SOCKET','null');
 
-define('MAX_LOAD_BYTES',2097152); // 10485760 Bytes = 10 Megabytes
-define('MAX_LOAD_DESC','2M');
-
-define('COD_ENZ_B64','ENZ2023');
-define('FOLDER_QR','qrCode');
-
 ?>

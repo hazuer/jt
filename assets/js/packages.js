@@ -1,210 +1,155 @@
 $(document).ready(function() {
+	let baseController = 'controllers/packageController.php';
 
-	let id_event           = $('#id_event');
-	let id_event_user      = $('#id_event_user');
+	let id_package         = $('#id_package');
+	let folio              = $('#folio');
 	let action             = $('#action');
-	let type_ibo           = $('#type_ibo');
-	let ibo                = $('#ibo');
-	let email              = $('#email');
-	let name                = $('#name');
+	let id_location        = $('#id_location');
+	let c_date             = $('#c_date');
 	let phone              = $('#phone');
-	let status             = $('#status');
-	let place_available    = $('#place_available');
+	let receiver           = $('#receiver');
+	let tracking           = $('#tracking');
+	let id_status          = $('#id_status');
 	let html5QrcodeScanner = '';
-	let lastResult         = 0;
-	let divStatusUser =$('#div-status-user');
-	let qrScaned = '';
+	let divStatusTracking  = $('#div-scan-tracking');
+	let divStatus          = $('#div-status');
+	let qrScaned           = '';
 
-  	let table = $('#tbl-event-users').DataTable({
-		"bPaginate": false,
+	phone.on('input', function() {
+        let input = $(this).val();
+        input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+        $(this).val(input);
+
+        if (input.length === 10) {
+			// $('#coincidencias').empty();
+			// $('#coincidencias').hide();
+			receiver.focus();
+        }
+    });
+
+  	let table = $('#tbl-packages').DataTable({
+		"bPaginate": true,
 		//"bFilter": false,
-		"bInfo" : false,
+		"bInfo" : true,
 		"scrollX": false,
 		"scrollY": '500px',
         "scrollCollapse": true,
 		"columns" : [
-			{title: `id_event`,      name : `id_event`,      data : `id_event`},
-			{title: `phone`,           name : `phone`,           data : `phone`},
-			{title: `tracking`,           name : `tracking`,           data : `tracking`},
-			{title: `receiver`,           name : `receiver`,           data : `receiver`},
-			{title: `status`,           name : `status`,           data : `status`},
-			{title: `status`,        name : `status`,        data : `status`},
-			{title: `qr_path`,        name : `qr_path`,        data : `qr_path`}
+			{title: `id_package`,   name : `id_package`,   data : `id_package`}, //0
+			{title: `Tracking`,     name : `tracking`,     data : `tracking`},   //1
+			{title: `Phone`,        name : `phone`,        data : `phone`},      //2
+			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
+			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
+			{title: `Folio`,        name : `folio`,        data : `folio`},      //5
+			{title: `Code`,         name : `code`,         data : `code`},       //6
+			{title: `Destinatario`, name : `receiver`,     data : `receiver`},   //7
+			{title: `d_date`,       name : `d_date`,       data : `d_date`},     //8
+			{title: `d_user_id`,    name : `d_user_id`,    data : `d_user_id`},  //9
+			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //10
+			{title: `Status`,       name : `status_desc`,  data : `status_desc`} //11 + 1
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,1,2,5,6,7,8], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 9 },
-			{ "width": "40%", "targets": [1,2] }
+			{ "targets": [0,3,4,8,9,10], "visible"   : false, "searchable": false, "orderable": false},
+			{ "orderable": false,"targets": 12 },
+			// { "width": "40%", "targets": [1,2] }
 		],
 		'select': {
 			'style': 'multi'
 		},
-		'order': [[3, 'asc']]
+		'order': [[5, 'desc']]
 	});
 
-	$("#btn-first-user, #btn-add-user").click(function(e){
+	$("#btn-first-package, #btn-add-package").click(function(e){
+		let fechaActual = new Date();
+		let idLocation  = $('#option-location').val();
+		// Obteniendo cada parte de la fecha y hora
+		let year     = fechaActual.getFullYear();
+		let mes      = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Agrega un cero al mes si es menor que 10
+		let dia      = String(fechaActual.getDate()).padStart(2, '0'); // Agrega un cero al día si es menor que 10
+		let horas    = String(fechaActual.getHours()).padStart(2, '0'); // Agrega un cero a las horas si es menor que 10
+		let minutos  = String(fechaActual.getMinutes()).padStart(2, '0'); // Agrega un cero a los minutos si es menor que 10
+		let segundos = String(fechaActual.getSeconds()).padStart(2, '0'); // Agrega un cero a los segundos si es menor que 10
+		// Formateando la fecha en el formato deseado
+		let fechaFormateada = `${year}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
 		let row = {
-			id_event_user: 0,
-			id_event     : id_event.val(),
-			type_ibo      : 1,
-			ibo          : '',
-			name          : '',
-			email        : '',
-			phone        : '',
-			status       : 1,
+			id_package : 0,
+			phone      : '',
+			id_location: idLocation,
+			c_date     : fechaFormateada,
+			id_status  : 1,
+			tracking   : '',
+			id_status  : 1
 		}
 		loadEventForm(row);
 	});
 
-	$(`#tbl-event-users tbody`).on( `click`, `#btn-edit-user`, function () {
+	$(`#tbl-packages tbody`).on( `click`, `#btn-edit-package`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
 		loadEventForm(row);
 	});
 
-	$(`#tbl-event-users tbody`).on( `click`, `#btn-records`, function () {
-		let row = table.row( $(this).closest('tr') ).data();
-		let titleModal = `Records: ${row.ibo}`;
-		let formData = new FormData();
-		formData.append('id_event_user',row.id_event_user);
-		formData.append('id_event',row.id_event);
-		formData.append('ibo',row.ibo);
-		formData.append('option','getRecords');
+	async function loadEventForm(row){
+		let titleModal = '';
+		$('#form-modal-package')[0].reset();
+		divStatusTracking.show();
+		divStatus.hide();
 
-		$.ajax({
-			url : `${base_url}/controllers/eventController.php`,
-			type: 'POST',
-			data:formData,
-			cache: false,
-			contentType: false,
-			processData: false,
-			beforeSend: function() {
-			  showSwal();
-			  $('.swal-button-container').hide();
-			}
-		  })
-		  .done(function(response) {
-				swal.close();
-				if(response.success==='true'){
-					let tblOpen=`<table class="table table-striped" style="width: 100%;">
-					<thead>
-						<tr>
-							<td>#</td>
-							<td>Attendance</td>
-						</tr>
-					</thead>
-					<tbody id="attendance-result-table-body">`;
-					let rows='';
-					let tblClose = `</tbody>
-					</table>`;
-					let dataJson = JSON.parse(response.dataJson);
-					let r=0;
-					dataJson.forEach(element => {
-						r++;
-						rows = rows +`<tr>
-						<td>${r}</td>
-						<td>${element.cdate}</td>
-					</tr>`;
-					});
-					$('#tbl-div-records').html(`${tblOpen} ${rows} ${tblClose}`);
+		id_package.val(row.id_package);
+		phone.val(row.phone);
+		id_location.val(row.id_location);
+		c_date.val(row.c_date);
+		receiver.val(row.receiver);
+		tracking.val(row.tracking);
+		id_status.val(row.id_status);
+		action.val('new');
 
-					$('#modal-records-title').html(titleModal);
-					$('#modal-records').modal('show');
-				}else{
-					swal("Error", response.message, "warning");
-				}
-			}).fail(function(e) {
-				console.log("Something went wrong",e);
+		if(row.id_package!=0){
+			divStatusTracking.hide();
+			divStatus.show();
+			folio.val(row.folio);
+			titleModal=`Editar Paquete ${row.folio}`;
+			action.val('update');
+		}else{
+			let newFolio = await getFolio('new');
+			folio.val(newFolio);
+			titleModal = `Nuevo Paquete ${newFolio}`;
+		}
+
+		$('#modal-package-title').html(titleModal);
+		$('#modal-package').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			phone.focus();
+		}, 600);
+	}
+
+	async function getFolio(type) {
+		let folio    = 0;
+		let formData =  new FormData();
+		formData.append('id_location', $('#option-location').val());
+		formData.append('type', type);
+		formData.append('option', 'getFolio');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
 			});
+			folio = response.folio;
+		} catch (error) {
+			console.error(error);
+		}
+		return folio;
+	}
 
-
-	});
-
-	$(`#tbl-event-users tbody`).on( `click`, `#btn-show-qr`, function () {
-		let row = table.row( $(this).closest('tr') ).data();
-		let titleModal = `QR: ${row.ibo}`;
-		$('#modal-show-qr-title').html(titleModal);
-		$('#modal-show-qr').modal('show');
-		$('#div-show-qr').html(`<img src="${row.qr_path}" />`);
-	});
-
-	$('#btn-check-list').click(function(){
-		let formData = new FormData();
-		formData.append('option','getCheckList');
-		formData.append('id_event',id_event.val());
-		$.ajax({
-			url        : `${base_url}/controllers/eventController.php`,
-			type       : 'POST',
-			data       : formData,
-			cache      : false,
-			contentType: false,
-			processData: false,
-			beforeSend: function() {
-				showSwal();
-				$('.swal-button-container').hide();
-			  }
-			})
-			.done(function(response) {
-			swal.close();
-			let tblOpen=`
-			<div style="100%; height:350px overflow-y:scroll;"><table class="table table-striped" style="width: 100%;">
-			<thead>
-				<tr>
-					<td>#</td>
-					<td>IBO</td>
-					<td>Name</td>
-					<td>Last check in</td>
-				</tr>
-			</thead>
-			<tbody id="scanned-result-table-body">`;
-			let rows='';
-			let tblClose=`</tbody>
-			</table></div>`;
-			if(response.success=='true'){
-				let userActives= $('#userActives');
-				let dataJson = JSON.parse(response.dataJson);
-				let r=0;
-				dataJson.forEach(element => {
-				r++;
-				rows = rows +`<tr>
-					<td>${r}</td>
-					<td>${element.ibo}</td>
-					<td>${element.name}</td>
-					<td>${element.cdate}</td>
-				</tr>`;
-				});
-				let tReg = userActives.val();
-				//let tChecking = tReg-r;
-
-				$('#tbl-div-check').html(`${tblOpen} ${rows} ${tblClose}`);
-				//let titleModal = `Check List, ${r} of ${tReg}`;
-				let titleModal = `Check List, ${tReg} of ${r}`;
-				$('#modal-check-title').html(titleModal);
-				$('#modal-check').modal('show');
-			}
-			if(response.success=='false'){
-				swal("Attention!", `${response.message}`, "warning");
-				$('#tbl-div-check').html(``);
-			}
-
-		}).fail(function(e) {
-			console.log("Something went wrong",e);
-		});
-	});
-
-
-	$('#btn-scan-qr').click(function(){
+	$('#btn-scan-code').click(function(){
 		let counter   = 0;
-		let initialTime        = 0;
-		//let diffTime =0;
-		let titleModal =  'Scan QR';
+		let initialTime = 0;
 		qrScaned ='';
 		function onScanSuccess(decodedText, decodedResult) {
-			setTimeout(function(){
-				alert(decodedText);
-				$('audio#beep-sound')[0].play();
-			}, 5500);
-			return;
 			if(counter==0){
 				initialTime = getNow();
 				readQr(decodedText);
@@ -218,93 +163,32 @@ $(document).ready(function() {
 			}
 			counter++;
 		}
-
-		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox : { width: 210, height: 210 } });
+		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox : { width: 350, height: 150 } });
 		html5QrcodeScanner.render(onScanSuccess);
-
-		$('#modal-scan-qr-title').html(titleModal);
-		$('#modal-scan-qr').modal({backdrop: 'static', keyboard: false}, 'show');
 	});
+
+	function getNow(){
+		let date = new Date();
+		return date.getTime();
+	}
 
 	function readQr(decodedText){
 		try {
-			let decodedString = atob(decodedText);
-			let arrayDecode   = decodedString.split("|");
-			let cveCod        = atob(arrayDecode[0]);
+			//->JMXif(cveCod==codEnzB64){
+				//if (decodedText !== lastResult) {
+					tracking.val(decodedText);
+					savePackage(decodedText);
+				//}
 
-			if(cveCod==codEnzB64){
-				if (decodedText !== lastResult) {
-					qrScaned = arrayDecode[1]+'|'+qrScaned;
-					let formData = new FormData();
-					formData.append('id_event_scan',id_event.val());
-					formData.append('qrScaned',qrScaned);
-					formData.append('option','saveRecordsQr');
-					formData.append('decodedText',decodedText);
-					$.ajax({
-						url        : `${base_url}/controllers/eventController.php`,
-						type       : 'POST',
-						data       : formData,
-						cache      : false,
-						contentType: false,
-						processData: false,
-					})
-					.done(function(response) {
-						let tblOpen=`
-						<div style="100%; height:150px; overflow-y:scroll;"><table class="table table-striped" style="width: 100%;">
-						<thead>
-							<tr>
-								<td>#</td>
-								<td>IBO</td>
-								<td>Date</td>
-							</tr>
-						</thead>
-						<tbody id="scanned-result-table-body">`;
-						let rows='';
-						let tblClose=`</tbody>
-						</table></div>`;
-						if(response.success=='true'){
-							lastResult   = decodedText;
-							swal(`${arrayDecode[3]} Scanned`, "", "success");
-							$('.swal-button-container').hide();
-							setTimeout(function(){
-								swal.close();
-							}, 2500);
-							$('audio#beep-sound')[0].play();
-							let dataJson = JSON.parse(response.dataJson);
-							let r=0;
-							dataJson.forEach(element => {
-							r++;
-							rows = rows +`<tr>
-								<td>${r}</td>
-								<td>${element.ibo}</td>
-								<td>${element.cdate}</td>
-							</tr>`;
-							});
-							$('#div-rst-scan-qr').html(`${tblOpen} ${rows} ${tblClose}`);
-						}
-						if(response.success=='false'){
-							swal("Attention!", `${response.message}`, "warning");
-							$('.swal-button-container').hide();
-							setTimeout(function(){
-								swal.close();
-							}, 2500);
-							//$('#div-rst-scan-qr').html(``);
-						}
-					}).fail(function(e) {
-						console.log("Something went wrong",e);
-					});
-				}
-
-				if (decodedText == lastResult){
+				/*if (decodedText == lastResult){
 					swal("QR was scanned!", "", "info");
 					$('.swal-button-container').hide();
 					setTimeout(function(){
 						swal.close();
 					}, 2500);
-				}
-			}
+				}*/
+			//->}
 		} catch (error) {
-			$('#div-rst-scan-qr').html(``);
 			swal("Invalid QR!", "", "error");
 			$('.swal-button-container').hide();
 			setTimeout(function(){
@@ -313,179 +197,203 @@ $(document).ready(function() {
 		}
 	}
 
-	function getNow(){
-		let date = new Date();
-		return date.getTime();
-	}
-
-	$('#close-qr-b,#close-qr-x').click(function(){
-		html5QrcodeScanner.clear();
-		lastResult         = 0;
-		$('#div-rst-scan-qr').html(``);
+	$('#btn-save').click(function(){
+		let tracking = $('#tracking').val();
+		savePackage(tracking);
 	});
 
-	function loadEventForm(row){
-		$('#form-modal-user')[0].reset();
-		let titleModal = 'New User';
-		divStatusUser.hide();
-		$('#btn-resend').hide();
-		ibo.attr('readonly', false);
-		name.attr('readonly', false);
-
-		id_event_user.val(row.id_event_user);
-		type_ibo.val(row.type_ibo);
-		ibo.val(row.ibo);
-		name.val(row.name);
-		email.val(row.email);
-		phone.val(row.phone);
-
-		status.val(row.status);
-		action.val('new');
-
-		isIboOrGuest(row.type_ibo);
-
-		if(row.id_event_user!=0){
-			divStatusUser.show();
-			$('#btn-resend').show();
-			ibo.attr('readonly', true);
-			name.attr('readonly', true);
-			titleModal='Edit User';
-			action.val('update');
+	function savePackage(decodedText) {
+		//console.log('here');
+		//TODO:Validate lengh of tracking 15 caracteres
+		if(phone.val()=='' || receiver.val()=='' || tracking.val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
 		}
-
-		$('#modal-user-title').html(titleModal);
-		$('#modal-user').modal('show');
-	}
-
-	$('#btn-save-user').click(function(){
-		saveResend('registerUser');
-	});
-
-	$('#btn-resend').click(function(){
-		saveResend('resend');
-	});
-
-	$('#type_ibo').on('change', function() {
-		isIboOrGuest(this.value);
-	  });
-
-	function isIboOrGuest(type){
-		$('#lbl-desc-ibo').html('IBO Number:');
-		if(type==2){
-			$('#lbl-desc-ibo').html('Invited by IBO:');
-		}
-	}
-
-	function saveResend(typeOption){
-		if( ibo.val()=='' ||  name.val()=='' ||  email.val()=='' ||  phone.val()==''){
-			swal("Attention!", "Required fields (*)", "warning");
-			return false;
-		}
-
-		let mask = new RegExp(/^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/);
-		if (mask.test(email.val()) == false){
-			swal("Attention!", "Invalid mail", "warning");
-			return false;
-		}
-
+		//console.log('continue');
+		//return;
+		// qrScaned = decodedText+'|'+qrScaned;
 		let formData = new FormData();
-		formData.append('id_event_user',id_event_user.val());
-		formData.append('id_event',id_event.val());
-		formData.append('type_ibo',type_ibo.val());
-		formData.append('ibo',ibo.val());
-		formData.append('name',name.val());
-		formData.append('email',email.val());
+		// formData.append('qrScaned',qrScaned);
+		formData.append('id_package',id_package.val());
+		formData.append('id_location',id_location.val());
+		formData.append('folio',folio.val());
+		formData.append('c_date',c_date.val());
 		formData.append('phone',phone.val());
-		formData.append('status',status.val());
+		formData.append('receiver',receiver.val());
+		formData.append('tracking',decodedText);
+		formData.append('id_status',id_status.val());
 		formData.append('action',action.val());
-		formData.append('base_url',`${base_url}/${folder_qr}/`);
-		formData.append('option',typeOption); //registerUser || resend
+		formData.append('option','savePackage');
 
 		$.ajax({
-			url : `${base_url}/controllers/eventController.php`,
-			type: 'POST',
-			data:formData,
-			cache: false,
+			url        : `${base_url}/${baseController}`,
+			type       : 'POST',
+			data       : formData,
+			cache      : false,
 			contentType: false,
 			processData: false,
-			beforeSend: function() {
-			  showSwal();
-			  $('.swal-button-container').hide();
-			}
 		})
-		  .done(function(response) {
-				swal.close();
-				if(response.success==='true'){
-					$('#modal-event').modal('hide');
-					swal('Success', response.message, "success");
-					$('.swal-button-container').hide();
-					setTimeout(function(){
-						window.location.href = `${base_url}/views/eventsManage.php?id=${id_event.val()}`;
-					}, 1000);
-				}else{
-					swal("Error", response.message, "warning");
+		.done(function(response) {
+
+			if(response.success=='true'){
+				if(action.val()=='new'){
+					$('audio#beep-sound')[0].play();
+					html5QrcodeScanner.clear();
 				}
+				swal(`${response.message}`, "", "success");
+				$('.swal-button-container').hide();
+				$('#modal-package').modal('hide');
+				setTimeout(function(){
+					swal.close();
+					window.location.reload();
+				}, 1500);
+
+			}
+			if(response.success=='false'){
+				swal("Attention!", `${response.message}`, "info");
+				$('.swal-button-container').hide();
+				setTimeout(function(){
+					swal.close();
+				}, 3500);
+			}
 		}).fail(function(e) {
-				console.log("Something went wrong",e);
+			console.log("Something went wrong",e);
 		});
 	}
 
-	$('#btn-first-csv,#btn-load-csv').click(function(){
-		$('#form-modal-csv')[0].reset();
-		$('#upload-file-csv').html('');
-		$("#upload-file-csv").hide();
-		$('#lbl-max-user').html(`Maximum capacity to import: ${place_available.val()} users`);
-		let titleModal = 'Load CSV';
-		$('#btn-save-csv').hide();
-		$('#modal-csv-title').html(titleModal);
-		$('#modal-csv').modal('show');
-	});
-
-	$('#file-csv').bind('change', function() {
-		let result = validateSize('file-csv','upload-file-csv',this.files[0].size,s3MaxLoadBytes,s3MaxLoadDesc);
-		if(result){
-			$('#btn-save-csv').show();
-		}else{
-			$('#btn-save-csv').hide();
-		}
+	$('#tracking').on('focus', function() {
+        let valTracking = $(this).val();
+        if (valTracking === '') {
+            $(this).val('JMX000');
+			$(this).focus();
+        }
     });
 
-	$('#btn-save-csv').click(function(){
-		let formData = new FormData();
-		let csv    = $('#file-csv')[0].files[0];
-		formData.append('file_csv',csv);
-		formData.append('id_event',id_event.val());
-		formData.append('base_url',`${base_url}/${folder_qr}/`);
-		formData.append('place_available',place_available.val());
-		formData.append('option','loadCsv');
+	$('#phone').on('input', function() {
+        let phoneNumber = $(this).val();
+		let id_location = $('#id_location').val();
+        let coincidenciasDiv = $('#coincidencias');
 
-		$.ajax({
-			url : `${base_url}/controllers/eventController.php`,
-			type: 'POST',
-			data:formData,
-			cache: false,
-			contentType: false,
-			processData: false,
-			beforeSend: function() {
-			  showSwal();
-			  $('.swal-button-container').hide();
-			}
-		})
-		  .done(function(response) {
-				swal.close();
-				if(response.success==='true'){
-					$('#modal-csv').modal('hide');
-					swal('Success', response.message, "success");
-					$('.swal-button-container').hide();
-					setTimeout(function(){
-						window.location.href = `${base_url}/views/eventsManage.php?id=${id_event.val()}`;
-					}, 1000);
-				}else{
-					swal("Error", response.message, "warning");
+        $.ajax({
+            url: `${base_url}/${baseController}`, // URL ficticia de la API
+            method: 'POST',
+            data: { phone: phoneNumber,id_location:id_location,option:'getContact' },
+            success: function(data) {
+                let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
+                // Limpiar el contenido del div de coincidencias
+                coincidenciasDiv.empty();
+				if (phoneNumber.length==10){
+					coincidenciasDiv.hide();
+					return;
 				}
-		}).fail(function(e) {
-				console.log("Something went wrong",e);
-		});
+                // Mostrar el div de coincidencias si hay coincidencias
+                if (phoneNumber.length > 0 && coincidencias.length > 0) {
+                    coincidenciasDiv.show();
+					let coincidenciasArray = Object.values(coincidencias);
+
+                    // Agregar cada coincidencia como un elemento <p> al div
+                    coincidenciasArray.forEach(function(coincidencia) {
+						coincidenciasDiv.append('<p data-phone="' + coincidencia.phone + '">' + coincidencia.contact_name + '</p>');
+                    });
+                } else {
+                    coincidenciasDiv.hide();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error); // Manejo de errores
+            }
+        });
+    });
+
+	// Manejar la selección de una coincidencia
+	$('#coincidencias').on('click', 'p', function() {
+		let coincidenciaSeleccionada = $(this).text();
+		let phoneNumber = $(this).data('phone');
+		$('#receiver').val(coincidenciaSeleccionada);
+		$('#phone').val(phoneNumber);
+		$('#coincidencias').hide();
+		if($('#action').val()=='new'){
+			$('#btn-scan-code').click();// enable camera
+		}
 	});
 
+	$('#close-qr-b,#close-qr-x').click(function(){
+		let scanner = html5QrcodeScanner;
+		if(scanner!=''){
+			html5QrcodeScanner.clear();
+		}
+	});
+
+	// ----------------------------------------------------
+	$('#mfNumFolio').on('input', function() {
+        let input = $(this).val();
+        input = input.replace(/\D/g, '').slice(0, 3); // Elimina caracteres no numéricos y limita a 10 dígitos
+        $(this).val(input);
+    });
+
+	$('#btn-folio').click(function(){
+		loadModalFolio();
+	});
+
+	$('#mfModo').on('change', function() {
+		let id_mode = $('#mfModo').val();
+		if(id_mode==1){
+			$('#mfNumFolio').val(0);
+			$('#mfNumFolio').prop('disabled', true);
+		}else{
+			$('#mfNumFolio').val('');
+			$('#mfNumFolio').prop('disabled', false);
+			setTimeout(function(){
+				$('#mfNumFolio').focus();
+			}, 250);
+		}
+	});
+
+	async function loadModalFolio() {
+		let foliActual= await getFolio('current');
+		$('#mfFolioActual').val(foliActual);
+		$('#mfIdLocation').val($('#option-location').val());
+		$('#mfModo').val(1);
+		$('#mfNumFolio').val(0);
+		$('#mfNumFolio').prop('disabled', true);
+		$('#modal-folio-title').html('Control de Folios');
+		$('#modal-folio').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
+	$(`#btn-save-folio`).click(function(){
+		if($('#mfNumFolio').val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
+		}
+
+		let formData =  new FormData();
+		formData.append('id_location', $('#mfIdLocation').val());
+		formData.append('mfNumFolio', $('#mfNumFolio').val());
+		formData.append('option', 'saveFolio');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+			})
+			.done(function(response) {
+				if(response.success=='true'){
+					swal(`${response.message}`, "", "success");
+					$('.swal-button-container').hide();
+					$('#modal-folio').modal('hide');
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 1500);
+				}
+			}).fail(function(e) {
+				console.log("Something went wrong",e);
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	});
 });

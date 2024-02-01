@@ -11,18 +11,11 @@
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/solid.css" integrity="sha384-Tv5i09RULyHKMwX0E8wJUqSOaXlyu3SQxORObAI08iUwIalMmN5L6AvlPX2LMoSE" crossorigin="anonymous"/>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/fontawesome.css" integrity="sha384-jLKHWM3JRmfMU0A5x5AkjWkw/EYfGUAGagvnfryNV3F9VqM98XiIH7VBGVoxVSc7" crossorigin="anonymous"/>
-
 <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
-
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 <link href="<?php echo BASE_URL;?>/assets/css/styles.css" rel="stylesheet">
-
 <script src="<?php echo BASE_URL;?>/assets/js/sweetalert.min.js"></script>
 <script>
     let base_url = '<?php echo BASE_URL;?>';
-    let s3MaxLoadBytes = <?php echo MAX_LOAD_BYTES;?>;
-    let s3MaxLoadDesc  = '<?php echo MAX_LOAD_DESC;?>';
-    let codEnzB64      = '<?php echo COD_ENZ_B64;?>';
-    let folder_qr      = '<?php echo FOLDER_QR;?>';
 </script>

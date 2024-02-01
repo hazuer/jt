@@ -32,7 +32,7 @@ $(document).ready(function() {
 				if(response.success==='true'){
 					window.location.href = `${base_url}/views/packages.php`;
 				}else{
-					swal("Error!", "Invalid username or password", "warning");
+					swal("Error!", "Usuario/Contraseña incorrecto", "warning");
 				return false;
 				}
 			}, 1000);

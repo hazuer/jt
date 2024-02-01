@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 define( '_VALID_MOS', 1 );
 
 session_start();
@@ -10,22 +13,37 @@ require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
-$id       = $_GET['id'];
+if(isset($_SESSION['uLocation'])){
+	$_SESSION['uLocation'] = $_SESSION['uLocation'];
+}else{
+	$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
+}
+$id_location = $_SESSION['uLocation'];
 
-$eventUser = $db->select("SELECT * FROM package");
-$totalUsers = $eventIfo[0]['total_users'];
-$userActives = array_count_values(array_column($eventUser, 'status'))[1];
-
-$placeAvailable = $totalUsers - $userActives;
+$sql = "SELECT 
+p.id_package,
+p.tracking,
+p.phone,
+p.id_location,
+p.c_date,
+p.folio,
+p.code,
+p.receiver,
+p.d_date,
+p.d_user_id,
+ce.id_status,
+ce.status_desc 
+FROM package p 
+INNER JOIN cat_status ce ON ce.id_status=p.id_status 
+WHERE 1 
+AND p.id_location IN ($id_location)";
+$packages = $db->select($sql);
 
 ?>
 <!doctype html>
 <html lang = "en">
 	<head>
 		<?php include '../views/header.php'; ?>
-		<?php 
-		#include '../views/dt.php'; 
-		?>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/html5-qrcode.min.js"></script>
@@ -48,99 +66,95 @@ $placeAvailable = $totalUsers - $userActives;
 				color: white;
 				background-color: #5bc0de;
 			}
+
+			#coincidencias {
+				position: absolute;
+				top: calc(100% + 10px); /* Posición debajo del campo #phone */
+				left: 0;
+				width: 100%;
+				max-height: 200px; /* Altura máxima para evitar el desplazamiento */
+				overflow-y: auto; /* Mostrar barra de desplazamiento vertical si es necesario */
+				background-color: white; /* Color de fondo */
+				border: 1px solid #ccc; /* Borde */
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+				z-index: 1000; /* Z-index para que se superponga a otros elementos */
+			}
+
+			#coincidencias p {
+				padding: 10px;
+				margin: 0;
+				cursor: pointer; /* Cambiar el cursor al pasar sobre los elementos de la lista */
+			}
+
+			#coincidencias p:hover {
+				background-color: #f0f0f0; /* Cambiar el color de fondo al pasar el cursor */
+			}
+
 		</style>
 	</head>
 	<body>
 		<div class="main">
-
 			<?php
-				$titleHead = "demo";
 				include '../views/navTop.php';
 			?>
 			<div class="row">
-				<input type="hidden" name="id_event" id="id_event" value="<?php echo $id;?>" >
-				<input type="hidden" name="place_available" id="place_available" value="<?php echo $placeAvailable;?>" >
-				<input type="hidden" name="userActives" id="userActives" value="<?php echo $userActives;?>" >
-				<div class="col-md-12"><label><?php echo $titleHead;?></label></div>
-			</div>
-
-			<div class="row">
 				<div class="col-md-12 row justify-content-end">
-					<div class="btn-group" role="group" aria-label="Basic example">
-					<?php if ($placeAvailable>=1) {	?>
-						<button id="btn-add-user" type="button" class="btn-success btn-sm" title="Add User">
-							<i class="fa fa-user-plus" aria-hidden="true"></i>
+					<div class="btn-group" role="group">
+						<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
+							<i class="fa fa-cube" aria-hidden="true"></i>
 						</button>
-						<button id="btn-load-csv" type="button" class="btn-secondary btn-sm" title="Load CSV">
-							<i class="fa fa-file" aria-hidden="true"></i>
-						</button>
-					<?php } ?>
-					<?php
-					if(!empty($eventUser)){
-					?>
-						<button id="btn-scan-qr" type="button" class="btn-primary btn-sm" title="Scan QR">
-							<i class="fa fa-camera" aria-hidden="true"></i>
-						</button>
-						<button id="btn-check-list" type="button" class="btn-warning btn-sm" title="Check List">
-							<i class="fa fa-check-square" aria-hidden="true" style="color:white;"></i>
-						</button>
-					<?php }?>
 					</div>
 				</div>
 			</div>
 
-      		<?php if(empty($eventUser)): ?>
+      		<?php if(empty($packages)): ?>
 				<div class="alert alert-info" role="alert" style="text-align: center;">
-				There are no registered users in the event, click the button to add a new user <br>
-					<button id="btn-first-user" type="button" class="btn-success btn-sm" title="Add User">
-						<i class="fa fa-user-plus" aria-hidden="true"></i>
-					</button>
-					<button id="btn-first-csv" type="button" class="btn-secondary btn-sm" title="Load CSV">
-						<i class="fa fa-file" aria-hidden="true"></i>
+					No hay paquetes en la ubicacion seleccionada, haz clik en el boton nuevo paquete <br>
+					<button id="btn-first-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
+						<i class="fa fa-cube" aria-hidden="true"></i>
 					</button>
 				</div
 			<?php else: ?>
 				<br />
-				<form id="frm-event">
-					<table id="tbl-event-users" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
+				<form id="frm-package">
+					<table id="tbl-packages" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 						<thead>
 							<tr>
 								<th></th>
-								<th>id_package</th>
-								<th>phone</th>
 								<th>tracking</th>
-								<th>receiver</th>
-								<th>status</th>
 								<th>phone</th>
-								<th>status</th>
-								<th>qr_path</th>
+								<th>id_location</th>
+								<th>c_date</th>
+								<th>folio</th>
+								<th>code</th>
+								<th>receiver</th>
+								<th>d_date</th>
+								<th>d_user_id</th>
+								<th>id_status</th>
+								<th>status_desc</th>
 								<th>Opc.</th>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach($eventUser as $d): ?>
+							<?php foreach($packages as $d): ?>
 								<tr>
 								<td><?php echo $d['id_package']; ?></td>
+								<td id="btn-edit-package" title="Click para editar"><?php echo $d['tracking']; ?></td>
 								<td><?php echo $d['phone']; ?></td>
-								<td><?php echo $d['tracking']; ?></td>
-								<td id="btn-edit-user" title="Click to edit">
-									<?php echo $d['receiver']; ?>
-								</td>
-								<td><?php echo $d['status']; ?></td>
-								<td>.</td>
-								<td>.</td>
-								<td>.</td>
-								<td>.</td>
+								<td><?php echo $d['id_location']; ?></td>
+								<td><?php echo $d['c_date']; ?></td>
+								<td><?php echo $d['folio']; ?></td>
+								<td><?php echo $d['code']; ?></td>
+								<td><?php echo $d['receiver']; ?></td>
+								<td><?php echo $d['d_date']; ?></td>
+								<td><?php echo $d['d_user_id']; ?></td>
+								<td><?php echo $d['id_status']; ?></td>
+								<td><?php echo $d['status_desc']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
-										<div class="col-md-6">
+										<div class="col-md-12">
 											<button type="button" id='btn-records' class="btn-light btn-sm" title="Records">
 												<i class="fa fa-eye" aria-hidden="true"></i>
-											</button>
-										</div>
-										<div class="col-md-6">
-											<button type="button" id='btn-show-qr' class="btn-light btn-sm" title="QR">
-												<i class="fa fa-qrcode" aria-hidden="true"></i>
 											</button>
 										</div>
 									</div>
@@ -153,66 +167,83 @@ $placeAvailable = $totalUsers - $userActives;
 			<?php endif; ?>
 		</div>
 
-		<div class="modal fade" id="modal-user" tabindex="-1" role="dialog" aria-labelledby="modal-user-title" aria-hidden="true">
+		<div class="modal fade" id="modal-package" tabindex="-1" role="dialog" aria-labelledby="modal-package-title" aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-user-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
+						<h3 class="modal-title"><span id="modal-package-title"> </span></h3>
+						<button id="close-qr-x" type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<form id="form-modal-user" name="form-modal-user" class="form" enctype="multipart/form-data">
+						<form id="form-modal-package" name="form-modal-package" class="form" enctype="multipart/form-data">
 							<div class="form-group">
-								<input type="hidden" name="id_event_user" id="id_event_user" value="" >
+								<input type="hidden" name="id_package" id="id_package" value="" >
+								<input type="hidden" name="folio" id="folio" value="" >
 								<input type="hidden" name="action" id="action" value="" >
 							</div>
-
+							<div class="row">
+								<div class="col-md-12" style="text-align: center;">
+									<div id="qr-reader" style="width: 100%;"></div>
+								</div>
+							</div>
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
-										<label for="title">Type:</label>
-										<select name="type_ibo" id="type_ibo" class="form-control">
-											<option value="1">IBO</option>
-											<option value="2">Guest</option>
-										</select>
+										<label for="id_location">Ubicacion:</label>
+										<select name="id_location" id="id_location" class="form-control" disabled>
+										<option value="1">Tlaquiltenango</option>
+										<option value="2">Zacatepec</option>
+									</select>
 									</div>
 								</div>
 								<div class="col-md-6">
 									<div class="form-group">
-										<label for="title" id="lbl-desc-ibo">* IBO Number:</label>
-										<input type="text" class="form-control" name="ibo" id="ibo" value="" autocomplete="off">
+										<label for="c_date">Fecha:</label>
+										<input type="text" class="form-control" name="c_date" id="c_date" value="" disabled>
 									</div>
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
-										<label for="title">* Name:</label>
-										<input type="name" class="form-control" name="name" id="name" value="" autocomplete="off">
+										<label for="phone">* Telefono:</label>
+										<input type="text" class="form-control" name="phone" id="phone" value="" autocomplete="off" >
 									</div>
+									<div id="coincidencias" style="display: none;"></div>
 								</div>
 								<div class="col-md-6">
 									<div class="form-group">
-										<label for="title">* Email:</label>
-										<input type="email" class="form-control" name="email" id="email" value="" autocomplete="off">
+										<label for="receiver">* Nombre:</label>
+										<input type="receiver" class="form-control" name="receiver" id="receiver" value="" autocomplete="off">
+									</div>
+								</div>
+							</div>
+							<div class="row" id="div-scan-tracking">
+								<div class="col-md-2">
+									<label for="btn-scan-code">* Scan:</label>
+									<button id="btn-scan-code" type="button" class="btn-primary btn-sm" title="Scan Code">
+									<i class="fa fa-camera" aria-hidden="true"></i>
+									</button>
+								</div>
+								<div class="col-md-10">
+									<div class="form-group">
+										<label for="tracking">* Tracking:</label>
+										<input type="text" class="form-control" name="tracking" id="tracking" value="" autocomplete="off">
 									</div>
 								</div>
 							</div>
 							<div class="row">
-							<div class="col-md-6">
+								<div class="col-md-6" id="div-status">
 									<div class="form-group">
-										<label for="title">* Phone:</label>
-										<input type="number" class="form-control" name="phone" id="phone" value="" autocomplete="off" minlength="10" maxlength="10" size="10">
-									</div>
-								</div>
-								<div class="col-md-6" id="div-status-user">
-									<div class="form-group">
-										<label for="title">Status:</label>
-										<select name="status" id="status" class="form-control">
-											<option value="1">Active</option>
-											<option value="2">Deleted</option>
+										<label for="id_status">Status:</label>
+										<select name="id_status" id="id_status" class="form-control">
+											<option value="1">Nuevo</option>
+											<option value="2">En Proceso (SMS)</option>
+											<option value="3">Entregado</option>
+											<option value="4">Devuelto</option>
+											<option value="5">Eliminado</option>
 										</select>
 									</div>
 								</div>
@@ -220,13 +251,8 @@ $placeAvailable = $totalUsers - $userActives;
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button id="btn-resend" type="button" class="btn btn-success" title="Just forward sms and mail">
-							<i class="fa fa-paper-plane" aria-hidden="true"></i> Send
-						</button>
-						<button id="btn-save-user" type="button" class="btn btn-success" title="Save">
-							<i class="fa fa-paper-plane" aria-hidden="true"></i> Save and Send
-						</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+						<button id="btn-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
+						<button id="close-qr-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
 						<audio id="beep-sound" style="display: none;">
 								<source src="<?php echo BASE_URL;?>/assets/beep-sound.mp3" type="audio/mpeg">
 						</audio>
@@ -235,139 +261,53 @@ $placeAvailable = $totalUsers - $userActives;
 			</div>
 		</div>
 
-		<div class="modal fade" id="modal-scan-qr" tabindex="-1" role="dialog" aria-labelledby="modal-scan-qr-title" aria-hidden="true">
+		<div class="modal fade" id="modal-folio" tabindex="-1" role="dialog" aria-labelledby="modal-folio-title" aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-scan-qr-title"> </span></h3>
+						<h3 class="modal-title"><span id="modal-folio-title"> </span></h3>
 						<button id="close-qr-x" type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
 						<div class="row">
-							<div class="col-md-12" style="text-align: center;">
-								<div id="qr-reader" style="width: 100%;"></div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="mfIdLocation">Ubicacion:</label>
+									<select name="mfIdLocation" id="mfIdLocation" class="form-control" disabled>
+										<option value="1">Tlaquiltenango</option>
+										<option value="2">Zacatepec</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="mfModo">Modo:</label>
+									<select name="mfModo" id="mfModo" class="form-control">
+										<option value="1">Automatico</option>
+										<option value="2">Personalizado</option>
+									</select>
+								</div>
 							</div>
 						</div>
 						<div class="row">
-						<div class="col-md-1"></div>
-							<div class="col-md-10">
-								<div id="div-rst-scan-qr"></div>
+						<div class="col-md-6">
+								<div class="form-group">
+									<label for="mfFolioActual">Folio Actual:</label>
+									<input type="text" class="form-control" name="mfFolioActual" id="mfFolioActual" value="" autocomplete="off" disabled>
+								</div>
 							</div>
-							<div class="col-md-1"></div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="mfNumFolio">* Folio:</label>
+									<input type="text" class="form-control" name="mfNumFolio" id="mfNumFolio" value="" autocomplete="off" >
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button id="close-qr-b" type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-show-qr" tabindex="-1" role="dialog" aria-labelledby="modal-show-qr-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-show-qr-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-2"></div>
-							<div class="col-md-8" style="text-align: center;">
-								<div id="div-show-qr"></div>
-							</div>
-							<div class="col-md-2"></div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-records" tabindex="-1" role="dialog" aria-labelledby="modal-records-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-records-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div id="tbl-div-records"></div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-csv" tabindex="-1" role="dialog" aria-labelledby="modal-csv-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-csv-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form id="form-modal-csv" name="form-modal-csv" class="form" enctype="multipart/form-data">
-							<div class="row">
-								<div class="col-md-12">
-										<label id="lbl-max-user"></label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="form-group">
-										<div style="position:relative;">
-											<a class='btn btn-primary' href='javascript:;' style="width: 290px;">
-												Choose File...[csv][max size <?php echo MAX_LOAD_DESC; ?>]
-												<input type="file"
-												style='position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";opacity:0;background-color:transparent;color:transparent;'
-												id="file-csv"
-												name="file-csv"
-												size="10"
-												onchange='$("#upload-file-csv").html($(this).val());$("#upload-file-csv").show()'>
-											</a>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-12">
-									<span class="label label-info" id="upload-file-csv"></span>
-								</div>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-save-csv" type="button" class="btn btn-success" title="Save">Save</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-check" tabindex="-1" role="dialog" aria-labelledby="modal-check-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-check-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div id="tbl-div-check"></div>
-					</div>
-					<div class="modal-footer">
+						<button id="btn-save-folio" type="button" class="btn btn-success" title="Guardar">Guardar</button>
 						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
 					</div>
 				</div>

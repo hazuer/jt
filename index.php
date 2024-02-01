@@ -18,7 +18,6 @@ require_once('system/configuration.php');
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
 	</head>
 	<body>
-
 	<section class="vh-100">
 		<div class="container py-5 h-100">
 			<div class="row d-flex justify-content-center align-items-center h-100">
@@ -27,21 +26,18 @@ require_once('system/configuration.php');
 						<div class="card-body p-5 text-center">
 							<div class="mb-md-5 mt-md-4 pb-5">
 								<div class="form-outline mb-4">
-									<img id="profile-img" class="profile-img-card" src="<?php echo BASE_URL;?>/assets/img/logo.png" title="Enzacta"/>
+									<img id="profile-img" class="profile-img-card" src="<?php echo BASE_URL;?>/assets/img/logo.png" title="JT"/>
 								</div>
 								<h4 class="fw-bold mb-2 text-uppercase">J&T Express</h4>
-								<p class="text-dark-50 mb-5">Please enter your username and password!</p>
-
+								<p class="text-dark-50 mb-5">Ingresa tu usuario y contraseña!</p>
 								<div class="form-outline form-dark mb-4">
 									<input type="text" name="username" id="username" title="Username" placeholder="*Username" autofocus autocomplete="off" value="" class="form-control form-control-lg" />
 								</div>
-
 								<div class="form-outline form-dark mb-4">
 									<input type="password" name="password" id="password" title="Password" placeholder="*Password" value="" class="form-control form-control-lg" />
 								</div>
-
 								<div class="form-outline form-dark mb-4">
-								<button name="btn-login" id="btn-login" class="btn btn-outline-success btn-lg px-5" type="submit">Login</button>
+								<button name="btn-login" id="btn-login" class="btn btn-outline-success btn-lg px-5" type="submit">Ingresar</button>
 								</div>
 							</div>
 						</div>
@@ -50,6 +46,5 @@ require_once('system/configuration.php');
 			</div>
 		</div>
 	</section>
-
 	</body>
 </html>

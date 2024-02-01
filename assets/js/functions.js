@@ -2,8 +2,8 @@ $(document).ready(function() {
 
   $("#logoff").click(function(){
     swal({
-    title: "Logoff",
-    text: "Are you sure?",
+    title: "Cerrar sesión",
+    text: "Esta seguro?",
     icon: "warning",
     buttons: true,
     dangerMode: true,
@@ -97,8 +97,8 @@ $(document).ready(function() {
 
   const showSwalGeneric = () => {
 		swal({
-		  title            : "Processing...",
-		  text             : "Please wait",
+		  title            : "Procesando...",
+		  text             : "Espere por favor",
 		  icon             : "img/ajax-loader.gif",
 		  showConfirmButton: false,
 		  allowOutsideClick: false
@@ -108,12 +108,29 @@ $(document).ready(function() {
 	  let s3MaxLoadBytes = 0;
 	  let s3MaxLoadDesc  = '';
 	  //getMaxLoadBytes();
+
+	$('#option-location').on('change', function() {
+		let formData = new FormData();
+		formData.append('id_location',$('#option-location').val());
+		formData.append('option','changeLocation');
+		$.ajax({
+			url : `${base_url}/controllers/packageController.php`,
+			type: 'POST',
+			data:formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+		  })
+		  .done(function(response) {
+			window.location.reload();
+		})
+	});
 });
 
 const showSwal = () => {
 	swal({
-	  title            : "Processing...",
-	  text             : "Please wait",
+	  title            : "Procesando...",
+	  text             : "Espere por favor",
 	  icon             : `${base_url}/assets/img/ajax-loader.gif`,
 	  showConfirmButton: false,
 	  allowOutsideClick: false

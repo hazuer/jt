@@ -22,13 +22,19 @@ switch ($_REQUEST['option']) {
 			try {
 			    $u = $_POST['username'];
 			    $p = $_POST['password'];
-			    $sql ="SELECT * FROM users WHERE 1 AND user='$u' AND password=md5('$p') LIMIT 1";
+			    $sql ="SELECT * FROM users 
+				WHERE 1 
+				AND user = '$u' 
+				AND password = md5('$p') 
+				AND status IN(1)
+				LIMIT 1";
 				$user = $db->select($sql);
 				if(isset($user[0]['id'])) {
-					$_SESSION["uId"]           = $user[0]['id'];
-					$_SESSION["uName"]         = $u;
-					$_SESSION["uActive"]       = true;
-					$result                     = ['success' => 'true'];
+					$_SESSION["uId"]       = $user[0]['id'];
+					$_SESSION["uName"]     = $u;
+					$_SESSION["uLocationDefault"] = $user[0]['id_location_default'];
+					$_SESSION["uActive"]   = true;
+					$result                = ['success' => 'true'];
 				}
 
 				echo json_encode($result);
