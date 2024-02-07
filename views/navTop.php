@@ -11,10 +11,16 @@
 			<button id="btn-folio" type="button" class="btn-sm btn-info" title="Configurar folio">
 				<i class="fa fa-hashtag" aria-hidden="true"></i>
 			</button>
+			<button id="btn-contacto" type="button" class="btn-sm btn-info" title="Contactos">
+				<i class="fa fa-user" aria-hidden="true"></i>
+			</button>
 			<select name="option-location" id="option-location" class="form-control">
 				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
 				<option value="2" <?php echo ($_SESSION['uLocation']==2) ? 'selected': ''; ?> >Zacatepec</option>
 			</select>
+			<button id="btn-send-messages" type="button" class="btn-sm btn-info" title="Enviar mensajes">
+				<i class="fa fa-comment" aria-hidden="true"></i>
+			</button>
 		</div>
 	</div>
 </div>

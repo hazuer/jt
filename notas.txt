@@ -1,0 +1,110 @@
+INSERT INTO u611824705_jt.cat_contact (id_contact, id_location, phone, contact_name, id_contact_type, id_contact_status)
+VALUES
+(null, 1, '7772314822', 'Isidoro Cornelio', 1, 1),
+(null, 1, '7341326995', 'Cirilo Aranda', 1, 1),
+(null, 1, '7341346283', 'Karen Elizabeth Aranda', 1, 1),
+(null, 1, '7341109763', 'Josue Aranda', 1, 1),
+(null, 1, '7341008654', 'Jessica Aranda', 1, 1),
+(null, 1, '7775389909', 'Susana Marcelo', 1, 1),
+(null, 1, '7775248198', 'Brenda Cornelio', 1, 1),
+(null, 1, '7776051993', 'Raul Trejo', 1, 1)
+;
+
+
+INSERT INTO u611824705_jt.package (id_package, id_location, c_date, c_user_id, phone, receiver, tracking, folio, code, d_date, d_user_id, id_status)
+VALUES
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000708989409', 1, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000721188725', 2, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000752857321', 3, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX450016105590', 4, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341008654', 'Jessica Aranda', 'JMX000719718472', 5, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775389909', 'Susana Marcelo', 'JMX000734787126', 6, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775248198', 'Brenda Cornelio', 'JMX000745806595', 7, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7776051993', 'Raul Trejo', 'JMX000717322027', 8, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000713353907', 9, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000711228681', 10, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000722889968', 11, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX450092888634', 12, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341008654', 'Jessica Aranda', 'JMX450042224197', 13, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775389909', 'Susana Marcelo', 'JMX450086073890', 14, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775248198', 'Brenda Cornelio', 'JMX000707821802', 15, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7776051993', 'Raul Trejo', 'JMX000705274195', 16, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000689254611', 17, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000712637782', 18, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000701411129', 19, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX000710160013', 20, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341008654', 'Jessica Aranda', 'JMX000707711281', 21, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775389909', 'Susana Marcelo', 'JMX000690283242', 22, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7775248198', 'Brenda Cornelio', 'JMX450006222967', 23, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7776051993', 'Raul Trejo', 'JMX000696560297', 24, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000708016925', 25, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000707181755', 26, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX000701742285', 27, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000685435860', 28, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000720107991', 29, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX000705999508', 30, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000708839370', 31, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000710124909', 32, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000715701805', 33, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000749306713', 34, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000738505050', 35, NULL, NULL, NULL, 1)
+;
+
+
+
+
+---------------------
+CREATE TABLE `cat_contact_type` (
+  `id_contact_type` int(11) NOT NULL AUTO_INCREMENT,
+  `contact_type` varchar(50) COLLATE utf8_spanish_ci DEFAULT NULL,
+  PRIMARY KEY (`id_contact_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+
+--  - - - - - - 
+SELECT 
+p.id_package,
+p.phone,
+p.tracking,
+ct.contact_type  
+FROM package p
+INNER JOIN cat_contact c ON c.phone=p.phone 
+INNER JOIN cat_contact_type ct ON ct.id_contact_type =c.id_contact_type 
+WHERE  1 
+AND p.id_location IN(1) 
+AND p.id_status IN(1)
+AND ct.id_contact_type IN(1)
+ORDER BY p.phone ASC
+;
+
+
+SELECT 
+p.phone,
+GROUP_CONCAT(tracking) AS trackings
+FROM package p
+INNER JOIN cat_contact c ON c.phone=p.phone 
+INNER JOIN cat_contact_type ct ON ct.id_contact_type =c.id_contact_type 
+WHERE  1 
+AND p.id_location IN(1) 
+AND p.id_status IN(1)
+AND ct.id_contact_type IN(1)
+GROUP BY p.phone
+ORDER BY p.phone ASC
+;
+-- ------------------
+SELECT 
+    p.phone,
+    (SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone LIMIT 1) AS contact_name,
+    COUNT(p.tracking) AS total_trackings,
+    GROUP_CONCAT(p.tracking) AS trackings
+FROM package p
+INNER JOIN cat_contact c ON c.phone = p.phone 
+INNER JOIN cat_contact_type ct ON ct.id_contact_type = c.id_contact_type 
+WHERE  
+    p.id_location IN (1) 
+    AND p.id_status IN (1)
+    AND ct.id_contact_type IN (1)
+GROUP BY p.phone, c.phone
+ORDER BY p.phone ASC;
+
+-- ¡Hola! Tienes un paquete pendiente por recoger en C. Nicolas Bravo 203, Col. Gabriel Tepepa, Tlaquiltenango Mor. Horario: Lun a Vie 10:00-18:00. ¡Gracias!

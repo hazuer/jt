@@ -13,7 +13,7 @@ $(document).ready(function() {
 	let html5QrcodeScanner = '';
 	let divStatusTracking  = $('#div-scan-tracking');
 	let divStatus          = $('#div-status');
-	let qrScaned           = '';
+	//let qrScaned           = '';
 
 	phone.on('input', function() {
         let input = $(this).val();
@@ -41,7 +41,7 @@ $(document).ready(function() {
 			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
 			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
 			{title: `Folio`,        name : `folio`,        data : `folio`},      //5
-			{title: `Code`,         name : `code`,         data : `code`},       //6
+			{title: `d_validity`,   name : `d_validity`,   data : `d_validity`}, //6
 			{title: `Destinatario`, name : `receiver`,     data : `receiver`},   //7
 			{title: `d_date`,       name : `d_date`,       data : `d_date`},     //8
 			{title: `d_user_id`,    name : `d_user_id`,    data : `d_user_id`},  //9
@@ -50,7 +50,7 @@ $(document).ready(function() {
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,3,4,8,9,10], "visible"   : false, "searchable": false, "orderable": false},
+			{ "targets": [0,3,4,6,8,9,10], "visible"   : false, "searchable": false, "orderable": false},
 			{ "orderable": false,"targets": 12 },
 			// { "width": "40%", "targets": [1,2] }
 		],
@@ -148,7 +148,7 @@ $(document).ready(function() {
 	$('#btn-scan-code').click(function(){
 		let counter   = 0;
 		let initialTime = 0;
-		qrScaned ='';
+		//qrScaned ='';
 		function onScanSuccess(decodedText, decodedResult) {
 			if(counter==0){
 				initialTime = getNow();
@@ -163,7 +163,15 @@ $(document).ready(function() {
 			}
 			counter++;
 		}
-		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox : { width: 350, height: 150 } });
+		let config = {
+			fps: 10,
+			qrbox: {width: 400, height: 150},
+			rememberLastUsedCamera: true,
+			// Only support camera scan type.
+			supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+		  };
+		  // { fps: 10, qrbox : { width: 400, height: 150 } }
+		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config);
 		html5QrcodeScanner.render(onScanSuccess);
 	});
 
@@ -211,9 +219,9 @@ $(document).ready(function() {
 		}
 		//console.log('continue');
 		//return;
-		// qrScaned = decodedText+'|'+qrScaned;
+		//// qrScaned = decodedText+'|'+qrScaned;
 		let formData = new FormData();
-		// formData.append('qrScaned',qrScaned);
+		//// formData.append('qrScaned',qrScaned);
 		formData.append('id_package',id_package.val());
 		formData.append('id_location',id_location.val());
 		formData.append('folio',folio.val());
@@ -293,7 +301,7 @@ $(document).ready(function() {
 
                     // Agregar cada coincidencia como un elemento <p> al div
                     coincidenciasArray.forEach(function(coincidencia) {
-						coincidenciasDiv.append('<p data-phone="' + coincidencia.phone + '">' + coincidencia.contact_name + '</p>');
+						coincidenciasDiv.append(`<p data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
                     });
                 } else {
                     coincidenciasDiv.hide();
@@ -307,12 +315,17 @@ $(document).ready(function() {
 
 	// Manejar la selección de una coincidencia
 	$('#coincidencias').on('click', 'p', function() {
-		let coincidenciaSeleccionada = $(this).text();
+		//let coincidenciaSeleccionada = $(this).text();
+		let name        = $(this).data('name');
 		let phoneNumber = $(this).data('phone');
-		$('#receiver').val(coincidenciaSeleccionada);
+		$('#receiver').val(name);
 		$('#phone').val(phoneNumber);
 		$('#coincidencias').hide();
 		if($('#action').val()=='new'){
+			let scanner = html5QrcodeScanner;
+			if(scanner!=''){
+				html5QrcodeScanner.clear();
+			}
 			$('#btn-scan-code').click();// enable camera
 		}
 	});
@@ -322,14 +335,17 @@ $(document).ready(function() {
 		if(scanner!=''){
 			html5QrcodeScanner.clear();
 		}
+		$('#coincidencias').empty();
+		$('#coincidencias').hide();
 	});
 
-	// ----------------------------------------------------
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
         input = input.replace(/\D/g, '').slice(0, 3); // Elimina caracteres no numéricos y limita a 10 dígitos
         $(this).val(input);
     });
+
+// ----------------------------------------------------
 
 	$('#btn-folio').click(function(){
 		loadModalFolio();
@@ -396,4 +412,210 @@ $(document).ready(function() {
 			console.error(error);
 		}
 	});
+
+// ----------------------------------------------------
+	$('#mCPhone').on('input', function() {
+		let input = $(this).val();
+		input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+		$(this).val(input);
+
+		if (input.length === 10) {
+			$('#mCName').focus();
+		}
+	});
+	$('#btn-contacto').click(function(){
+		$('#mCIdLocation').val($('#option-location').val());
+		$('#mCPhone').val('');
+		$('#mCName').val('');
+
+		$('#modal-contacto-title').html('Nuevo Contacto');
+		$('#modal-contacto').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			$('#mCPhone').focus();
+		}, 600);
+	});
+
+	$(`#btn-save-contacto`).click(function(){
+		if($('#mCPhone').val()=='' || $('#mCName').val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
+		}
+
+		let formData =  new FormData();
+		formData.append('id_location', $('#mCIdLocation').val());
+		formData.append('mCPhone', $('#mCPhone').val());
+		formData.append('mCName', $('#mCName').val());
+		formData.append('mCContactType', $('#mCContactType').val());
+		formData.append('mCEstatus', $('#mCEstatus').val());
+		formData.append('option', 'saveContact');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+			})
+			.done(function(response) {
+				if(response.success=='true'){
+					swal(`${response.message}`, "", "success");
+					$('.swal-button-container').hide();
+					$('#modal-contacto').modal('hide');
+					setTimeout(function(){
+						swal.close();
+						//window.location.reload();
+					}, 1500);
+				}
+			}).fail(function(e) {
+				console.log("Something went wrong",e);
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	});
+
+// ----------------------------------------------------
+	$('#mMMessage').on('input', function() {
+		// Obtener el texto ingresado en el textarea
+		var message = $(this).val();
+		// Limitar la longitud del texto a 160 caracteres
+		if (message.length > 160) {
+		// Truncar el texto a 160 caracteres
+		$(this).val(message.slice(0, 160));
+		}
+	});
+
+	$('#btn-send-messages').click(function(){
+		selectMessages();
+	});
+
+	async function selectMessages() {
+		let listPackage = await getPackageNewSms();
+		//console.log(listPackage);
+		generateTable(listPackage);
+
+		$('#mMIdLocation').val($('#option-location').val());
+		$('#mMContactType').val(1);
+		$('#mMEstatus').val(1);
+		let msj=`¡Hola! Tienes un paquete pendiente por recoger en C. Nicolas Bravo 203, Col. Gabriel Tepepa, Tlaquiltenango Mor. Horario: Lun a Vie 10:00-18:00. ¡Gracias!`;
+		$('#mMMessage').val(msj);
+		$('#modal-messages-title').html('Envio de Mensajes');
+		$('#modal-messages').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
+	async function getPackageNewSms() {
+		let listPackage = [];
+		let formData =  new FormData();
+		formData.append('id_location', $('#option-location').val());
+		formData.append('IdContactType', $('#mMContactType').val());
+		formData.append('idStatus', $('#mMEstatus').val());
+		formData.append('option','getPackageNewSms');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+			if(response.success=='true'){
+				listPackage = response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+		return listPackage;
+	}
+
+	// Función para procesar el JSON y generar filas de tabla
+	function generateTable(data) {
+		// Limpiar la tabla
+		$('#tbl-listPackage').empty();
+
+		// Iterar sobre los datos del JSON y generar filas de tabla
+		$.each(data.dataJson, function(index, item) {
+			let row = `<tr>
+				<td>${item.phone}</td>
+				<td>${item.contact_name}</td>
+				<td>${item.total_p}</td>
+				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver Paquetes" data-phone="${item.phone}" data-name="${item.contact_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
+			</tr>`;
+			$('#tbl-listPackage').append(row);
+		});
+
+		$('#tbl-listPackage').on('click', '.btn-idx', function() {
+			let name = $(this).data('name');
+			let trackings = $(this).data('trackings');
+			swal(`${name}`,trackings, "info");
+		});
+	}
+
+	$('#btn-save-messages').click(function(){
+		swal({
+			title: "Enviar Mensajes",
+			text: "Esta seguro?",
+			icon: "info",
+			buttons: true,
+			dangerMode: false,
+			})
+			.then((weContinue) => {
+			  if (weContinue) {
+				//window.location.href = `${base_url}/controllers/indexController.php?option=logoff`;
+				sendAllMessages();
+			  } else {
+				return false;
+			  }
+			});
+	});
+
+	function sendAllMessages() {
+		// Array para almacenar los ids de las filas seleccionadas
+		let selectedIdPhones = [];
+		// Iterar sobre las filas de la tabla
+		$('#tbl-listPackage tr').each(function(index, row) {
+			// Obtener el id de la fila actual
+			let idsx = $(row).find('.btn-idx').data('ids');
+			let phonex = $(row).find('.btn-idx').data('phone');
+			// Si la fila está seleccionada (o si deseas alguna condición específica), agregar el id al array
+			// Por ejemplo, aquí se agrega a todos los ids independientemente de si están seleccionados o no
+			selectedIdPhones.push({ids:idsx,phone:phonex});
+		});
+		let jsonIdPhones = JSON.stringify(selectedIdPhones);
+		//console.log(jsonIdPhones);
+		
+		let formData =  new FormData();
+		formData.append('id_location', $('#mCIdLocation').val());
+		formData.append('idContactType', $('#mCContactType').val());
+		formData.append('message', $('#mMMessage').val());
+		formData.append('jsonIdPhones', jsonIdPhones);
+		formData.append('option', 'sendMessages');
+		$.ajax( {
+		url        : `${base_url}/${baseController}`,
+		type       : 'POST',
+		data       : formData,
+		cache      : false,
+		contentType: false,
+		processData: false,
+		beforeSend : function() {
+				showSwal();
+				$('.swal-button-container').hide();
+			}
+		})
+		.done(function(response) {
+			//setTimeout(function(){
+				swal.close();
+				if(response.success==='true'){
+					swal("Exito!", "Mensajes enviados", "success");
+				}else{
+					swal("Error!", "Ocurrio un error al enviar los sms", "warning");
+				return false;
+				}
+			//}, 1000);
+		}).fail(function(e) {
+			console.log("Something went wrong",e);
+		});
+	}
+
 });
