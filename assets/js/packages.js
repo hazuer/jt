@@ -572,33 +572,37 @@ $(document).ready(function() {
 
 	function sendAllMessages() {
 		// Array para almacenar los ids de las filas seleccionadas
-		let selectedIdPhones = [];
+		let arrayNotification = [];
 		// Iterar sobre las filas de la tabla
 		$('#tbl-listPackage tr').each(function(index, row) {
 			// Obtener el id de la fila actual
-			let idsx = $(row).find('.btn-idx').data('ids');
 			let phonex = $(row).find('.btn-idx').data('phone');
+			let namex = $(row).find('.btn-idx').data('name');
+			let trackingsx = $(row).find('.btn-idx').data('trackings');
+			let idsx = $(row).find('.btn-idx').data('ids');
 			// Si la fila está seleccionada (o si deseas alguna condición específica), agregar el id al array
 			// Por ejemplo, aquí se agrega a todos los ids independientemente de si están seleccionados o no
-			selectedIdPhones.push({ids:idsx,phone:phonex});
+			arrayNotification.push({phone:phonex,
+				name:namex,
+				trackings:trackingsx,
+				ids:idsx
+			});
 		});
-		let jsonIdPhones = JSON.stringify(selectedIdPhones);
-		//console.log(jsonIdPhones);
-		
-		let formData =  new FormData();
+
+		let formData = new FormData();
 		formData.append('id_location', $('#mCIdLocation').val());
 		formData.append('idContactType', $('#mCContactType').val());
 		formData.append('message', $('#mMMessage').val());
-		formData.append('jsonIdPhones', jsonIdPhones);
+		formData.append('arrayNotification', JSON.stringify(arrayNotification));
 		formData.append('option', 'sendMessages');
-		$.ajax( {
-		url        : `${base_url}/${baseController}`,
-		type       : 'POST',
-		data       : formData,
-		cache      : false,
-		contentType: false,
-		processData: false,
-		beforeSend : function() {
+
+		$.ajax({
+			url: `${base_url}/${baseController}`,
+			type: 'POST',
+			data: formData, // Enviar los otros datos como FormData
+			contentType: false, // No establecer contentType para FormData
+			processData: false, // No procesar los datos para FormData
+			beforeSend: function() {
 				showSwal();
 				$('.swal-button-container').hide();
 			}

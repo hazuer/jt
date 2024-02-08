@@ -240,26 +240,35 @@ switch ($_POST['option']) {
 		$id_location   = $_POST['id_location'];
 		$idContactType = $_POST['idContactType'];
 		$message       = $_POST['message'];
-		$arrayIdPhones   = json_decode($_POST['jsonIdPhones'], true);
 
+		$data['id_notification'] = null;
+		$data['id_location']     = $id_location;
+		//$data['n_date']          = date("Y-m-d H:i:s");
+		$data['n_user_id']       = $_SESSION["uId"];
+
+		$data['message']         = $message;
+		$data['id_contact_type'] = $idContactType;
+
+		$arrayNotification   = json_decode($_POST['arrayNotification'], true);
 		try {
 			// Your Account SID and Auth Token from twilio.com/console
 			// To set up environmental variables, see http://twil.io/secure
 			$account_sid = "ACf6823c76da7644c216809dfe186f1f83";
-			$auth_token = "63373225825713f4f604ad2fbb601e02";
+			$auth_token = "e5d89fe6304319829b2cc2afa69a6ac6";
 			// In production, these should be environment variables. E.g.:
 			// $auth_token = $_ENV["TWILIO_AUTH_TOKEN"]
 
 			// A Twilio number you own with SMS capabilities
 			$twilio_number = "+18019013730";
 
-			foreach ($arrayIdPhones as $item) {
-				// Acceder a los valores de cada subarray
+			foreach ($arrayNotification as $item) {
 				$phone = $item['phone'];
-				$ids   = $item['ids'];
+				$data['phone']    = $phone;
+				$data['name']      = $item['name'];
+				$data['trackings'] = $item['trackings'];
 
 				// Imprimir los valores o realizar cualquier otra operación
-				//echo "Phone: ".$phone." Ids: ".$ids. PHP_EOL;
+				//echo "Phone: ".$phone; //.", name:".$name.", trackings:".$trackings.", Ids: ".$ids. PHP_EOL;
 				$client = new Client($account_sid, $auth_token);
 				$response = $client->messages->create(
 					'+52'.$phone,
@@ -268,14 +277,23 @@ switch ($_POST['option']) {
 						'body' => $message
 					)
 				);
+
+				$data['sid']   = 'error al enviar el mensaje';
+				$statusPackage = 6; //Error al enviar SMS
 				if ($response->sid) {
 					// El mensaje se envió correctamente
-					$message_sid = $response->sid; // Obtener el SID del mensaje
-					//echo "Mensaje enviado exitosamente. SID: $message_sid";
-				} else {
-					// Hubo un error al enviar el mensaje
-					//echo "Error al enviar el mensaje: " . $response->errorMessage;
+					//$message_sid = $response->sid; // Obtener el SID del mensaje
+					$data['sid'] = $response->sid;
+					$statusPackage=2; // En Proceso (SMS)
 				}
+
+				//insert in notifications
+				$db->insert('notification',$data);
+				$ids = $item['ids'];
+
+				$upData['id_status'] = $statusPackage;
+				//update status in package
+				$db->update('package',$upData," `id_package` IN($ids)");
 			}
 
 			$success  = 'true';

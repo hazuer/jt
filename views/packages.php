@@ -440,7 +440,7 @@ $packages = $db->select($sql);
 									<tr>
 										<th>Telefono</th>
 										<th>Nombre</th>
-										<th>Total</th>
+										<th>Paquetes</th>
 										<th>Trackings</th>
 									</tr>
 									</thead>
