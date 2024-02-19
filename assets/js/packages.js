@@ -13,7 +13,9 @@ $(document).ready(function() {
 	let html5QrcodeScanner = '';
 	let divStatusTracking  = $('#div-scan-tracking');
 	let divStatus          = $('#div-status');
-	//let qrScaned           = '';
+	let html5QrRelease = '';
+	let listQrScaned = '';
+	let lastResult         = 0;
 
 	phone.on('input', function() {
         let input = $(this).val();
@@ -61,17 +63,8 @@ $(document).ready(function() {
 	});
 
 	$("#btn-first-package, #btn-add-package").click(function(e){
-		let fechaActual = new Date();
 		let idLocation  = $('#option-location').val();
-		// Obteniendo cada parte de la fecha y hora
-		let year     = fechaActual.getFullYear();
-		let mes      = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Agrega un cero al mes si es menor que 10
-		let dia      = String(fechaActual.getDate()).padStart(2, '0'); // Agrega un cero al día si es menor que 10
-		let horas    = String(fechaActual.getHours()).padStart(2, '0'); // Agrega un cero a las horas si es menor que 10
-		let minutos  = String(fechaActual.getMinutes()).padStart(2, '0'); // Agrega un cero a los minutos si es menor que 10
-		let segundos = String(fechaActual.getSeconds()).padStart(2, '0'); // Agrega un cero a los segundos si es menor que 10
-		// Formateando la fecha en el formato deseado
-		let fechaFormateada = `${year}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+		let fechaFormateada = getCurrentDate();
 		let row = {
 			id_package : 0,
 			phone      : '',
@@ -83,6 +76,20 @@ $(document).ready(function() {
 		}
 		loadEventForm(row);
 	});
+
+	function getCurrentDate(){
+		let fechaActual = new Date();
+		// Obteniendo cada parte de la fecha y hora
+		let year     = fechaActual.getFullYear();
+		let mes      = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Agrega un cero al mes si es menor que 10
+		let dia      = String(fechaActual.getDate()).padStart(2, '0'); // Agrega un cero al día si es menor que 10
+		let horas    = String(fechaActual.getHours()).padStart(2, '0'); // Agrega un cero a las horas si es menor que 10
+		let minutos  = String(fechaActual.getMinutes()).padStart(2, '0'); // Agrega un cero a los minutos si es menor que 10
+		let segundos = String(fechaActual.getSeconds()).padStart(2, '0'); // Agrega un cero a los segundos si es menor que 10
+		// Formateando la fecha en el formato deseado
+		let dtCurrent = `${year}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+		return dtCurrent;
+	}
 
 	$(`#tbl-packages tbody`).on( `click`, `#btn-edit-package`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
@@ -148,7 +155,6 @@ $(document).ready(function() {
 	$('#btn-scan-code').click(function(){
 		let counter   = 0;
 		let initialTime = 0;
-		//qrScaned ='';
 		function onScanSuccess(decodedText, decodedResult) {
 			if(counter==0){
 				initialTime = getNow();
@@ -183,18 +189,8 @@ $(document).ready(function() {
 	function readQr(decodedText){
 		try {
 			//->JMXif(cveCod==codEnzB64){
-				//if (decodedText !== lastResult) {
-					tracking.val(decodedText);
-					savePackage(decodedText);
-				//}
-
-				/*if (decodedText == lastResult){
-					swal("QR was scanned!", "", "info");
-					$('.swal-button-container').hide();
-					setTimeout(function(){
-						swal.close();
-					}, 2500);
-				}*/
+				tracking.val(decodedText);
+				savePackage(decodedText);
 			//->}
 		} catch (error) {
 			swal("Invalid QR!", "", "error");
@@ -210,6 +206,12 @@ $(document).ready(function() {
 		savePackage(tracking);
 	});
 
+	
+	$('#btn-erase').click(function(){
+		$('#form-modal-package')[0].reset();
+	});
+
+
 	function savePackage(decodedText) {
 		//console.log('here');
 		//TODO:Validate lengh of tracking 15 caracteres
@@ -219,9 +221,7 @@ $(document).ready(function() {
 		}
 		//console.log('continue');
 		//return;
-		//// qrScaned = decodedText+'|'+qrScaned;
 		let formData = new FormData();
-		//// formData.append('qrScaned',qrScaned);
 		formData.append('id_package',id_package.val());
 		formData.append('id_location',id_location.val());
 		formData.append('folio',folio.val());
@@ -246,7 +246,7 @@ $(document).ready(function() {
 			if(response.success=='true'){
 				if(action.val()=='new'){
 					$('audio#beep-sound')[0].play();
-					html5QrcodeScanner.clear();
+					//TODO::html5QrcodeScanner.clear();
 				}
 				swal(`${response.message}`, "", "success");
 				$('.swal-button-container').hide();
@@ -272,8 +272,8 @@ $(document).ready(function() {
 	$('#tracking').on('focus', function() {
         let valTracking = $(this).val();
         if (valTracking === '') {
-            $(this).val('JMX000');
-			$(this).focus();
+            //$(this).val('JMX000');
+			//$(this).focus();
         }
     });
 
@@ -326,8 +326,9 @@ $(document).ready(function() {
 			if(scanner!=''){
 				html5QrcodeScanner.clear();
 			}
-			$('#btn-scan-code').click();// enable camera
+			//$('#btn-scan-code').click();// enable camera
 		}
+		$('#tracking').focus();
 	});
 
 	$('#close-qr-b,#close-qr-x').click(function(){
@@ -341,7 +342,7 @@ $(document).ready(function() {
 
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
-        input = input.replace(/\D/g, '').slice(0, 3); // Elimina caracteres no numéricos y limita a 10 dígitos
+        input = input.replace(/\D/g, '').slice(0, 5); // Elimina caracteres no numéricos y limita a 10 dígitos
         $(this).val(input);
     });
 
@@ -553,24 +554,6 @@ $(document).ready(function() {
 	}
 
 	$('#btn-save-messages').click(function(){
-		swal({
-			title: "Enviar Mensajes",
-			text: "Esta seguro?",
-			icon: "info",
-			buttons: true,
-			dangerMode: false,
-			})
-			.then((weContinue) => {
-			  if (weContinue) {
-				//window.location.href = `${base_url}/controllers/indexController.php?option=logoff`;
-				sendAllMessages();
-			  } else {
-				return false;
-			  }
-			});
-	});
-
-	function sendAllMessages() {
 		// Array para almacenar los ids de las filas seleccionadas
 		let arrayNotification = [];
 		// Iterar sobre las filas de la tabla
@@ -580,14 +563,35 @@ $(document).ready(function() {
 			let namex = $(row).find('.btn-idx').data('name');
 			let trackingsx = $(row).find('.btn-idx').data('trackings');
 			let idsx = $(row).find('.btn-idx').data('ids');
-			// Si la fila está seleccionada (o si deseas alguna condición específica), agregar el id al array
-			// Por ejemplo, aquí se agrega a todos los ids independientemente de si están seleccionados o no
 			arrayNotification.push({phone:phonex,
 				name:namex,
 				trackings:trackingsx,
 				ids:idsx
 			});
 		});
+
+		if(arrayNotification.length==0){
+			swal("Oops.!", "No hay mensaje para enviar", "warning");
+			return;
+		}
+
+		swal({
+				title: "Enviar Mensajes",
+				text: "Esta seguro?",
+				icon: "info",
+				buttons: true,
+				dangerMode: false,
+			})
+			.then((weContinue) => {
+			  if (weContinue) {
+				sendAllMessages(arrayNotification);
+			  } else {
+				return false;
+			  }
+			});
+	});
+
+	function sendAllMessages(arrayNotification) {
 
 		let formData = new FormData();
 		formData.append('id_location', $('#mCIdLocation').val());
@@ -599,27 +603,189 @@ $(document).ready(function() {
 		$.ajax({
 			url: `${base_url}/${baseController}`,
 			type: 'POST',
-			data: formData, // Enviar los otros datos como FormData
-			contentType: false, // No establecer contentType para FormData
-			processData: false, // No procesar los datos para FormData
+			data: formData,
+			contentType: false,
+			processData: false,
 			beforeSend: function() {
 				showSwal();
 				$('.swal-button-container').hide();
 			}
 		})
 		.done(function(response) {
-			//setTimeout(function(){
 				swal.close();
 				if(response.success==='true'){
 					swal("Exito!", "Mensajes enviados", "success");
+					$('#modal-messages').modal('hide');
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 2500);
 				}else{
 					swal("Error!", "Ocurrio un error al enviar los sms", "warning");
 				return false;
 				}
-			//}, 1000);
 		}).fail(function(e) {
 			console.log("Something went wrong",e);
 		});
 	}
+
+	//------------------------------------------ release
+	$('#btn-release-package').click(function(){
+		$('#mrp-id_location').val($('#option-location').val());
+		let fechaFormateada = getCurrentDate();
+		$('#mrp-date-release').val(fechaFormateada);
+		loadReaderScan();
+
+		$('#modal-release-package-title').html('Entrega de Paquetes');
+		$('#modal-release-package').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			$('#mrp-tracking').focus();
+		}, 600);
+	});
+
+	$('#btn-mrp-scan').click(function(){
+		loadReaderScan()
+	});
+
+	function loadReaderScan(){
+		let counter   = 0;
+		let initialTime        = 0;
+		//let diffTime =0;
+		let titleModal =  'Scan QR';
+		listQrScaned ='';
+		function onScanSuccess(decodedText, decodedResult) {
+
+			if(counter==0){
+				initialTime = getNow();
+				iniScan(decodedText);
+			}else{
+				let now = getNow();
+				let diffTime = Math.abs(now-initialTime);
+				if(diffTime>=3000){
+					iniScan(decodedText);
+					initialTime = getNow();
+				}
+			}
+			counter++;
+		}
+		let config = {
+			fps: 10,
+			qrbox: {width: 400, height: 150},
+			rememberLastUsedCamera: true,
+			// Only support camera scan type.
+			supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+		  };
+		html5QrRelease = new Html5QrcodeScanner("code-reader", config);
+		html5QrRelease.render(onScanSuccess);
+	}
+
+	$('#close-mrp-x,#close-mrp-b').click(function(){
+		let scanner2 = html5QrRelease;
+		if(scanner2!=''){
+			html5QrRelease.clear();
+		}
+		lastResult         = 0;
+	});
+
+
+
+	function iniScan(decodedText){
+		try {
+			//let decodedString = atob(decodedText);
+			//let arrayDecode   = decodedString.split("|");
+			//let cveCod        = atob(arrayDecode[0]);
+
+			//->JMXif(cveCod==codEnzB64){
+				if (decodedText !== lastResult) {
+					$('#mrp-tracking').val(decodedText);
+
+					listQrScaned = decodedText+'|'+listQrScaned;
+					let formData = new FormData();
+					formData.append('id_location',$('#mrp-id_location').val());
+					formData.append('listQrScaned',listQrScaned);
+					formData.append('option','releasePackage');
+					formData.append('tracking',decodedText);
+					$.ajax({
+						url: `${base_url}/${baseController}`,
+						type       : 'POST',
+						data       : formData,
+						cache      : false,
+						contentType: false,
+						processData: false,
+					})
+					.done(function(response) {
+						let tblOpen=`
+						<div style="100%; height:150px; overflow-y:scroll;"><table class="table table-striped" style="width: 100%;">
+						<thead>
+							<tr>
+								<td>#</td>
+								<td>Tracking</td>
+							</tr>
+						</thead>
+						<tbody id="scanned-result-table-body">`;
+						let rows='';
+						let tblClose=`</tbody>
+						</table></div>`;
+						if(response.success=='true'){
+							lastResult   = decodedText;
+							swal(`${decodedText} Scanned`, "", "success");
+							$('.swal-button-container').hide();
+							setTimeout(function(){
+								swal.close();
+							}, 2500);
+							$('audio#beep-sound')[0].play();
+							let dataJson = JSON.parse(response.dataJson);
+							let r=0;
+							dataJson.forEach(element => {
+							r++;
+							rows = rows +`<tr>
+								<td>${r}</td>
+								<td>${element.ibo}</td>
+							</tr>`;
+							});
+							$('#div-rst-scan-qr').html(`${tblOpen} ${rows} ${tblClose}`);
+						}
+						if(response.success=='false'){
+							swal("Attention!", `${response.message}`, "warning");
+							$('.swal-button-container').hide();
+							setTimeout(function(){
+								swal.close();
+							}, 2500);
+							//$('#div-rst-scan-qr').html(``);
+						}
+					}).fail(function(e) {
+						console.log("Something went wrong",e);
+					});
+				}
+
+				if (decodedText == lastResult){
+					swal("QR was scanned!", "", "info");
+					$('.swal-button-container').hide();
+					setTimeout(function(){
+						swal.close();
+					}, 2500);
+				}
+			//->JMX}
+		} catch (error) {
+			$('#div-rst-scan-qr').html(``);
+			swal("Invalid QR!", "", "error");
+			$('.swal-button-container').hide();
+			setTimeout(function(){
+				swal.close();
+			}, 2500);
+		}
+	}
+
+	//-----------------------
+	$('#tracking').on('input', function() {
+		let input = $(this).val();
+		//input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+		//$(this).val(input);
+
+		if (input.length === 15) {
+			// ENTER
+			$('#btn-save').click();
+		}
+	});
 
 });

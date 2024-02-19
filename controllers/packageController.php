@@ -260,7 +260,7 @@ switch ($_POST['option']) {
 
 			// A Twilio number you own with SMS capabilities
 			$twilio_number = "+18019013730";
-
+/*
 			foreach ($arrayNotification as $item) {
 				$phone = $item['phone'];
 				$data['phone']    = $phone;
@@ -294,7 +294,7 @@ switch ($_POST['option']) {
 				$upData['id_status'] = $statusPackage;
 				//update status in package
 				$db->update('package',$upData," `id_package` IN($ids)");
-			}
+			}*/
 
 			$success  = 'true';
 			$dataJson = ['enviados'];
@@ -304,6 +304,32 @@ switch ($_POST['option']) {
 				'dataJson' => [],
 				'message'  => $message
 			];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
+
+	case 'releasePackage':
+		echo "ok";
+		die();
+		try {
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$id_location   = $_POST['id_location'];
+		$IdContactType = $_POST['IdContactType'];
+		$idStatus      = $_POST['idStatus'];
+		
+				$result = [
+					'success'  => $success,
+					'dataJson' => $dataJson,
+					'message'  => $message
+				];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,

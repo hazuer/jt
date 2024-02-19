@@ -36,7 +36,8 @@ ce.status_desc
 FROM package p 
 INNER JOIN cat_status ce ON ce.id_status=p.id_status 
 WHERE 1 
-AND p.id_location IN ($id_location)";
+AND p.id_location IN ($id_location)
+AND p.id_status IN(1,2,6,7)";
 $packages = $db->select($sql);
 
 ?>
@@ -69,7 +70,7 @@ $packages = $db->select($sql);
 
 			#coincidencias {
 				position: absolute;
-				top: calc(100% + 10px); /* Posición debajo del campo #phone */
+				top: calc(100% + 7px); /* Posición debajo del campo #phone */
 				left: 0;
 				width: 100%;
 				max-height: 200px; /* Altura máxima para evitar el desplazamiento */
@@ -87,7 +88,7 @@ $packages = $db->select($sql);
 			}
 
 			#coincidencias p:hover {
-				background-color: #f0f0f0; /* Cambiar el color de fondo al pasar el cursor */
+				background-color: #ADD8E6; /* Cambiar el color de fondo al pasar el cursor */
 			}
 
 		</style>
@@ -97,15 +98,6 @@ $packages = $db->select($sql);
 			<?php
 				include '../views/navTop.php';
 			?>
-			<div class="row">
-				<div class="col-md-12 row justify-content-end">
-					<div class="btn-group" role="group">
-						<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
-							<i class="fa fa-cube" aria-hidden="true"></i>
-						</button>
-					</div>
-				</div>
-			</div>
 
       		<?php if(empty($packages)): ?>
 				<div class="alert alert-info" role="alert" style="text-align: center;">
@@ -168,7 +160,7 @@ $packages = $db->select($sql);
 		</div>
 
 		<div class="modal fade" id="modal-package" tabindex="-1" role="dialog" aria-labelledby="modal-package-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
+			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h3 class="modal-title"><span id="modal-package-title"> </span></h3>
@@ -244,6 +236,8 @@ $packages = $db->select($sql);
 											<option value="3">Entregado</option>
 											<option value="4">Devuelto</option>
 											<option value="5">Eliminado</option>
+											<option value="6">Error al enviar SMS</option>
+											<option value="7">Contactado</option>
 										</select>
 									</div>
 								</div>
@@ -251,6 +245,7 @@ $packages = $db->select($sql);
 						</form>
 					</div>
 					<div class="modal-footer">
+						<button id="btn-erase" type="button" class="btn btn-default" title="Borrar">Borrar</button>
 						<button id="btn-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
 						<button id="close-qr-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
 						<audio id="beep-sound" style="display: none;">
@@ -357,6 +352,7 @@ $packages = $db->select($sql);
 										<option value="1">Sms</option>
 										<option value="2">WhatsApp</option>
 										<option value="3">Casa</option>
+										<option value="4">Domicilio</option>
 									</select>
 								</div>
 							</div>
@@ -454,6 +450,74 @@ $packages = $db->select($sql);
 					<div class="modal-footer">
 						<button id="btn-save-messages" type="button" class="btn btn-success" title="Enviar">Enviar</button>
 						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal fade" id="modal-release-package" tabindex="-1" role="dialog" aria-labelledby="modal-release-package-title" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="modal-title"><span id="modal-release-package-title"> </span></h3>
+						<button id="close-mrp-x" type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form id="form-modal-release-package" name="form-modal-release-package" class="form" enctype="multipart/form-data">
+							<div class="row">
+								<div class="col-md-12" style="text-align: center;">
+									<div id="code-reader" style="width: 100%;"></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="mrp-id_location">Ubicacion:</label>
+										<select name="mrp-id_location" id="mrp-id_location" class="form-control" disabled>
+										<option value="1">Tlaquiltenango</option>
+										<option value="2">Zacatepec</option>
+									</select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="mrp-date-release">Fecha:</label>
+										<input type="text" class="form-control" name="mrp-date-release" id="mrp-date-release" value="" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label for="btn-mrp-scan">* Scan:</label>
+									<button id="btn-mrp-scan" type="button" class="btn-primary btn-sm" title="Scan Code">
+									<i class="fa fa-camera" aria-hidden="true"></i>
+									</button>
+								</div>
+								<div class="col-md-10">
+									<div class="form-group">
+										<label for="mrp-tracking">* Tracking:</label>
+										<input type="text" class="form-control" name="mrp-tracking" id="mrp-tracking" value="" autocomplete="off">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-1"></div>
+								<div class="col-md-10">
+									<div id="div-rst-scan-qr"></div>
+								</div>
+								<div class="col-md-1"></div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
+						<button id="close-mrp-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
+						<audio id="beep-sound" style="display: none;">
+								<source src="<?php echo BASE_URL;?>/assets/beep-sound.mp3" type="audio/mpeg">
+						</audio>
 					</div>
 				</div>
 			</div>
