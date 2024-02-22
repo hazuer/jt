@@ -39,7 +39,7 @@ $(document).ready(function() {
 		"columns" : [
 			{title: `id_package`,   name : `id_package`,   data : `id_package`}, //0
 			{title: `Tracking`,     name : `tracking`,     data : `tracking`},   //1
-			{title: `Phone`,        name : `phone`,        data : `phone`},      //2
+			{title: `Télefono`,     name : `phone`,        data : `phone`},      //2
 			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
 			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
 			{title: `Folio`,        name : `folio`,        data : `folio`},      //5
@@ -48,12 +48,14 @@ $(document).ready(function() {
 			{title: `d_date`,       name : `d_date`,       data : `d_date`},     //8
 			{title: `d_user_id`,    name : `d_user_id`,    data : `d_user_id`},  //9
 			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //10
-			{title: `Status`,       name : `status_desc`,  data : `status_desc`} //11 + 1
+			{title: `Status`,       name : `status_desc`,  data : `status_desc`},//11
+			{title: `note`,         name : `note`,         data : `note`},        //12
+			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //13 + 1 last
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,3,4,6,8,9,10], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 12 },
+			{ "targets": [0,3,4,6,8,9,10,12,13], "visible"   : false, "searchable": false, "orderable": false},
+			{ "orderable": false,"targets": 14 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
 		'select': {
@@ -72,7 +74,9 @@ $(document).ready(function() {
 			c_date     : fechaFormateada,
 			id_status  : 1,
 			tracking   : '',
-			id_status  : 1
+			id_status  : 1,
+			note       : '',
+			id_contact : 0,
 		}
 		loadEventForm(row);
 	});
@@ -103,13 +107,16 @@ $(document).ready(function() {
 		divStatus.hide();
 
 		id_package.val(row.id_package);
+		$('#id_contact').val(row.id_contact);
 		phone.val(row.phone);
 		id_location.val(row.id_location);
 		c_date.val(row.c_date);
 		receiver.val(row.receiver);
 		tracking.val(row.tracking);
 		id_status.val(row.id_status);
+		$('#note').val(row.note);
 		action.val('new');
+		$('#btn-erase').show();
 
 		if(row.id_package!=0){
 			divStatusTracking.hide();
@@ -117,6 +124,14 @@ $(document).ready(function() {
 			folio.val(row.folio);
 			titleModal=`Editar Paquete ${row.folio}`;
 			action.val('update');
+			$('#phone').prop('disabled', false);
+			$('#receiver').prop('disabled', false);
+			
+			if(row.id_status!=1){
+				$('#phone').prop('disabled', true);
+				$('#receiver').prop('disabled', true);
+			}
+			$('#btn-erase').hide();
 		}else{
 			let newFolio = await getFolio('new');
 			folio.val(newFolio);
@@ -208,7 +223,14 @@ $(document).ready(function() {
 
 	
 	$('#btn-erase').click(function(){
-		$('#form-modal-package')[0].reset();
+		//$('#form-modal-package')[0].reset();
+		//let fechaFormateada = getCurrentDate();
+		//$('#c_date').val(fechaFormateada);
+		$('#id_contact').val(0);
+		$('#phone').val('');
+		$('#receiver').val('');
+		$('#tracking').val('');
+		$('#phone').focus();
 	});
 
 
@@ -219,8 +241,28 @@ $(document).ready(function() {
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
 		}
-		//console.log('continue');
-		//return;
+
+		let p = phone.val().trim(); // Eliminar espacios en blanco al inicio y al final
+		if (p.length!=10){
+			console.log(p.length);
+			swal("Atención!", "* El número de télefono no es válido", "error");
+			return;
+		}
+
+		let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+		if (t.length !== 15 || t.substr(0, 3) !== "JMX") {
+			let mensajeError = "* Código de barras no válido:";
+			if (t.length !== 15) {
+				mensajeError += " Debe tener 15 caracteres.";
+			} else {
+				mensajeError += " Debe comenzar con 'JMX'.";
+			}
+			swal("Atención!", mensajeError, "error");
+			return;
+		}
+
+		// console.log('continue');
+		// return;
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
 		formData.append('id_location',id_location.val());
@@ -228,10 +270,12 @@ $(document).ready(function() {
 		formData.append('c_date',c_date.val());
 		formData.append('phone',phone.val());
 		formData.append('receiver',receiver.val());
+		formData.append('id_contact',$('#id_contact').val());
 		formData.append('tracking',decodedText);
 		formData.append('id_status',id_status.val());
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
+		formData.append('note',$('#note').val());
 
 		$.ajax({
 			url        : `${base_url}/${baseController}`,
@@ -258,14 +302,14 @@ $(document).ready(function() {
 
 			}
 			if(response.success=='false'){
-				swal("Attention!", `${response.message}`, "info");
+				swal("Atención!", `${response.message}`, "info");
 				$('.swal-button-container').hide();
 				setTimeout(function(){
 					swal.close();
 				}, 3500);
 			}
 		}).fail(function(e) {
-			console.log("Something went wrong",e);
+			console.log("Opps algo salio mal",e);
 		});
 	}
 
@@ -290,6 +334,8 @@ $(document).ready(function() {
                 let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
                 // Limpiar el contenido del div de coincidencias
                 coincidenciasDiv.empty();
+				$('#id_contact').val(0);
+				$('#receiver').val('');
 				if (phoneNumber.length==10){
 					coincidenciasDiv.hide();
 					return;
@@ -301,7 +347,7 @@ $(document).ready(function() {
 
                     // Agregar cada coincidencia como un elemento <p> al div
                     coincidenciasArray.forEach(function(coincidencia) {
-						coincidenciasDiv.append(`<p data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
+						coincidenciasDiv.append(`<p data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}" data-idcontact="${coincidencia.id_contact}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
                     });
                 } else {
                     coincidenciasDiv.hide();
@@ -318,8 +364,10 @@ $(document).ready(function() {
 		//let coincidenciaSeleccionada = $(this).text();
 		let name        = $(this).data('name');
 		let phoneNumber = $(this).data('phone');
+		let id_contact = $(this).data('idcontact');
 		$('#receiver').val(name);
 		$('#phone').val(phoneNumber);
+		$('#id_contact').val(id_contact);
 		$('#coincidencias').hide();
 		if($('#action').val()=='new'){
 			let scanner = html5QrcodeScanner;
@@ -407,7 +455,7 @@ $(document).ready(function() {
 					}, 1500);
 				}
 			}).fail(function(e) {
-				console.log("Something went wrong",e);
+				console.log("Opps algo salio mal",e);
 			});
 		} catch (error) {
 			console.error(error);
@@ -469,7 +517,7 @@ $(document).ready(function() {
 					}, 1500);
 				}
 			}).fail(function(e) {
-				console.log("Something went wrong",e);
+				console.log("Opps algo salio mal",e);
 			});
 		} catch (error) {
 			console.error(error);
@@ -539,9 +587,9 @@ $(document).ready(function() {
 		$.each(data.dataJson, function(index, item) {
 			let row = `<tr>
 				<td>${item.phone}</td>
-				<td>${item.contact_name}</td>
+				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
-				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver Paquetes" data-phone="${item.phone}" data-name="${item.contact_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
+				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver Paquetes" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
 			</tr>`;
 			$('#tbl-listPackage').append(row);
 		});
@@ -571,13 +619,13 @@ $(document).ready(function() {
 		});
 
 		if(arrayNotification.length==0){
-			swal("Oops.!", "No hay mensaje para enviar", "warning");
+			swal("Oops.!", "No hay mensajes para enviar", "warning");
 			return;
 		}
 
 		swal({
 				title: "Enviar Mensajes",
-				text: "Esta seguro?",
+				text: "Está seguro?",
 				icon: "info",
 				buttons: true,
 				dangerMode: false,
@@ -625,7 +673,7 @@ $(document).ready(function() {
 				return false;
 				}
 		}).fail(function(e) {
-			console.log("Something went wrong",e);
+			console.log("Opps algo salio mal",e);
 		});
 	}
 
@@ -746,7 +794,7 @@ $(document).ready(function() {
 							$('#div-rst-scan-qr').html(`${tblOpen} ${rows} ${tblClose}`);
 						}
 						if(response.success=='false'){
-							swal("Attention!", `${response.message}`, "warning");
+							swal("Atención!", `${response.message}`, "warning");
 							$('.swal-button-container').hide();
 							setTimeout(function(){
 								swal.close();
@@ -754,7 +802,7 @@ $(document).ready(function() {
 							//$('#div-rst-scan-qr').html(``);
 						}
 					}).fail(function(e) {
-						console.log("Something went wrong",e);
+						console.log("Opps algo salio mal",e);
 					});
 				}
 
@@ -778,11 +826,8 @@ $(document).ready(function() {
 
 	//-----------------------
 	$('#tracking').on('input', function() {
-		let input = $(this).val();
-		//input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
-		//$(this).val(input);
-
-		if (input.length === 15) {
+		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
+		if (input.length === 15 && input.substr(0, 3) === "JMX") {
 			// ENTER
 			$('#btn-save').click();
 		}

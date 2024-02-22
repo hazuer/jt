@@ -32,7 +32,9 @@ p.receiver,
 p.d_date,
 p.d_user_id,
 ce.id_status,
-ce.status_desc 
+ce.status_desc,
+p.note,
+p.id_contact 
 FROM package p 
 INNER JOIN cat_status ce ON ce.id_status=p.id_status 
 WHERE 1 
@@ -124,6 +126,8 @@ $packages = $db->select($sql);
 								<th>d_user_id</th>
 								<th>id_status</th>
 								<th>status_desc</th>
+								<th>note</th>
+								<th>id_contact</th>
 								<th>Opc.</th>
 							</tr>
 						</thead>
@@ -142,6 +146,8 @@ $packages = $db->select($sql);
 								<td><?php echo $d['d_user_id']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
 								<td><?php echo $d['status_desc']; ?></td>
+								<td><?php echo $d['note']; ?></td>
+								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-12">
@@ -171,9 +177,10 @@ $packages = $db->select($sql);
 					<div class="modal-body">
 						<form id="form-modal-package" name="form-modal-package" class="form" enctype="multipart/form-data">
 							<div class="form-group">
-								<input type="hidden" name="id_package" id="id_package" value="" >
-								<input type="hidden" name="folio" id="folio" value="" >
-								<input type="hidden" name="action" id="action" value="" >
+								<input type="text" name="id_package" id="id_package" value="" >
+								<input type="text" name="folio" id="folio" value="" >
+								<input type="text" name="id_contact" id="id_contact" value="" >
+								<input type="text" name="action" id="action" value="" >
 							</div>
 							<div class="row">
 								<div class="col-md-12" style="text-align: center;">
@@ -226,8 +233,8 @@ $packages = $db->select($sql);
 									</div>
 								</div>
 							</div>
-							<div class="row">
-								<div class="col-md-6" id="div-status">
+							<div class="row" id="div-status">
+								<div class="col-md-6">
 									<div class="form-group">
 										<label for="id_status">Status:</label>
 										<select name="id_status" id="id_status" class="form-control">
@@ -239,6 +246,12 @@ $packages = $db->select($sql);
 											<option value="6">Error al enviar SMS</option>
 											<option value="7">Contactado</option>
 										</select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="note">Nota:</label>
+										<input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
 									</div>
 								</div>
 							</div>

@@ -48,24 +48,44 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error to process request';
-
+		$message  = 'Error al guardar la infomación del paquete';
+		$data['id_location'] = $_POST['id_location'];
 		$data['phone']       = $_POST['phone'];
 		$data['receiver']    = $_POST['receiver'];
 		$data['id_status']   = $_POST['id_status'];
+		$data['note']        = $_POST['note'];
+		$id_contact          = $_POST['id_contact'];
 
 		$action              = $_POST['action'];
 		try {
+			//if($id_contact==0 || empty($id_contact)){
+				//chec if no exist phone and receiver
+			$sqlContactCheck = "SELECT COUNT(phone) tContact FROM cat_contact WHERE phone in ('".$data['phone']."') and contact_name in('".$data['receiver']."')";
+			$rstContactCheck = $db->select($sqlContactCheck);
+			$tContact = $rstContactCheck[0]['tContact'];
+			if($tContact==0){
+				$contact['id_location']       = $data['id_location'];
+				$contact['phone']             = $data['phone'];
+				$contact['contact_name']      = $data['receiver'];
+				$contact['id_contact_type']   = 1; //SMS
+				$contact['id_contact_status'] = 1;
+				$contact['id_contact']  = null;
+				$id_contact = $db->insert('cat_contact',$contact);
+			}
+			//}
+
+			$data['id_contact']  = $id_contact;
+
 			switch ($action) {
 				case 'update':
 					$id        = $_POST['id_package'];
 					$success  = 'true';
 					$dataJson = $db->update('package',$data," `id_package` = $id");
-					$message  = 'Upgraded';
+					$message  = 'Actualizado';
 				break;
 				case 'new':
+
 					$data['id_package']  = null;
-					$data['id_location'] = $_POST['id_location'];
 					$data['folio']       = $_POST['folio'];
 					$data['c_date']      = $_POST['c_date'];
 					$data['c_user_id']   = $_SESSION["uId"];
@@ -77,11 +97,11 @@ switch ($_POST['option']) {
 						//TODO: check if folio was delivered or canceled| reconsider
 						$success  = 'true';
 						$dataJson = $db->insert('package',$data);
-						$message  = 'Registered';
+						$message  = 'Registrado';
 					}else{
 						$success  = 'false';
 						$dataJson = [];
-						$message  = 'Tracking already exist';
+						$message  = 'El código ya esta registrado';
 					}
 
 				break;
@@ -108,14 +128,14 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error to process request';
+		$message  = 'Error al guardar el folio';
 
 		$id_location      = $_POST['id_location'];
 		$data['folio']    = $_POST['mfNumFolio'];
 		try {
 			$success  = 'true';
 			$dataJson = $db->update('folio',$data," `id_location` = $id_location");
-			$message  = 'Upgraded';
+			$message  = 'Actualizado';
 			$result = [
 				'success'  => $success,
 				'dataJson' => $dataJson,
@@ -135,15 +155,15 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error to process request';
+		$message  = 'Error al obtener la información de contactos';
 
 		$phone       = $_POST['phone'];
 		$id_location = $_POST['id_location'];
 		try {
 			$success  = 'true';
-			$sqlContact = "SELECT contact_name,phone FROM cat_contact WHERE phone LIKE '%$phone%' AND id_location IN($id_location) AND id_contact_status IN(1) ORDER BY contact_name ASC LIMIT 10";
+			$sqlContact = "SELECT id_contact,contact_name,phone FROM cat_contact WHERE phone LIKE '%$phone%' AND id_location IN($id_location) AND id_contact_status IN(1) ORDER BY contact_name ASC LIMIT 10";
 			$dataJson = $db->select($sqlContact);
-			$message  = 'Conactact';
+			$message  = 'ok';
 			$result = [
 				'success'  => $success,
 				'dataJson' => $dataJson,
@@ -163,7 +183,7 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error to process request';
+		$message  = 'Error al guardar el contacto';
 
 		 $data['id_location']       = $_POST['id_location'];
 		 $data['phone']             = $_POST['mCPhone'];
@@ -175,7 +195,7 @@ switch ($_POST['option']) {
 			$data['id_contact']  = null;
 			$success  = 'true';
 			$dataJson = $db->insert('cat_contact',$data);
-			$message  = 'Added';
+			$message  = 'Registrado';
 			$result = [
 				'success'  => $success,
 				'dataJson' => $dataJson,
@@ -196,24 +216,28 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
+		$message  = 'Error listar los envios para sms';
 		$id_location   = $_POST['id_location'];
 		$IdContactType = $_POST['IdContactType'];
 		$idStatus      = $_POST['idStatus'];
 		$sql="SELECT 
-				p.phone,
-				(SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone LIMIT 1) AS contact_name,
-				COUNT(p.tracking) AS total_p,
-				GROUP_CONCAT(p.tracking) AS trackings,
-				GROUP_CONCAT(p.id_package) AS ids 
-			FROM package p 
-			INNER JOIN cat_contact c ON c.phone = p.phone 
-			INNER JOIN cat_contact_type ct ON ct.id_contact_type = c.id_contact_type 
-			WHERE 
-				p.id_location IN (1) 
-				AND p.id_status IN (1) 
-				AND ct.id_contact_type IN (1) 
-				GROUP BY p.phone, c.phone 
-				ORDER BY p.phone ASC";
+		p.phone,
+		COUNT(p.tracking) AS total_p,
+		if((SELECT count(cc.contact_name) FROM cat_contact cc WHERE cc.phone = c.phone)=1,
+			(SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone),
+			CONCAT((SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone LIMIT 1),' <b>+',(SELECT count(cc.contact_name) FROM cat_contact cc WHERE cc.phone = c.phone)-1,'</b>')
+		) AS main_name,
+		GROUP_CONCAT(p.tracking) AS trackings,
+		GROUP_CONCAT(p.id_package) AS ids 
+	FROM package p 
+	INNER JOIN cat_contact c ON c.phone=p.phone AND c.contact_name=p.receiver 
+	INNER JOIN cat_contact_type ct ON ct.id_contact_type = c.id_contact_type 
+	WHERE 
+		p.id_location IN ($id_location) 
+		AND p.id_status IN (1) 
+		AND ct.id_contact_type IN (1) 
+		GROUP BY p.phone,main_name 
+		ORDER BY p.phone ASC";
 				$success  = 'true';
 				$dataJson = $db->select($sql);
 				$message  = 'ok';
