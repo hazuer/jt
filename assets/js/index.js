@@ -6,7 +6,7 @@ $(document).ready(function() {
 	btn_login.click(function(){
 
 		if(username.val()=='' || password.val()==''){
-			swal("Attention!", "Required fields (*)", "warning");
+			swal("Atención!", "Campos requeridos (*)", "warning");
 			return false;
 		}
 

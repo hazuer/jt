@@ -38,7 +38,7 @@ $(document).ready(function() {
         "scrollCollapse": true,
 		"columns" : [
 			{title: `id_package`,   name : `id_package`,   data : `id_package`}, //0
-			{title: `Tracking`,     name : `tracking`,     data : `tracking`},   //1
+			{title: `Guía`,     name : `tracking`,     data : `tracking`},   //1
 			{title: `Télefono`,     name : `phone`,        data : `phone`},      //2
 			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
 			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
@@ -48,7 +48,7 @@ $(document).ready(function() {
 			{title: `d_date`,       name : `d_date`,       data : `d_date`},     //8
 			{title: `d_user_id`,    name : `d_user_id`,    data : `d_user_id`},  //9
 			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //10
-			{title: `Status`,       name : `status_desc`,  data : `status_desc`},//11
+			{title: `Estatus`,       name : `status_desc`,  data : `status_desc`},//11
 			{title: `note`,         name : `note`,         data : `note`},        //12
 			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //13 + 1 last
 		],
@@ -133,7 +133,7 @@ $(document).ready(function() {
 			folio.val(row.folio);
 			titleModal=`Editar Paquete ${row.folio}`;
 			action.val('update');
-			
+
 			if(row.id_status!=1){
 				$('#phone').prop('disabled', true);
 				$('#receiver').prop('disabled', true);
@@ -228,9 +228,6 @@ $(document).ready(function() {
 
 	
 	$('#btn-erase').click(function(){
-		//$('#form-modal-package')[0].reset();
-		//let fechaFormateada = getCurrentDate();
-		//$('#c_date').val(fechaFormateada);
 		$('#id_contact').val(0);
 		$('#phone').val('');
 		$('#receiver').val('');

@@ -121,7 +121,7 @@ $packages = $db->select($sql);
 						<thead>
 							<tr>
 								<th></th>
-								<th>tracking</th>
+								<th>guia</th>
 								<th>phone</th>
 								<th>id_location</th>
 								<th>c_date</th>
@@ -228,13 +228,13 @@ $packages = $db->select($sql);
 							<div class="row" id="div-scan-tracking">
 								<div class="col-md-2">
 									<label for="btn-scan-code">* Scan:</label>
-									<button id="btn-scan-code" type="button" class="btn-primary btn-sm" title="Scan Code">
+									<button id="btn-scan-code" type="button" class="btn-primary btn-sm" title="Iniciar Escaner">
 									<i class="fa fa-camera" aria-hidden="true"></i>
 									</button>
 								</div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="tracking">* Tracking:</label>
+										<label for="tracking">* Guía:</label>
 										<input type="text" class="form-control" name="tracking" id="tracking" value="" autocomplete="off">
 									</div>
 								</div>
@@ -278,7 +278,7 @@ $packages = $db->select($sql);
 				<div class="modal-content">
 					<div class="modal-header">
 						<h3 class="modal-title"><span id="modal-folio-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
@@ -320,7 +320,7 @@ $packages = $db->select($sql);
 					</div>
 					<div class="modal-footer">
 						<button id="btn-save-folio" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
 					</div>
 				</div>
 			</div>
@@ -331,7 +331,7 @@ $packages = $db->select($sql);
 				<div class="modal-content">
 					<div class="modal-header">
 						<h3 class="modal-title"><span id="modal-contacto-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
@@ -388,7 +388,7 @@ $packages = $db->select($sql);
 					</div>
 					<div class="modal-footer">
 						<button id="btn-save-contacto" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Cerrar</button>
 					</div>
 				</div>
 			</div>
@@ -399,7 +399,7 @@ $packages = $db->select($sql);
 				<div class="modal-content">
 					<div class="modal-header">
 						<h3 class="modal-title"><span id="modal-messages-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Close">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
@@ -451,7 +451,7 @@ $packages = $db->select($sql);
 										<th>Télefono</th>
 										<th>Nombre</th>
 										<th>Paquetes</th>
-										<th>Trackings</th>
+										<th>Guías</th>
 									</tr>
 									</thead>
 									<tbody id="tbl-listPackage">
@@ -463,7 +463,7 @@ $packages = $db->select($sql);
 					</div>
 					<div class="modal-footer">
 						<button id="btn-save-messages" type="button" class="btn btn-success" title="Enviar">Enviar</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Cerrar</button>
 					</div>
 				</div>
 			</div>
@@ -505,14 +505,14 @@ $packages = $db->select($sql);
 							</div>
 							<div class="row">
 								<div class="col-md-2">
-									<label for="btn-mrp-scan">* Scan:</label>
-									<button id="btn-mrp-scan" type="button" class="btn-primary btn-sm" title="Scan Code">
+									<label for="btn-mrp-scan">* Escaner:</label>
+									<button id="btn-mrp-scan" type="button" class="btn-primary btn-sm" title="Iniciar Escaner">
 									<i class="fa fa-camera" aria-hidden="true"></i>
 									</button>
 								</div>
 								<div class="col-md-10">
 									<div class="form-group">
-										<label for="mrp-tracking">* Tracking:</label>
+										<label for="mrp-tracking">* Guía:</label>
 										<input type="text" class="form-control" name="mrp-tracking" id="mrp-tracking" value="" autocomplete="off">
 									</div>
 								</div>
@@ -522,9 +522,9 @@ $packages = $db->select($sql);
 								<table class="table" id="tablaPaquetes">
 								<thead>
 									<tr>
-										<th>Tracking</th>
-										<th>Phone</th>
-										<th>Receiver</th>
+										<th>Guía</th>
+										<th>Télefono</th>
+										<th>Destinatario</th>
 										<th>Folio</th>
 									</tr>
 								</thead>
@@ -537,7 +537,7 @@ $packages = $db->select($sql);
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Guardar">Liberar</button>
+						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Liberar">Liberar</button>
 						<button id="close-mrp-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
 					</div>
 				</div>
