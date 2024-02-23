@@ -275,7 +275,7 @@ switch ($_POST['option']) {
 		$arrayNotification   = json_decode($_POST['arrayNotification'], true);
 
 			$account_sid   = "ACf6823c76da7644c216809dfe186f1f83";
-			$auth_token    = "a1450c2728db835dfc4b52bef586b583";
+			$auth_token    = "655bbef60ff32b4ac59a1a354f15432d";
 			$twilio_number = "+18019013730";
 
 			$totalSms    = COUNT($arrayNotification);
