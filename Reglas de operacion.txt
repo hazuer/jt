@@ -1,0 +1,17 @@
+Los usuarios tienen asignada una ubicacion por defecto
+Cada ubicacion controla de forma independiente, usuarios, folios y paquetes, etc
+Los folios son unicos por cada ubicacion
+Los numeros de guia son unicos y no se permite registrarlo dos veces
+Los codigos de las guias deben tener 15 digitos y comenzar con JMX
+Si el numero de telefono no existe se registra en automatico
+Se puede registrar el mismo numero de telefono con mas de un nombre de contacto
+-----------
+Se listara y agrupara por numero de telefono y en caso de que el numero de telefono tenga mas de un paquete con diferente nombre se toma un nombre
+Solo se podra enviar mensajes a los paquetes con estatus nuevo
+-----------
+para que un paquete pueda ser liberado este debe estar en los estatus:
+2	SMS Enviado
+7	Contactado
+
+
+id del cat contact no puede ser 0

@@ -23,20 +23,26 @@ $id_location = $_SESSION['uLocation'];
 $sql = "SELECT 
 p.id_package,
 p.tracking,
-p.phone,
+cc.phone,
 p.id_location,
 p.c_date,
 p.folio,
 p.d_validity,
-p.receiver,
+CASE 
+    WHEN DATEDIFF(NOW(), p.c_date) >= 5 THEN 'background-color: #FF9999;'
+    WHEN DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FFFF99;'
+    ELSE ''
+END AS styleCtrlDays,
+cc.contact_name receiver,
 p.d_date,
 p.d_user_id,
-ce.id_status,
-ce.status_desc,
+cs.id_status,
+cs.status_desc,
 p.note,
 p.id_contact 
 FROM package p 
-INNER JOIN cat_status ce ON ce.id_status=p.id_status 
+INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+INNER JOIN cat_status cs ON cs.id_status=p.id_status 
 WHERE 1 
 AND p.id_location IN ($id_location)
 AND p.id_status IN(1,2,6,7)";
@@ -133,9 +139,9 @@ $packages = $db->select($sql);
 						</thead>
 						<tbody>
 							<?php foreach($packages as $d): ?>
-								<tr>
+								<tr style="<?php echo $d['styleCtrlDays']; ?>">
 								<td><?php echo $d['id_package']; ?></td>
-								<td id="btn-edit-package" title="Click para editar"><?php echo $d['tracking']; ?></td>
+								<td><?php echo $d['tracking']; ?></td>
 								<td><?php echo $d['phone']; ?></td>
 								<td><?php echo $d['id_location']; ?></td>
 								<td><?php echo $d['c_date']; ?></td>
@@ -151,8 +157,8 @@ $packages = $db->select($sql);
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-12">
-											<button type="button" id='btn-records' class="btn-light btn-sm" title="Records">
-												<i class="fa fa-eye" aria-hidden="true"></i>
+											<button type="button" id='btn-records' class="btn-info btn-sm" title="Editar">
+												<i class="fa fa-edit" aria-hidden="true"></i>
 											</button>
 										</div>
 									</div>
@@ -177,10 +183,10 @@ $packages = $db->select($sql);
 					<div class="modal-body">
 						<form id="form-modal-package" name="form-modal-package" class="form" enctype="multipart/form-data">
 							<div class="form-group">
-								<input type="text" name="id_package" id="id_package" value="" >
-								<input type="text" name="folio" id="folio" value="" >
-								<input type="text" name="id_contact" id="id_contact" value="" >
-								<input type="text" name="action" id="action" value="" >
+								<input type="hidden" name="id_package" id="id_package" value="" >
+								<input type="hidden" name="folio" id="folio" value="" >
+								<input type="hidden" name="id_contact" id="id_contact" value="" >
+								<input type="hidden" name="action" id="action" value="" >
 							</div>
 							<div class="row">
 								<div class="col-md-12" style="text-align: center;">
@@ -207,7 +213,7 @@ $packages = $db->select($sql);
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
-										<label for="phone">* Telefono:</label>
+										<label for="phone">* Télefono:</label>
 										<input type="text" class="form-control" name="phone" id="phone" value="" autocomplete="off" >
 									</div>
 									<div id="coincidencias" style="display: none;"></div>
@@ -239,11 +245,9 @@ $packages = $db->select($sql);
 										<label for="id_status">Status:</label>
 										<select name="id_status" id="id_status" class="form-control">
 											<option value="1">Nuevo</option>
-											<option value="2">En Proceso (SMS)</option>
-											<option value="3">Entregado</option>
+											<option value="2">SMS Enviado</option>
 											<option value="4">Devuelto</option>
 											<option value="5">Eliminado</option>
-											<option value="6">Error al enviar SMS</option>
 											<option value="7">Contactado</option>
 										</select>
 									</div>
@@ -345,7 +349,7 @@ $packages = $db->select($sql);
 							<div class="col-md-6">
 								<div class="form-group">
 									<div class="form-group">
-										<label for="mCPhone">* Telefono:</label>
+										<label for="mCPhone">* Télefono:</label>
 										<input type="text" class="form-control" name="mCPhone" id="mCPhone" value="" autocomplete="off" >
 									</div>
 								</div>
@@ -425,10 +429,6 @@ $packages = $db->select($sql);
 									<label for="mMEstatus">Estatus del Paquete:</label>
 									<select name="mMEstatus" id="mMEstatus" class="form-control" disabled>
 											<option value="1">Nuevo</option>
-											<!-- <option value="2">En Proceso (SMS)</option>
-											<option value="3">Entregado</option>
-											<option value="4">Devuelto</option>
-											<option value="5">Eliminado</option> -->
 									</select>
 								</div>
 							</div>
@@ -438,16 +438,17 @@ $packages = $db->select($sql);
 							<div class="col-md-12">
 								<div class="form-group">
 									<label for="mMMessage">Mensaje:</label>
-									<textarea class="form-control" id="mMMessage" name="mMMessage" rows="3"></textarea>
+									<textarea class="form-control" id="mMMessage" name="mMMessage" rows="2"></textarea>
 								</div>
 							</div>
 						</div>
-						<div class="row">
+						<div class="row" style="overflow: auto; max-height: 250px; width: 100%;">
 							<div class="col-md-12">
-								<table class="table">
+								<table class="table" id="tbl-list-sms">
 									<thead>
 									<tr>
-										<th>Telefono</th>
+										<th>#</th>
+										<th>Télefono</th>
 										<th>Nombre</th>
 										<th>Paquetes</th>
 										<th>Trackings</th>
@@ -517,20 +518,27 @@ $packages = $db->select($sql);
 								</div>
 							</div>
 							<div class="row">
-								<div class="col-md-1"></div>
-								<div class="col-md-10">
-									<div id="div-rst-scan-qr"></div>
+								<div class="col-md-12" style="overflow: auto; max-height: 250px; width: 100%;">
+								<table class="table" id="tablaPaquetes">
+								<thead>
+									<tr>
+										<th>Tracking</th>
+										<th>Phone</th>
+										<th>Receiver</th>
+										<th>Folio</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Los datos se agregarán aquí mediante jQuery -->
+								</tbody>
+								</table>
 								</div>
-								<div class="col-md-1"></div>
 							</div>
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
+						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Guardar">Liberar</button>
 						<button id="close-mrp-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
-						<audio id="beep-sound" style="display: none;">
-								<source src="<?php echo BASE_URL;?>/assets/beep-sound.mp3" type="audio/mpeg">
-						</audio>
 					</div>
 				</div>
 			</div>

@@ -1,9 +1,11 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+// error_reporting(E_ALL);
+// ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
 session_start();
+date_default_timezone_set('America/Mexico_City');
+
 
 require_once('../system/configuration.php');
 require_once('../system/DB.php');
@@ -50,35 +52,37 @@ switch ($_POST['option']) {
 		$dataJson = [];
 		$message  = 'Error al guardar la infomación del paquete';
 		$data['id_location'] = $_POST['id_location'];
-		$data['phone']       = $_POST['phone'];
-		$data['receiver']    = $_POST['receiver'];
+		$phone               = $_POST['phone'];
+		$receiver            = $_POST['receiver'];
 		$data['id_status']   = $_POST['id_status'];
 		$data['note']        = $_POST['note'];
 		$id_contact          = $_POST['id_contact'];
 
 		$action              = $_POST['action'];
 		try {
-			//if($id_contact==0 || empty($id_contact)){
-				//chec if no exist phone and receiver
-			$sqlContactCheck = "SELECT COUNT(phone) tContact FROM cat_contact WHERE phone in ('".$data['phone']."') and contact_name in('".$data['receiver']."')";
+			$sqlContactCheck = "SELECT COUNT(phone) tContact FROM cat_contact 
+			WHERE phone IN ('$phone') AND contact_name IN('$receiver') AND id_location IN(".$data['id_location'].")";
 			$rstContactCheck = $db->select($sqlContactCheck);
 			$tContact = $rstContactCheck[0]['tContact'];
 			if($tContact==0){
 				$contact['id_location']       = $data['id_location'];
-				$contact['phone']             = $data['phone'];
-				$contact['contact_name']      = $data['receiver'];
+				$contact['phone']             = $phone;
+				$contact['contact_name']      = $receiver;
 				$contact['id_contact_type']   = 1; //SMS
 				$contact['id_contact_status'] = 1;
 				$contact['id_contact']  = null;
 				$id_contact = $db->insert('cat_contact',$contact);
 			}
-			//}
 
 			$data['id_contact']  = $id_contact;
 
 			switch ($action) {
 				case 'update':
-					$id        = $_POST['id_package'];
+					if($data['id_status'] == 4 || $data['id_status'] == 5){
+						$data['d_date']     = date("Y-m-d H:i:s");
+						$data['d_user_id']  = $_SESSION["uId"];
+					}
+					$id       = $_POST['id_package'];
 					$success  = 'true';
 					$dataJson = $db->update('package',$data," `id_package` = $id");
 					$message  = 'Actualizado';
@@ -87,7 +91,7 @@ switch ($_POST['option']) {
 
 					$data['id_package']  = null;
 					$data['folio']       = $_POST['folio'];
-					$data['c_date']      = $_POST['c_date'];
+					$data['c_date']      = date("Y-m-d H:i:s");
 					$data['c_user_id']   = $_SESSION["uId"];
 					$data['tracking']    = $_POST['tracking'];
 					$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
@@ -191,7 +195,6 @@ switch ($_POST['option']) {
 		 $data['id_contact_type']   = $_POST['mCContactType'];
 		 $data['id_contact_status'] = $_POST['mCEstatus'];
 		try {
-			//$id        = $_POST['id_contact']; #TODO
 			$data['id_contact']  = null;
 			$success  = 'true';
 			$dataJson = $db->insert('cat_contact',$data);
@@ -221,23 +224,20 @@ switch ($_POST['option']) {
 		$IdContactType = $_POST['IdContactType'];
 		$idStatus      = $_POST['idStatus'];
 		$sql="SELECT 
-		p.phone,
+		cc.phone,
+		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
 		COUNT(p.tracking) AS total_p,
-		if((SELECT count(cc.contact_name) FROM cat_contact cc WHERE cc.phone = c.phone)=1,
-			(SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone),
-			CONCAT((SELECT cc.contact_name FROM cat_contact cc WHERE cc.phone = c.phone LIMIT 1),' <b>+',(SELECT count(cc.contact_name) FROM cat_contact cc WHERE cc.phone = c.phone)-1,'</b>')
-		) AS main_name,
 		GROUP_CONCAT(p.tracking) AS trackings,
 		GROUP_CONCAT(p.id_package) AS ids 
-	FROM package p 
-	INNER JOIN cat_contact c ON c.phone=p.phone AND c.contact_name=p.receiver 
-	INNER JOIN cat_contact_type ct ON ct.id_contact_type = c.id_contact_type 
-	WHERE 
+		FROM package p 
+		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
+		WHERE 
 		p.id_location IN ($id_location) 
 		AND p.id_status IN (1) 
-		AND ct.id_contact_type IN (1) 
-		GROUP BY p.phone,main_name 
-		ORDER BY p.phone ASC";
+		AND cct.id_contact_type IN (1) 
+		GROUP BY cc.phone,main_name
+		ORDER BY cc.phone ASC";
 				$success  = 'true';
 				$dataJson = $db->select($sql);
 				$message  = 'ok';
@@ -260,100 +260,140 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
+		$message  = 'Error al enviar los mensajes';
 
 		$id_location   = $_POST['id_location'];
 		$idContactType = $_POST['idContactType'];
-		$message       = $_POST['message'];
+		$smsMessage    = $_POST['message'];
 
 		$data['id_notification'] = null;
 		$data['id_location']     = $id_location;
-		//$data['n_date']          = date("Y-m-d H:i:s");
 		$data['n_user_id']       = $_SESSION["uId"];
-
-		$data['message']         = $message;
+		$data['message']         = $smsMessage;
 		$data['id_contact_type'] = $idContactType;
 
 		$arrayNotification   = json_decode($_POST['arrayNotification'], true);
-		try {
-			// Your Account SID and Auth Token from twilio.com/console
-			// To set up environmental variables, see http://twil.io/secure
-			$account_sid = "ACf6823c76da7644c216809dfe186f1f83";
-			$auth_token = "e5d89fe6304319829b2cc2afa69a6ac6";
-			// In production, these should be environment variables. E.g.:
-			// $auth_token = $_ENV["TWILIO_AUTH_TOKEN"]
 
-			// A Twilio number you own with SMS capabilities
+			$account_sid   = "ACf6823c76da7644c216809dfe186f1f83";
+			$auth_token    = "a1450c2728db835dfc4b52bef586b583";
 			$twilio_number = "+18019013730";
-/*
+
+			$totalSms    = COUNT($arrayNotification);
+			$smsEnviados = 0;
+			
 			foreach ($arrayNotification as $item) {
 				$phone = $item['phone'];
-				$data['phone']    = $phone;
-				$data['name']      = $item['name'];
-				$data['trackings'] = $item['trackings'];
 
-				// Imprimir los valores o realizar cualquier otra operación
-				//echo "Phone: ".$phone; //.", name:".$name.", trackings:".$trackings.", Ids: ".$ids. PHP_EOL;
 				$client = new Client($account_sid, $auth_token);
-				$response = $client->messages->create(
-					'+52'.$phone,
-					array(
-						'from' => $twilio_number,
-						'body' => $message
-					)
-				);
+				#################################
+				#$response = (object) ['sid' => true];
+				#################################
+				try {
+					$response = $client->messages->create(
+						'+52'.$phone,
+						array(
+							'from' => $twilio_number,
+							'body' => $smsMessage
+						)
+					);
 
-				$data['sid']   = 'error al enviar el mensaje';
-				$statusPackage = 6; //Error al enviar SMS
-				if ($response->sid) {
-					// El mensaje se envió correctamente
-					//$message_sid = $response->sid; // Obtener el SID del mensaje
-					$data['sid'] = $response->sid;
-					$statusPackage=2; // En Proceso (SMS)
+					if ($response->sid) {
+						$data['sid']   = $response->sid;
+						$statusPackage = 2; // SMS Enviado
+						$smsEnviados++;
+					}
+				} catch (Exception $e) {
+					$data['sid']   = $e->getMessage();
+					$statusPackage = 6; //Error al enviar SMS
 				}
 
-				//insert in notifications
-				$db->insert('notification',$data);
-				$ids = $item['ids'];
+				//Recorrer los ids y guardar su notificacion y actualizar su estatus
+				$listIds = explode(",", $item['ids']);
+				foreach ($listIds as $id_package) {
+					$data['id_package']  = $id_package;
+					$data['n_date']  = date("Y-m-d H:i:s");
+					$db->insert('notification',$data);
+					$upData['id_status'] = $statusPackage;
+					$db->update('package',$upData," `id_package` IN($id_package)");
+				}
+			}
 
-				$upData['id_status'] = $statusPackage;
-				//update status in package
-				$db->update('package',$upData," `id_package` IN($ids)");
-			}*/
-
-			$success  = 'true';
-			$dataJson = ['enviados'];
-			$message  = 'ok';
 			$result = [
-				'success'  => $success,
+				'success'  => 'true',
 				'dataJson' => [],
-				'message'  => $message
+				'message'  => "Se han enviado $smsEnviados mensajes de un total de $totalSms"
 			];
-		} catch (Exception $e) {
-			$result = [
-				'success'  => $success,
-				'dataJson' => $dataJson,
-				'message'  => $message.": ".$e->getMessage()
-			];
-		}
+
 		echo json_encode($result);
 	break;
 
 	case 'releasePackage':
-		echo "ok";
-		die();
-		try {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$id_location   = $_POST['id_location'];
-		$IdContactType = $_POST['IdContactType'];
-		$idStatus      = $_POST['idStatus'];
-		
-				$result = [
-					'success'  => $success,
-					'dataJson' => $dataJson,
-					'message'  => $message
-				];
+		$message  = 'Error liberar el paquete';
+		$id_location = $_POST['id_location'];
+		$tracking    = $_POST['tracking'];
+		$jsonPakage = $_POST['listPackageRelease'];
+		try {
+
+			$sql="SELECT id_status
+		   	FROM package
+		   	WHERE tracking IN ('$tracking')
+			AND id_location IN ($id_location)
+			LIMIT 1";
+			$checkRelease = $db->select($sql);
+			if(count($checkRelease)==0){
+				$success  = 'false';
+				$message  = 'Paquete no encontrado';
+			}else{
+				$idEstatus = $checkRelease[0]['id_status'];
+				switch ($idEstatus) {
+					case 1:
+					case 6:
+						$success  = 'false';
+						$message  = 'No es posible liberar un paquete sin contactar al destinatario';
+						break;
+					case 4:
+					case 5:
+						$success  = 'false';
+						$message  = 'El paquete ya no esta disponible';
+						break;
+					case 3:
+						$success  = 'false';
+						$message  = 'El paquete ya fue entregado';
+						break;
+					case 2:
+					case 7:
+						$success  = 'true';
+						$message  = 'Paquete Liberado';
+
+						$data['id_status']  = 3; //Liberado
+						$data['d_date']     = date("Y-m-d H:i:s");
+						$data['d_user_id']  = $_SESSION["uId"];
+						$rst = $db->update('package',$data," `tracking` = '$tracking'");
+						$listPackageRelease   = json_decode($jsonPakage, true);
+						$inList = implode(", ", $listPackageRelease);
+						$sql ="SELECT DISTINCT 
+						p.tracking,
+						cc.phone,
+						cc.contact_name receiver,
+						p.folio 
+						FROM package p 
+						INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+						WHERE tracking IN($inList) AND p.id_location IN($id_location) 
+						AND id_status IN (3)";
+						$records = $db->select($sql);
+						$dataJson = $records;
+						break;
+				}
+			}
+
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,

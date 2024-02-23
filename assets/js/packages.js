@@ -95,7 +95,14 @@ $(document).ready(function() {
 		return dtCurrent;
 	}
 
+	/*
 	$(`#tbl-packages tbody`).on( `click`, `#btn-edit-package`, function () {
+		let row = table.row( $(this).closest('tr') ).data();
+		loadEventForm(row);
+	});
+	*/
+
+	$(`#tbl-packages tbody`).on( `click`, `#btn-records`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
 		loadEventForm(row);
 	});
@@ -117,6 +124,8 @@ $(document).ready(function() {
 		$('#note').val(row.note);
 		action.val('new');
 		$('#btn-erase').show();
+		$('#phone').prop('disabled', false);
+		$('#receiver').prop('disabled', false);
 
 		if(row.id_package!=0){
 			divStatusTracking.hide();
@@ -124,8 +133,6 @@ $(document).ready(function() {
 			folio.val(row.folio);
 			titleModal=`Editar Paquete ${row.folio}`;
 			action.val('update');
-			$('#phone').prop('disabled', false);
-			$('#receiver').prop('disabled', false);
 			
 			if(row.id_status!=1){
 				$('#phone').prop('disabled', true);
@@ -203,10 +210,8 @@ $(document).ready(function() {
 
 	function readQr(decodedText){
 		try {
-			//->JMXif(cveCod==codEnzB64){
 				tracking.val(decodedText);
 				savePackage(decodedText);
-			//->}
 		} catch (error) {
 			swal("Invalid QR!", "", "error");
 			$('.swal-button-container').hide();
@@ -233,10 +238,15 @@ $(document).ready(function() {
 		$('#phone').focus();
 	});
 
+	//-----------------------
+	$('#tracking').on('input', function() {
+		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
+		if (input.length === 15 && input.substr(0, 3) === "JMX") {
+			$('#btn-save').click();
+		}
+	});
 
 	function savePackage(decodedText) {
-		//console.log('here');
-		//TODO:Validate lengh of tracking 15 caracteres
 		if(phone.val()=='' || receiver.val()=='' || tracking.val()==''){
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
@@ -261,8 +271,6 @@ $(document).ready(function() {
 			return;
 		}
 
-		// console.log('continue');
-		// return;
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
 		formData.append('id_location',id_location.val());
@@ -289,7 +297,7 @@ $(document).ready(function() {
 
 			if(response.success=='true'){
 				if(action.val()=='new'){
-					$('audio#beep-sound')[0].play();
+					//TODO:$('audio#beep-sound')[0].play();
 					//TODO::html5QrcodeScanner.clear();
 				}
 				swal(`${response.message}`, "", "success");
@@ -312,14 +320,6 @@ $(document).ready(function() {
 			console.log("Opps algo salio mal",e);
 		});
 	}
-
-	$('#tracking').on('focus', function() {
-        let valTracking = $(this).val();
-        if (valTracking === '') {
-            //$(this).val('JMX000');
-			//$(this).focus();
-        }
-    });
 
 	$('#phone').on('input', function() {
         let phoneNumber = $(this).val();
@@ -361,7 +361,6 @@ $(document).ready(function() {
 
 	// Manejar la selección de una coincidencia
 	$('#coincidencias').on('click', 'p', function() {
-		//let coincidenciaSeleccionada = $(this).text();
 		let name        = $(this).data('name');
 		let phoneNumber = $(this).data('phone');
 		let id_contact = $(this).data('idcontact');
@@ -526,22 +525,19 @@ $(document).ready(function() {
 
 // ----------------------------------------------------
 	$('#mMMessage').on('input', function() {
-		// Obtener el texto ingresado en el textarea
 		var message = $(this).val();
-		// Limitar la longitud del texto a 160 caracteres
 		if (message.length > 160) {
-		// Truncar el texto a 160 caracteres
 		$(this).val(message.slice(0, 160));
 		}
 	});
 
 	$('#btn-send-messages').click(function(){
+		$("#tbl-list-sms").hide();
 		selectMessages();
 	});
 
 	async function selectMessages() {
 		let listPackage = await getPackageNewSms();
-		//console.log(listPackage);
 		generateTable(listPackage);
 
 		$('#mMIdLocation').val($('#option-location').val());
@@ -582,22 +578,39 @@ $(document).ready(function() {
 	function generateTable(data) {
 		// Limpiar la tabla
 		$('#tbl-listPackage').empty();
+		$('#btn-save-messages').show();
+		let tmsj = data.dataJson;
+		if(tmsj.length==0){
+			swal("Estás al día!", "No hay mensajes para enviar", "success");
+			$('.swal-button-container').hide();
+			$('#btn-save-messages').hide();
+			setTimeout(function(){
+				swal.close();
+				$('#modal-messages').modal('hide');
+			}, 2500);
+			return;
+		}
+		$("#tbl-list-sms").show();
 
 		// Iterar sobre los datos del JSON y generar filas de tabla
+		let c=1;
 		$.each(data.dataJson, function(index, item) {
 			let row = `<tr>
+				<td><b>${c}</b></td>
 				<td>${item.phone}</td>
 				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
 				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver Paquetes" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
 			</tr>`;
 			$('#tbl-listPackage').append(row);
+			c++;
 		});
 
 		$('#tbl-listPackage').on('click', '.btn-idx', function() {
 			let name = $(this).data('name');
 			let trackings = $(this).data('trackings');
-			swal(`${name}`,trackings, "info");
+			swal(`${name}`,trackings, "success");
+			$('.swal-button-container').hide();
 		});
 	}
 
@@ -617,11 +630,6 @@ $(document).ready(function() {
 				ids:idsx
 			});
 		});
-
-		if(arrayNotification.length==0){
-			swal("Oops.!", "No hay mensajes para enviar", "warning");
-			return;
-		}
 
 		swal({
 				title: "Enviar Mensajes",
@@ -662,15 +670,15 @@ $(document).ready(function() {
 		.done(function(response) {
 				swal.close();
 				if(response.success==='true'){
-					swal("Exito!", "Mensajes enviados", "success");
+					swal("Exito!", response.message, "success");
 					$('#modal-messages').modal('hide');
+					$('.swal-button-container').hide();
 					setTimeout(function(){
 						swal.close();
 						window.location.reload();
-					}, 2500);
+					}, 5500);
 				}else{
-					swal("Error!", "Ocurrio un error al enviar los sms", "warning");
-				return false;
+					swal("Error!", "Ocurrio un error al enviar los sms", "error");
 				}
 		}).fail(function(e) {
 			console.log("Opps algo salio mal",e);
@@ -678,11 +686,15 @@ $(document).ready(function() {
 	}
 
 	//------------------------------------------ release
+	let  listPackageRelease=[];
+
 	$('#btn-release-package').click(function(){
+		listPackage = [];
+		$('#form-modal-release-package')[0].reset();
 		$('#mrp-id_location').val($('#option-location').val());
 		let fechaFormateada = getCurrentDate();
 		$('#mrp-date-release').val(fechaFormateada);
-		loadReaderScan();
+		$('#tablaPaquetes').hide();
 
 		$('#modal-release-package-title').html('Entrega de Paquetes');
 		$('#modal-release-package').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -705,12 +717,12 @@ $(document).ready(function() {
 
 			if(counter==0){
 				initialTime = getNow();
-				iniScan(decodedText);
+				saveAndReleasePakage(decodedText);
 			}else{
 				let now = getNow();
 				let diffTime = Math.abs(now-initialTime);
 				if(diffTime>=3000){
-					iniScan(decodedText);
+					saveAndReleasePakage(decodedText);
 					initialTime = getNow();
 				}
 			}
@@ -728,108 +740,92 @@ $(document).ready(function() {
 	}
 
 	$('#close-mrp-x,#close-mrp-b').click(function(){
-		let scanner2 = html5QrRelease;
+		/*let scanner2 = html5QrRelease;
 		if(scanner2!=''){
 			html5QrRelease.clear();
 		}
-		lastResult         = 0;
+		lastResult         = 0;*/
+		window.location.reload();
 	});
 
+	$('#btn-mrp-save').click(function(){
+		let tracking = $('#mrp-tracking').val();
+		saveAndReleasePakage(tracking);
+	});
 
+	function saveAndReleasePakage(tracking){
 
-	function iniScan(decodedText){
 		try {
-			//let decodedString = atob(decodedText);
-			//let arrayDecode   = decodedString.split("|");
-			//let cveCod        = atob(arrayDecode[0]);
-
-			//->JMXif(cveCod==codEnzB64){
-				if (decodedText !== lastResult) {
-					$('#mrp-tracking').val(decodedText);
-
-					listQrScaned = decodedText+'|'+listQrScaned;
-					let formData = new FormData();
-					formData.append('id_location',$('#mrp-id_location').val());
-					formData.append('listQrScaned',listQrScaned);
-					formData.append('option','releasePackage');
-					formData.append('tracking',decodedText);
-					$.ajax({
-						url: `${base_url}/${baseController}`,
-						type       : 'POST',
-						data       : formData,
-						cache      : false,
-						contentType: false,
-						processData: false,
-					})
-					.done(function(response) {
-						let tblOpen=`
-						<div style="100%; height:150px; overflow-y:scroll;"><table class="table table-striped" style="width: 100%;">
-						<thead>
-							<tr>
-								<td>#</td>
-								<td>Tracking</td>
-							</tr>
-						</thead>
-						<tbody id="scanned-result-table-body">`;
-						let rows='';
-						let tblClose=`</tbody>
-						</table></div>`;
-						if(response.success=='true'){
-							lastResult   = decodedText;
-							swal(`${decodedText} Scanned`, "", "success");
-							$('.swal-button-container').hide();
-							setTimeout(function(){
-								swal.close();
-							}, 2500);
-							$('audio#beep-sound')[0].play();
-							let dataJson = JSON.parse(response.dataJson);
-							let r=0;
-							dataJson.forEach(element => {
-							r++;
-							rows = rows +`<tr>
-								<td>${r}</td>
-								<td>${element.ibo}</td>
+			listPackageRelease.push(`'${tracking}'`);
+			let t = $('#mrp-tracking').val().trim(); // Eliminar espacios en blanco al inicio y al final
+			if (t.length !== 15 || t.substr(0, 3) !== "JMX") {
+				let mensajeError = "* Código de barras no válido:";
+				if (t.length !== 15) {
+					mensajeError += " Debe tener 15 caracteres.";
+				} else {
+					mensajeError += " Debe comenzar con 'JMX'.";
+				}
+				swal("Atención!", mensajeError, "error");
+				return;
+			}
+			let formData = new FormData();
+			formData.append('id_location',$('#mrp-id_location').val());
+			formData.append('tracking',tracking);
+			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
+			formData.append('option','releasePackage');
+			$.ajax({
+				url: `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+			})
+			.done(function(response) {
+				$('#mrp-tracking').val('');
+				if(response.success==='true'){
+					if (response.dataJson.length > 0) {
+						$('#tablaPaquetes').show();
+						$('#tablaPaquetes tbody').empty();
+						$.each(response.dataJson, function(index, item) {
+							let row = `<tr>
+								<td>${item.tracking}</td>
+								<td>${item.phone}</td>
+								<td>${item.receiver}</td>
+								<td>${item.folio}</td>
 							</tr>`;
-							});
-							$('#div-rst-scan-qr').html(`${tblOpen} ${rows} ${tblClose}`);
-						}
-						if(response.success=='false'){
-							swal("Atención!", `${response.message}`, "warning");
-							$('.swal-button-container').hide();
-							setTimeout(function(){
-								swal.close();
-							}, 2500);
-							//$('#div-rst-scan-qr').html(``);
-						}
-					}).fail(function(e) {
-						console.log("Opps algo salio mal",e);
-					});
+							$('#tablaPaquetes tbody').append(row);
+						});
+					}
+					swal(tracking, response.message, "success");
+				}else {
+					let index = listPackageRelease.indexOf(`'${tracking}'`);
+					if (index !== -1) {
+						listPackageRelease.splice(index, 1);
+					}
+					swal(tracking, response.message, "warning");
 				}
+				$('.swal-button-container').hide();
+				setTimeout(function(){
+					swal.close();
+					$('#mrp-tracking').focus();
+				}, 2500);
 
-				if (decodedText == lastResult){
-					swal("QR was scanned!", "", "info");
-					$('.swal-button-container').hide();
-					setTimeout(function(){
-						swal.close();
-					}, 2500);
-				}
-			//->JMX}
+			}).fail(function(e) {
+				console.log("Opps algo salio mal",e);
+			});
+
 		} catch (error) {
-			$('#div-rst-scan-qr').html(``);
-			swal("Invalid QR!", "", "error");
-			$('.swal-button-container').hide();
-			setTimeout(function(){
-				swal.close();
-			}, 2500);
+			console.log("Opps algo salio mal",error);
 		}
 	}
 
 	//-----------------------
-	$('#tracking').on('input', function() {
+	$('#mrp-tracking').on('input', function() {
 		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
 		if (input.length === 15 && input.substr(0, 3) === "JMX") {
 			// ENTER
-			$('#btn-save').click();
+			$('#btn-mrp-save').click();
 		}
 	});
 
