@@ -27,15 +27,12 @@ cc.phone,
 p.id_location,
 p.c_date,
 p.folio,
-p.d_validity,
 CASE 
     WHEN DATEDIFF(NOW(), p.c_date) >= 5 THEN 'background-color: #FF9999;'
     WHEN DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FFFF99;'
     ELSE ''
 END AS styleCtrlDays,
 cc.contact_name receiver,
-p.d_date,
-p.d_user_id,
 cs.id_status,
 cs.status_desc,
 p.note,
@@ -126,10 +123,7 @@ $packages = $db->select($sql);
 								<th>id_location</th>
 								<th>c_date</th>
 								<th>folio</th>
-								<th>d_validity</th>
 								<th>receiver</th>
-								<th>d_date</th>
-								<th>d_user_id</th>
 								<th>id_status</th>
 								<th>status_desc</th>
 								<th>note</th>
@@ -146,10 +140,7 @@ $packages = $db->select($sql);
 								<td><?php echo $d['id_location']; ?></td>
 								<td><?php echo $d['c_date']; ?></td>
 								<td><?php echo $d['folio']; ?></td>
-								<td><?php echo $d['d_validity']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
-								<td><?php echo $d['d_date']; ?></td>
-								<td><?php echo $d['d_user_id']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
 								<td><?php echo $d['status_desc']; ?></td>
 								<td><?php echo $d['note']; ?></td>
