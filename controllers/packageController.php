@@ -11,23 +11,9 @@ require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
-require '../vendor/autoload.php';
-use Twilio\Rest\Client;
-
 header('Content-Type: application/json; charset=utf-8');
 
 switch ($_POST['option']) {
-
-	case 'changeLocation':
-		$id_location           = $_POST['id_location'];
-		$_SESSION['uLocation'] = $id_location;
-		$result = [
-			'success'  => 'true',
-			'dataJson' => $id_location,
-			'message'  => 'ok'
-		];
-		echo json_encode($result);
-	break;
 
 	case 'getFolio':
 		$id_location = $_POST['id_location'];
@@ -42,6 +28,17 @@ switch ($_POST['option']) {
 			'success' => 'true',
 			'folio'   => $folio,
 			'message' => 'ok'
+		];
+		echo json_encode($result);
+	break;
+
+	case 'changeLocation':
+		$id_location           = $_POST['id_location'];
+		$_SESSION['uLocation'] = $id_location;
+		$result = [
+			'success'  => 'true',
+			'dataJson' => $id_location,
+			'message'  => 'ok'
 		];
 		echo json_encode($result);
 	break;
@@ -258,8 +255,6 @@ switch ($_POST['option']) {
 
 	case 'sendMessages':
 
-		echo json_encode($_POST);
-		die();
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
@@ -277,29 +272,18 @@ switch ($_POST['option']) {
 
 		$arrayNotification   = json_decode($_POST['arrayNotification'], true);
 
-			$account_sid   = "ACf6823c76da7644c216809dfe186f1f83";
-			$auth_token    = "655bbef60ff32b4ac59a1a354f15432d";
-			$twilio_number = "+18019013730";
-
 			$totalSms    = COUNT($arrayNotification);
 			$smsEnviados = 0;
 			//var_dump($arrayNotification);
 			foreach ($arrayNotification as $item) {
 				$phone = $item['phone'];
+				var_dump($item);
+				die();
 
-				$client = new Client($account_sid, $auth_token);
 				#################################
 				$response = (object) ['sid' => true];
 				#################################
 				try {
-					/*$response = $client->messages->create(
-						'+52'.$phone,
-						array(
-							'from' => $twilio_number,
-							'body' => $smsMessage
-						)
-					);*/
-
 					if ($response->sid) {
 						$data['sid']   = $response->sid;
 						$statusPackage = 2; // SMS Enviado

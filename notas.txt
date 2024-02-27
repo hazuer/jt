@@ -5459,7 +5459,7 @@ SELECT COUNT(phone) tContact FROM cat_contact WHERE phone in ('7776110071') and 
 
 INSERT INTO u611824705_jt.package (id_package, id_location, c_date, c_user_id, phone, receiver, tracking, folio, code, d_date, d_user_id, id_status)
 VALUES
-(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'JMX000708989409', 1, NULL, NULL, NULL, 1),
+(null, 1, '2024-02-05 10:30:05', 3, '7772314822', 'Isidoro Cornelio', 'jmx000708989409', 1, NULL, NULL, NULL, 1),
 (null, 1, '2024-02-05 10:30:05', 3, '7341326995', 'Cirilo Aranda', 'JMX000721188725', 2, NULL, NULL, NULL, 1),
 (null, 1, '2024-02-05 10:30:05', 3, '7341346283', 'Karen Elizabeth Aranda', 'JMX000752857321', 3, NULL, NULL, NULL, 1),
 (null, 1, '2024-02-05 10:30:05', 3, '7341109763', 'Josue Aranda', 'JMX450016105590', 4, NULL, NULL, NULL, 1),
@@ -5564,7 +5564,11 @@ INSERT INTO `users` VALUES (4,'josuea',MD5('jt123.'),2,1);
 -- 
 
 
-depurar contactos
+karen 7341346283
+josue 7341109763
+jessi 7341008654
+
+-- ----------------
 truncate table package ;
 truncate table notification;
 UPDATE u611824705_jt.folio
@@ -5573,6 +5577,8 @@ UPDATE u611824705_jt.folio
 UPDATE u611824705_jt.folio
 	SET folio=0
 	WHERE id_folio=2;
+delete from cat_contact where id_contact > 5112;
+
 -- truncate table cat_contact;
 
 -- ajustes

@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+#error_reporting(E_ALL);
+#ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
 
@@ -28,8 +28,8 @@ p.id_location,
 p.c_date,
 p.folio,
 CASE 
-    WHEN DATEDIFF(NOW(), p.c_date) >= 5 THEN 'background-color: #FF9999;'
-    WHEN DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FFFF99;'
+    WHEN DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FF9999;'
+    WHEN DATEDIFF(NOW(), p.c_date) >= 2 THEN 'background-color: #FFFF99;'
     ELSE ''
 END AS styleCtrlDays,
 cc.contact_name receiver,
@@ -52,7 +52,6 @@ $packages = $db->select($sql);
 		<?php include '../views/header.php'; ?>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
-		<script src="<?php echo BASE_URL;?>/assets/js/html5-qrcode.min.js"></script>
 		<style>
 		.dataTables_scrollBody
 			{
@@ -108,7 +107,7 @@ $packages = $db->select($sql);
 				<div class="alert alert-info" role="alert" style="text-align: center;">
 					No hay paquetes en la ubicacion seleccionada, haz clik en el boton nuevo paquete <br>
 					<button id="btn-first-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
-						<i class="fa fa-cube" aria-hidden="true"></i>
+						<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 					</button>
 				</div
 			<?php else: ?>
@@ -162,378 +161,12 @@ $packages = $db->select($sql);
 			<?php endif; ?>
 		</div>
 
-		<div class="modal fade" id="modal-package" tabindex="-1" role="dialog" aria-labelledby="modal-package-title" aria-hidden="true">
-			<div class="modal-dialog modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-package-title"> </span></h3>
-						<button id="close-qr-x" type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form id="form-modal-package" name="form-modal-package" class="form" enctype="multipart/form-data">
-							<div class="form-group">
-								<input type="hidden" name="id_package" id="id_package" value="" >
-								<input type="hidden" name="folio" id="folio" value="" >
-								<input type="hidden" name="id_contact" id="id_contact" value="" >
-								<input type="hidden" name="action" id="action" value="" >
-							</div>
-							<div class="row">
-								<div class="col-md-12" style="text-align: center;">
-									<div id="qr-reader" style="width: 100%;"></div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="id_location">Ubicacion:</label>
-										<select name="id_location" id="id_location" class="form-control" disabled>
-										<option value="1">Tlaquiltenango</option>
-										<option value="2">Zacatepec</option>
-									</select>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="c_date">Fecha:</label>
-										<input type="text" class="form-control" name="c_date" id="c_date" value="" disabled>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="phone">* Télefono:</label>
-										<input type="text" class="form-control" name="phone" id="phone" value="" autocomplete="off" >
-									</div>
-									<div id="coincidencias" style="display: none;"></div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="receiver">* Nombre:</label>
-										<input type="receiver" class="form-control" name="receiver" id="receiver" value="" autocomplete="off">
-									</div>
-								</div>
-							</div>
-							<div class="row" id="div-scan-tracking">
-								<div class="col-md-2">
-									<label for="btn-scan-code">* Scan:</label>
-									<button id="btn-scan-code" type="button" class="btn-primary btn-sm" title="Iniciar Escaner">
-									<i class="fa fa-camera" aria-hidden="true"></i>
-									</button>
-								</div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="tracking">* Guía:</label>
-										<input type="text" class="form-control" name="tracking" id="tracking" value="" autocomplete="off">
-									</div>
-								</div>
-							</div>
-							<div class="row" id="div-status">
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="id_status">Status:</label>
-										<select name="id_status" id="id_status" class="form-control">
-											<option value="1">Nuevo</option>
-											<option value="2">SMS Enviado</option>
-											<option value="4">Devuelto</option>
-											<option value="5">Eliminado</option>
-											<option value="7">Contactado</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="note">Nota:</label>
-										<input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-erase" type="button" class="btn btn-default" title="Borrar">Borrar</button>
-						<button id="btn-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-						<button id="close-qr-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
-						<audio id="beep-sound" style="display: none;">
-								<source src="<?php echo BASE_URL;?>/assets/beep-sound.mp3" type="audio/mpeg">
-						</audio>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-folio" tabindex="-1" role="dialog" aria-labelledby="modal-folio-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-folio-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mfIdLocation">Ubicacion:</label>
-									<select name="mfIdLocation" id="mfIdLocation" class="form-control" disabled>
-										<option value="1">Tlaquiltenango</option>
-										<option value="2">Zacatepec</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mfModo">Modo:</label>
-									<select name="mfModo" id="mfModo" class="form-control">
-										<option value="1">Automatico</option>
-										<option value="2">Personalizado</option>
-									</select>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-						<div class="col-md-6">
-								<div class="form-group">
-									<label for="mfFolioActual">Folio Actual:</label>
-									<input type="text" class="form-control" name="mfFolioActual" id="mfFolioActual" value="" autocomplete="off" disabled>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mfNumFolio">* Folio:</label>
-									<input type="text" class="form-control" name="mfNumFolio" id="mfNumFolio" value="" autocomplete="off" >
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-save-folio" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-						<button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-contacto" tabindex="-1" role="dialog" aria-labelledby="modal-contacto-title" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-contacto-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mCIdLocation">Ubicacion:</label>
-									<select name="mCIdLocation" id="mCIdLocation" class="form-control" disabled>
-										<option value="1">Tlaquiltenango</option>
-										<option value="2">Zacatepec</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<div class="form-group">
-										<label for="mCPhone">* Télefono:</label>
-										<input type="text" class="form-control" name="mCPhone" id="mCPhone" value="" autocomplete="off" >
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-						<div class="col-md-6">
-								<div class="form-group">
-									<label for="mCName">* Nombre:</label>
-									<input type="text" class="form-control" name="mCName" id="mCName" value="" autocomplete="off" >
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mCContactType">Tipo:</label>
-									<select name="mCContactType" id="mCContactType" class="form-control" >
-										<option value="1">Sms</option>
-										<option value="2">WhatsApp</option>
-										<option value="3">Casa</option>
-										<option value="4">Domicilio</option>
-									</select>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label for="mCEstatus">Estatus:</label>
-									<select name="mCEstatus" id="mCEstatus" class="form-control" >
-										<option value="1">Activo</option>
-										<option value="2">Inactivo</option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-save-contacto" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Cerrar</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="modal fade" id="modal-messages" tabindex="-1" role="dialog" aria-labelledby="modal-messages-title" aria-hidden="true">
-			<div class="modal-dialog modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-messages-title"> </span></h3>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-4">
-								<div class="form-group">
-									<label for="mMIdLocation">Ubicacion:</label>
-									<select name="mMIdLocation" id="mMIdLocation" class="form-control" disabled>
-										<option value="1">Tlaquiltenango</option>
-										<option value="2">Zacatepec</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label for="mMContactType">Tipo:</label>
-									<select name="mMContactType" id="mMContactType" class="form-control" disabled>
-										<option value="1">Sms</option>
-										<option value="2">WhatsApp</option>
-										<option value="3">Casa</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-group">
-									<label for="mMEstatus">Estatus del Paquete:</label>
-									<select name="mMEstatus" id="mMEstatus" class="form-control" disabled>
-											<option value="1">Nuevo</option>
-									</select>
-								</div>
-							</div>
-
-						</div>
-						<div class="row">
-							<div class="col-md-12">
-								<div class="form-group">
-									<label for="mMMessage">Mensaje:</label>
-									<textarea class="form-control" id="mMMessage" name="mMMessage" rows="2"></textarea>
-								</div>
-							</div>
-						</div>
-						<div class="row" style="overflow: auto; max-height: 250px; width: 100%;">
-							<div class="col-md-12">
-								<table class="table" id="tbl-list-sms">
-									<thead>
-									<tr>
-										<th>#</th>
-										<th>Télefono</th>
-										<th>Nombre</th>
-										<th>Paquetes</th>
-										<th>Guías</th>
-									</tr>
-									</thead>
-									<tbody id="tbl-listPackage">
-									<!-- Las filas de la tabla se generarán aquí -->
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-save-messages" type="button" class="btn btn-success" title="Enviar">Enviar</button>
-						<button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Cerrar</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
-		<div class="modal fade" id="modal-release-package" tabindex="-1" role="dialog" aria-labelledby="modal-release-package-title" aria-hidden="true">
-			<div class="modal-dialog modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3 class="modal-title"><span id="modal-release-package-title"> </span></h3>
-						<button id="close-mrp-x" type="button" class="close" data-dismiss="modal" aria-label="Close" title="Cerrar">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form id="form-modal-release-package" name="form-modal-release-package" class="form" enctype="multipart/form-data">
-							<div class="row">
-								<div class="col-md-12" style="text-align: center;">
-									<div id="code-reader" style="width: 100%;"></div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="mrp-id_location">Ubicacion:</label>
-										<select name="mrp-id_location" id="mrp-id_location" class="form-control" disabled>
-										<option value="1">Tlaquiltenango</option>
-										<option value="2">Zacatepec</option>
-									</select>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="mrp-date-release">Fecha:</label>
-										<input type="text" class="form-control" name="mrp-date-release" id="mrp-date-release" value="" disabled>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-2">
-									<label for="btn-mrp-scan">* Escaner:</label>
-									<button id="btn-mrp-scan" type="button" class="btn-primary btn-sm" title="Iniciar Escaner">
-									<i class="fa fa-camera" aria-hidden="true"></i>
-									</button>
-								</div>
-								<div class="col-md-10">
-									<div class="form-group">
-										<label for="mrp-tracking">* Guía:</label>
-										<input type="text" class="form-control" name="mrp-tracking" id="mrp-tracking" value="" autocomplete="off">
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12" style="overflow: auto; max-height: 250px; width: 100%;">
-								<table class="table" id="tablaPaquetes">
-								<thead>
-									<tr>
-										<th>Guía</th>
-										<th>Télefono</th>
-										<th>Destinatario</th>
-										<th>Folio</th>
-									</tr>
-								</thead>
-								<tbody>
-									<!-- Los datos se agregarán aquí mediante jQuery -->
-								</tbody>
-								</table>
-								</div>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button id="btn-mrp-save" type="button" class="btn btn-success" title="Liberar">Liberar</button>
-						<button id="close-mrp-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
+		<?php
+		include('modal/folio.php');
+		include('modal/contact.php');
+		include('modal/package.php');
+		include('modal/messages.php');
+		include('modal/release.php');
+		?>
 	</body>
 </html>

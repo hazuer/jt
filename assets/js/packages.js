@@ -1,33 +1,17 @@
 $(document).ready(function() {
 	let baseController = 'controllers/packageController.php';
 
+	let idLocationSelected = $('#option-location');
+	let id_location        = $('#id_location');
 	let id_package         = $('#id_package');
 	let folio              = $('#folio');
 	let action             = $('#action');
-	let id_location        = $('#id_location');
 	let c_date             = $('#c_date');
 	let phone              = $('#phone');
 	let receiver           = $('#receiver');
 	let tracking           = $('#tracking');
 	let id_status          = $('#id_status');
-	let html5QrcodeScanner = '';
-	let divStatusTracking  = $('#div-scan-tracking');
 	let divStatus          = $('#div-status');
-	let html5QrRelease = '';
-	let listQrScaned = '';
-	let lastResult         = 0;
-
-	phone.on('input', function() {
-        let input = $(this).val();
-        input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
-        $(this).val(input);
-
-        if (input.length === 10) {
-			// $('#coincidencias').empty();
-			// $('#coincidencias').hide();
-			receiver.focus();
-        }
-    });
 
   	let table = $('#tbl-packages').DataTable({
 		"bPaginate": true,
@@ -37,15 +21,15 @@ $(document).ready(function() {
 		"scrollY": '500px',
         "scrollCollapse": true,
 		"columns" : [
-			{title: `id_package`,   name : `id_package`,   data : `id_package`}, //0
-			{title: `Guía`,     name : `tracking`,     data : `tracking`},       //1
-			{title: `Télefono`,     name : `phone`,        data : `phone`},      //2
-			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
-			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
-			{title: `Folio`,        name : `folio`,        data : `folio`},      //5
-			{title: `Destinatario`, name : `receiver`,     data : `receiver`},   //6
-			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //7
-			{title: `Estatus`,       name : `status_desc`,  data : `status_desc`},//8
+			{title: `id_package`,   name : `id_package`,   data : `id_package`},  //0
+			{title: `Guía`,         name : `tracking`,     data : `tracking`},    //1
+			{title: `Télefono`,     name : `phone`,        data : `phone`},       //2
+			{title: `id_location`,  name : `id_location`,  data : `id_location`}, //3
+			{title: `c_date`,       name : `c_date`,       data : `c_date`},      //4
+			{title: `Folio`,        name : `folio`,        data : `folio`},       //5
+			{title: `Destinatario`, name : `receiver`,     data : `receiver`},    //6
+			{title: `id_status`,    name : `id_status`,    data : `id_status`},   //7
+			{title: `Estatus`,      name : `status_desc`,  data : `status_desc`}, //8
 			{title: `note`,         name : `note`,         data : `note`},        //9
 			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //10 + 1 last
 		],
@@ -62,12 +46,11 @@ $(document).ready(function() {
 	});
 
 	$("#btn-first-package, #btn-add-package").click(function(e){
-		let idLocation  = $('#option-location').val();
 		let fechaFormateada = getCurrentDate();
 		let row = {
 			id_package : 0,
 			phone      : '',
-			id_location: idLocation,
+			id_location: idLocationSelected.val(),
 			c_date     : fechaFormateada,
 			id_status  : 1,
 			tracking   : '',
@@ -75,7 +58,7 @@ $(document).ready(function() {
 			note       : '',
 			id_contact : 0,
 		}
-		loadEventForm(row);
+		loadPackageForm(row);
 	});
 
 	function getCurrentDate(){
@@ -92,22 +75,14 @@ $(document).ready(function() {
 		return dtCurrent;
 	}
 
-	/*
-	$(`#tbl-packages tbody`).on( `click`, `#btn-edit-package`, function () {
-		let row = table.row( $(this).closest('tr') ).data();
-		loadEventForm(row);
-	});
-	*/
-
 	$(`#tbl-packages tbody`).on( `click`, `#btn-records`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
-		loadEventForm(row);
+		loadPackageForm(row);
 	});
 
-	async function loadEventForm(row){
+	async function loadPackageForm(row){
 		let titleModal = '';
 		$('#form-modal-package')[0].reset();
-		divStatusTracking.show();
 		divStatus.hide();
 
 		id_package.val(row.id_package);
@@ -123,13 +98,15 @@ $(document).ready(function() {
 		$('#btn-erase').show();
 		$('#phone').prop('disabled', false);
 		$('#receiver').prop('disabled', false);
+		$('#tracking').prop('disabled', false);
 
 		if(row.id_package!=0){
-			divStatusTracking.hide();
+			$('#div-keep-modal').hide();
 			divStatus.show();
 			folio.val(row.folio);
 			titleModal=`Editar Paquete ${row.folio}`;
 			action.val('update');
+			$('#tracking').prop('disabled', true);
 
 			if(row.id_status!=1){
 				$('#phone').prop('disabled', true);
@@ -137,6 +114,8 @@ $(document).ready(function() {
 			}
 			$('#btn-erase').hide();
 		}else{
+			$('#opcMA').prop('checked', true);
+			$('#div-keep-modal').show();
 			let newFolio = await getFolio('new');
 			folio.val(newFolio);
 			titleModal = `Nuevo Paquete ${newFolio}`;
@@ -152,7 +131,7 @@ $(document).ready(function() {
 	async function getFolio(type) {
 		let folio    = 0;
 		let formData =  new FormData();
-		formData.append('id_location', $('#option-location').val());
+		formData.append('id_location', idLocationSelected.val());
 		formData.append('type', type);
 		formData.append('option', 'getFolio');
 		try {
@@ -171,59 +150,11 @@ $(document).ready(function() {
 		return folio;
 	}
 
-	$('#btn-scan-code').click(function(){
-		let counter   = 0;
-		let initialTime = 0;
-		function onScanSuccess(decodedText, decodedResult) {
-			if(counter==0){
-				initialTime = getNow();
-				readQr(decodedText);
-			}else{
-				let now = getNow();
-				let diffTime = Math.abs(now-initialTime);
-				if(diffTime>=3000){
-					readQr(decodedText);
-					initialTime = getNow();
-				}
-			}
-			counter++;
-		}
-		let config = {
-			fps: 10,
-			qrbox: {width: 400, height: 150},
-			rememberLastUsedCamera: true,
-			// Only support camera scan type.
-			supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-		  };
-		  // { fps: 10, qrbox : { width: 400, height: 150 } }
-		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config);
-		html5QrcodeScanner.render(onScanSuccess);
-	});
-
-	function getNow(){
-		let date = new Date();
-		return date.getTime();
-	}
-
-	function readQr(decodedText){
-		try {
-				tracking.val(decodedText);
-				savePackage(decodedText);
-		} catch (error) {
-			swal("Invalid QR!", "", "error");
-			$('.swal-button-container').hide();
-			setTimeout(function(){
-				swal.close();
-			}, 2500);
-		}
-	}
-
 	$('#btn-save').click(function(){
-		let tracking = $('#tracking').val();
-		savePackage(tracking);
+		savePackage();
 	});
 
-	
+
 	$('#btn-erase').click(function(){
 		$('#id_contact').val(0);
 		$('#phone').val('');
@@ -235,12 +166,14 @@ $(document).ready(function() {
 	//-----------------------
 	$('#tracking').on('input', function() {
 		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
-		if (input.length === 15 && input.substr(0, 3) === "JMX") {
+		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 			$('#btn-save').click();
 		}
 	});
 
-	function savePackage(decodedText) {
+	function savePackage() {
+		let decodedText = $('#tracking').val();
+
 		if(phone.val()=='' || receiver.val()=='' || tracking.val()==''){
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
@@ -248,13 +181,12 @@ $(document).ready(function() {
 
 		let p = phone.val().trim(); // Eliminar espacios en blanco al inicio y al final
 		if (p.length!=10){
-			console.log(p.length);
 			swal("Atención!", "* El número de télefono no es válido", "error");
 			return;
 		}
 
 		let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
-		if (t.length !== 15 || t.substr(0, 3) !== "JMX") {
+		if (t.length !== 15 || t.substr(0, 3).toUpperCase() !== "JMX") {
 			let mensajeError = "* Código de barras no válido:";
 			if (t.length !== 15) {
 				mensajeError += " Debe tener 15 caracteres.";
@@ -264,16 +196,17 @@ $(document).ready(function() {
 			swal("Atención!", mensajeError, "error");
 			return;
 		}
+		let guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
 
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
-		formData.append('id_location',id_location.val());
+		formData.append('id_location',idLocationSelected.val());
 		formData.append('folio',folio.val());
 		formData.append('c_date',c_date.val());
 		formData.append('phone',phone.val());
 		formData.append('receiver',receiver.val());
 		formData.append('id_contact',$('#id_contact').val());
-		formData.append('tracking',decodedText);
+		formData.append('tracking',guia);
 		formData.append('id_status',id_status.val());
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
@@ -290,18 +223,37 @@ $(document).ready(function() {
 		.done(function(response) {
 
 			if(response.success=='true'){
-				if(action.val()=='new'){
-					//TODO:$('audio#beep-sound')[0].play();
-					//TODO::html5QrcodeScanner.clear();
-				}
 				swal(`${response.message}`, "", "success");
 				$('.swal-button-container').hide();
 				$('#modal-package').modal('hide');
-				setTimeout(function(){
-					swal.close();
-					window.location.reload();
-				}, 1500);
+				if(action.val()=="update"){
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 1500);
+					return;
+				}
 
+				if(action.val()=="new"){
+					if ($('#opcMA').prop('checked')) {
+						setTimeout(function(){
+							swal.close();
+							setTimeout(function(){
+								$('#btn-add-package').click();
+								setTimeout(function(){
+									phone.focus();
+								}, 100);
+							}, 300);
+						}, 500);
+						return;
+					} else{
+						setTimeout(function(){
+							swal.close();
+							window.location.reload();
+						}, 1500);
+						return;
+					}
+				}
 			}
 			if(response.success=='false'){
 				swal("Atención!", `${response.message}`, "info");
@@ -309,16 +261,23 @@ $(document).ready(function() {
 				setTimeout(function(){
 					swal.close();
 				}, 3500);
+				return;
 			}
 		}).fail(function(e) {
 			console.log("Opps algo salio mal",e);
 		});
 	}
 
-	$('#phone').on('input', function() {
+	phone.on('input', function() {
         let phoneNumber = $(this).val();
-		let id_location = $('#id_location').val();
+		let id_location = idLocationSelected.val();
         let coincidenciasDiv = $('#coincidencias');
+
+        input = phoneNumber.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+        $(this).val(input);
+        if (input.length === 10) {
+			receiver.focus();
+        }
 
         $.ajax({
             url: `${base_url}/${baseController}`, // URL ficticia de la API
@@ -362,23 +321,11 @@ $(document).ready(function() {
 		$('#phone').val(phoneNumber);
 		$('#id_contact').val(id_contact);
 		$('#coincidencias').hide();
-		if($('#action').val()=='new'){
-			let scanner = html5QrcodeScanner;
-			if(scanner!=''){
-				html5QrcodeScanner.clear();
-			}
-			//$('#btn-scan-code').click();// enable camera
-		}
 		$('#tracking').focus();
 	});
 
 	$('#close-qr-b,#close-qr-x').click(function(){
-		let scanner = html5QrcodeScanner;
-		if(scanner!=''){
-			html5QrcodeScanner.clear();
-		}
-		$('#coincidencias').empty();
-		$('#coincidencias').hide();
+		window.location.reload();
 	});
 
 	$('#mfNumFolio').on('input', function() {
@@ -410,7 +357,7 @@ $(document).ready(function() {
 	async function loadModalFolio() {
 		let foliActual= await getFolio('current');
 		$('#mfFolioActual').val(foliActual);
-		$('#mfIdLocation').val($('#option-location').val());
+		$('#mfIdLocation').val(idLocationSelected.val());
 		$('#mfModo').val(1);
 		$('#mfNumFolio').val(0);
 		$('#mfNumFolio').prop('disabled', true);
@@ -425,7 +372,7 @@ $(document).ready(function() {
 		}
 
 		let formData =  new FormData();
-		formData.append('id_location', $('#mfIdLocation').val());
+		formData.append('id_location', idLocationSelected.val());
 		formData.append('mfNumFolio', $('#mfNumFolio').val());
 		formData.append('option', 'saveFolio');
 		try {
@@ -465,8 +412,9 @@ $(document).ready(function() {
 			$('#mCName').focus();
 		}
 	});
+
 	$('#btn-contacto').click(function(){
-		$('#mCIdLocation').val($('#option-location').val());
+		$('#mCIdLocation').val(idLocationSelected.val());
 		$('#mCPhone').val('');
 		$('#mCName').val('');
 
@@ -484,7 +432,7 @@ $(document).ready(function() {
 		}
 
 		let formData =  new FormData();
-		formData.append('id_location', $('#mCIdLocation').val());
+		formData.append('id_location', idLocationSelected.val());
 		formData.append('mCPhone', $('#mCPhone').val());
 		formData.append('mCName', $('#mCName').val());
 		formData.append('mCContactType', $('#mCContactType').val());
@@ -506,7 +454,6 @@ $(document).ready(function() {
 					$('#modal-contacto').modal('hide');
 					setTimeout(function(){
 						swal.close();
-						//window.location.reload();
 					}, 1500);
 				}
 			}).fail(function(e) {
@@ -534,7 +481,7 @@ $(document).ready(function() {
 		let listPackage = await getPackageNewSms();
 		generateTable(listPackage);
 
-		$('#mMIdLocation').val($('#option-location').val());
+		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
 		let msj=`Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
@@ -550,7 +497,7 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 	async function getPackageNewSms() {
 		let listPackage = [];
 		let formData =  new FormData();
-		formData.append('id_location', $('#option-location').val());
+		formData.append('id_location', idLocationSelected.val());
 		formData.append('IdContactType', $('#mMContactType').val());
 		formData.append('idStatus', $('#mMEstatus').val());
 		formData.append('option','getPackageNewSms');
@@ -692,9 +639,9 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 		});
 	}
 
-let sentCount = 0;
+
 async function enviarNotificaciones(arrayNotification) {
-	
+	let sentCount = 0;
     const totalNotifications = arrayNotification.length;
     swal({
         title: 'Procesando',
@@ -705,19 +652,53 @@ async function enviarNotificaciones(arrayNotification) {
 
     for (let i = 0; i < totalNotifications; i++) {
         const data = arrayNotification[i];
+		console.log(data);
+		return;
 		let formData = new FormData();
-		formData.append('id_location', $('#mCIdLocation').val());
+		formData.append('id_location', idLocationSelected.val());
 		formData.append('idContactType', $('#mCContactType').val());
 		formData.append('message', $('#mMMessage').val());
 		formData.append('arrayNotification', JSON.stringify(data));
 		formData.append('option', 'sendMessages');
-        try {
+
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				contentType: false,
+				processData: false,
+			});
+			console.log(response);
+			if(response.success==='true'){
+				sentCount++;
+                swal({
+                    title: 'Procesando',
+                    text: `Enviando ${sentCount} de ${totalNotifications}`,
+                    icon: 'info',
+                    buttons: false
+                });
+
+                if (sentCount === totalNotifications) {
+                    swal({
+                        title: 'Proceso completado',
+                        text: 'Se han enviado todas las notificaciones',
+                        icon: 'success',
+                        button: 'Aceptar'
+                    });
+                }
+			}
+			
+			// Manejar la respuesta aquí
+		} catch (error) {
+			// Manejar errores aquí
+		}
+       /* try {
             const response = await fetch(`${base_url}/${baseController}`, {
                 method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                data: formData,
+				contentType: false,
+				processData: false,
             });
 			console.log(response);
 
@@ -743,7 +724,7 @@ async function enviarNotificaciones(arrayNotification) {
             }
         } catch (error) {
             console.error(`Error al enviar operación ${i + 1}: ${error.message}`);
-        }
+        }*/
     }
 }
 
@@ -753,7 +734,7 @@ async function enviarNotificaciones(arrayNotification) {
 	$('#btn-release-package').click(function(){
 		listPackage = [];
 		$('#form-modal-release-package')[0].reset();
-		$('#mrp-id_location').val($('#option-location').val());
+		$('#mrp-id_location').val(idLocationSelected.val());
 		let fechaFormateada = getCurrentDate();
 		$('#mrp-date-release').val(fechaFormateada);
 		$('#tablaPaquetes').hide();
@@ -769,58 +750,20 @@ async function enviarNotificaciones(arrayNotification) {
 		loadReaderScan()
 	});
 
-	function loadReaderScan(){
-		let counter   = 0;
-		let initialTime        = 0;
-		//let diffTime =0;
-		let titleModal =  'Scan QR';
-		listQrScaned ='';
-		function onScanSuccess(decodedText, decodedResult) {
-
-			if(counter==0){
-				initialTime = getNow();
-				saveAndReleasePakage(decodedText);
-			}else{
-				let now = getNow();
-				let diffTime = Math.abs(now-initialTime);
-				if(diffTime>=3000){
-					saveAndReleasePakage(decodedText);
-					initialTime = getNow();
-				}
-			}
-			counter++;
-		}
-		let config = {
-			fps: 10,
-			qrbox: {width: 400, height: 150},
-			rememberLastUsedCamera: true,
-			// Only support camera scan type.
-			supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-		  };
-		html5QrRelease = new Html5QrcodeScanner("code-reader", config);
-		html5QrRelease.render(onScanSuccess);
-	}
-
 	$('#close-mrp-x,#close-mrp-b').click(function(){
-		/*let scanner2 = html5QrRelease;
-		if(scanner2!=''){
-			html5QrRelease.clear();
-		}
-		lastResult         = 0;*/
 		window.location.reload();
 	});
 
 	$('#btn-mrp-save').click(function(){
-		let tracking = $('#mrp-tracking').val();
-		saveAndReleasePakage(tracking);
+		
+		saveAndReleasePakage();
 	});
 
-	function saveAndReleasePakage(tracking){
-
+	function saveAndReleasePakage(){
 		try {
-			listPackageRelease.push(`'${tracking}'`);
+			let tracking = $('#mrp-tracking').val();
 			let t = $('#mrp-tracking').val().trim(); // Eliminar espacios en blanco al inicio y al final
-			if (t.length !== 15 || t.substr(0, 3) !== "JMX") {
+			if (t.length !== 15 || t.substr(0, 3).toUpperCase() !== "JMX") {
 				let mensajeError = "* Código de barras no válido:";
 				if (t.length !== 15) {
 					mensajeError += " Debe tener 15 caracteres.";
@@ -830,9 +773,14 @@ async function enviarNotificaciones(arrayNotification) {
 				swal("Atención!", mensajeError, "error");
 				return;
 			}
+
+			let guia = tracking.substring(0, 3).toUpperCase() + tracking.substring(3);
+			listPackageRelease.push(`'${guia}'`);
+
+
 			let formData = new FormData();
-			formData.append('id_location',$('#mrp-id_location').val());
-			formData.append('tracking',tracking);
+			formData.append('id_location',idLocationSelected.val());
+			formData.append('tracking',guia);
 			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
 			formData.append('option','releasePackage');
 			$.ajax({
@@ -859,13 +807,13 @@ async function enviarNotificaciones(arrayNotification) {
 							$('#tablaPaquetes tbody').append(row);
 						});
 					}
-					swal(tracking, response.message, "success");
+					swal(guia, response.message, "success");
 				}else {
-					let index = listPackageRelease.indexOf(`'${tracking}'`);
+					let index = listPackageRelease.indexOf(`'${guia}'`);
 					if (index !== -1) {
 						listPackageRelease.splice(index, 1);
 					}
-					swal(tracking, response.message, "warning");
+					swal(guia, response.message, "warning");
 				}
 				$('.swal-button-container').hide();
 				setTimeout(function(){
@@ -884,9 +832,8 @@ async function enviarNotificaciones(arrayNotification) {
 
 	//-----------------------
 	$('#mrp-tracking').on('input', function() {
-		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
-		if (input.length === 15 && input.substr(0, 3) === "JMX") {
-			// ENTER
+		let input = $(this).val().trim();
+		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 			$('#btn-mrp-save').click();
 		}
 	});

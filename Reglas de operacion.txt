@@ -15,3 +15,5 @@ para que un paquete pueda ser liberado este debe estar en los estatus:
 
 
 id del cat contact no puede ser 0
+
+Unable to create record: 'To' number: +52734373XXXX, is not a valid mobile number
