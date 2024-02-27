@@ -1,6 +1,6 @@
 <?php
-// error_reporting(E_ALL);
-// ini_set('display_errors', '1');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
 session_start();
@@ -257,6 +257,9 @@ switch ($_POST['option']) {
 	break;
 
 	case 'sendMessages':
+
+		echo json_encode($_POST);
+		die();
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
@@ -280,22 +283,22 @@ switch ($_POST['option']) {
 
 			$totalSms    = COUNT($arrayNotification);
 			$smsEnviados = 0;
-			
+			//var_dump($arrayNotification);
 			foreach ($arrayNotification as $item) {
 				$phone = $item['phone'];
 
 				$client = new Client($account_sid, $auth_token);
 				#################################
-				#$response = (object) ['sid' => true];
+				$response = (object) ['sid' => true];
 				#################################
 				try {
-					$response = $client->messages->create(
+					/*$response = $client->messages->create(
 						'+52'.$phone,
 						array(
 							'from' => $twilio_number,
 							'body' => $smsMessage
 						)
-					);
+					);*/
 
 					if ($response->sid) {
 						$data['sid']   = $response->sid;

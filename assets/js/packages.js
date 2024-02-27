@@ -38,24 +38,21 @@ $(document).ready(function() {
         "scrollCollapse": true,
 		"columns" : [
 			{title: `id_package`,   name : `id_package`,   data : `id_package`}, //0
-			{title: `Guía`,     name : `tracking`,     data : `tracking`},   //1
+			{title: `Guía`,     name : `tracking`,     data : `tracking`},       //1
 			{title: `Télefono`,     name : `phone`,        data : `phone`},      //2
 			{title: `id_location`,  name : `id_location`,  data : `id_location`},//3
 			{title: `c_date`,       name : `c_date`,       data : `c_date`},     //4
 			{title: `Folio`,        name : `folio`,        data : `folio`},      //5
-			{title: `d_validity`,   name : `d_validity`,   data : `d_validity`}, //6
-			{title: `Destinatario`, name : `receiver`,     data : `receiver`},   //7
-			{title: `d_date`,       name : `d_date`,       data : `d_date`},     //8
-			{title: `d_user_id`,    name : `d_user_id`,    data : `d_user_id`},  //9
-			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //10
-			{title: `Estatus`,       name : `status_desc`,  data : `status_desc`},//11
-			{title: `note`,         name : `note`,         data : `note`},        //12
-			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //13 + 1 last
+			{title: `Destinatario`, name : `receiver`,     data : `receiver`},   //6
+			{title: `id_status`,    name : `id_status`,    data : `id_status`},  //7
+			{title: `Estatus`,       name : `status_desc`,  data : `status_desc`},//8
+			{title: `note`,         name : `note`,         data : `note`},        //9
+			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //10 + 1 last
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,3,4,6,8,9,10,12,13], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 14 }, // last
+			{ "targets": [0,3,4,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
+			{ "orderable": false,"targets": 11 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
 		'select': {
@@ -540,7 +537,11 @@ $(document).ready(function() {
 		$('#mMIdLocation').val($('#option-location').val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`¡Hola! Tienes un paquete pendiente por recoger en C. Nicolas Bravo 203, Col. Gabriel Tepepa, Tlaquiltenango Mor. Horario: Lun a Vie 10:00-18:00. ¡Gracias!`;
+		let msj=`Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
+Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
+Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
+Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
+¡Gracias y esperamos que disfrutes de tu paquete!`;
 		$('#mMMessage').val(msj);
 		$('#modal-messages-title').html('Envio de Mensajes');
 		$('#modal-messages').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -637,7 +638,7 @@ $(document).ready(function() {
 			})
 			.then((weContinue) => {
 			  if (weContinue) {
-				sendAllMessages(arrayNotification);
+				enviarNotificaciones(arrayNotification);
 			  } else {
 				return false;
 			  }
@@ -645,13 +646,22 @@ $(document).ready(function() {
 	});
 
 	function sendAllMessages(arrayNotification) {
+		
+		//enviarNotificaciones(arrayNotification);
 
-		let formData = new FormData();
+
+		/*let formData = new FormData();
 		formData.append('id_location', $('#mCIdLocation').val());
 		formData.append('idContactType', $('#mCContactType').val());
 		formData.append('message', $('#mMMessage').val());
 		formData.append('arrayNotification', JSON.stringify(arrayNotification));
 		formData.append('option', 'sendMessages');
+
+		console.log(arrayNotification);*/
+		
+
+
+		return;
 
 		$.ajax({
 			url: `${base_url}/${baseController}`,
@@ -681,6 +691,61 @@ $(document).ready(function() {
 			console.log("Opps algo salio mal",e);
 		});
 	}
+
+let sentCount = 0;
+async function enviarNotificaciones(arrayNotification) {
+	
+    const totalNotifications = arrayNotification.length;
+    swal({
+        title: 'Procesando',
+        text: `Enviando 1 de ${totalNotifications}`,
+        icon: 'info',
+        buttons: false
+    });
+
+    for (let i = 0; i < totalNotifications; i++) {
+        const data = arrayNotification[i];
+		let formData = new FormData();
+		formData.append('id_location', $('#mCIdLocation').val());
+		formData.append('idContactType', $('#mCContactType').val());
+		formData.append('message', $('#mMMessage').val());
+		formData.append('arrayNotification', JSON.stringify(data));
+		formData.append('option', 'sendMessages');
+        try {
+            const response = await fetch(`${base_url}/${baseController}`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+			console.log(response);
+
+            if (response.ok) {
+                sentCount++;
+                swal({
+                    title: 'Procesando',
+                    text: `Enviando ${sentCount} de ${totalNotifications}`,
+                    icon: 'info',
+                    buttons: false
+                });
+
+                if (sentCount === totalNotifications) {
+                    swal({
+                        title: 'Proceso completado',
+                        text: 'Se han enviado todas las notificaciones',
+                        icon: 'success',
+                        button: 'Aceptar'
+                    });
+                }
+            } else {
+                console.error(`Error al enviar operación ${i + 1}`);
+            }
+        } catch (error) {
+            console.error(`Error al enviar operación ${i + 1}: ${error.message}`);
+        }
+    }
+}
 
 	//------------------------------------------ release
 	let  listPackageRelease=[];

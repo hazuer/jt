@@ -10,9 +10,9 @@ define('BASE_URL','https://'.$docRoot);
 define('PAGE_TITLE','J&T Express');
 
 //database configuration
-define('HOST','127.0.0.1');
-define('USERNAME','root');
-define('PASSWD','');
+define('HOST','srv1134.hstgr.io');
+define('USERNAME','u611824705_admin');
+define('PASSWD','FJ4t82*i');
 define('DBNAME','u611824705_jt');
 define('PORT','3306');
 define('SOCKET','null');
