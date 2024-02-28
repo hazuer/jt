@@ -10,14 +10,9 @@
             <div class="modal-body">
                 <form id="form-modal-release-package" name="form-modal-release-package" class="form" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-12" style="text-align: center;">
-                            <div id="code-reader" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="mrp-id_location">Ubicacion:</label>
+                                <label for="mrp-id_location"><b>Ubicación:</b></label>
                                 <select name="mrp-id_location" id="mrp-id_location" class="form-control" disabled>
                                 <option value="1">Tlaquiltenango</option>
                                 <option value="2">Zacatepec</option>
@@ -26,7 +21,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="mrp-date-release">Fecha:</label>
+                                <label for="mrp-date-release"><b>Fecha:</b></label>
                                 <input type="text" class="form-control" name="mrp-date-release" id="mrp-date-release" value="" disabled>
                             </div>
                         </div>
@@ -34,7 +29,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="mrp-tracking">* Guía:</label>
+                                <label for="mrp-tracking"><b>* Guía:</b></label>
                                 <input type="text" class="form-control" name="mrp-tracking" id="mrp-tracking" value="" autocomplete="off">
                             </div>
                         </div>

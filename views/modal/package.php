@@ -20,13 +20,13 @@
                         <div class="col-md-6">
                             <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="keepModal" id="opcMA" value="option1">
-                            <label class="form-check-label" for="opcMA">Guardar y volver a registrar</label>
+                            <label class="form-check-label" for="opcMA"><b>Guardar y volver a registrar</b></label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="keepModal" id="opcGC" value="option2">
-                            <label class="form-check-label" for="opcGC">Guardar y cerrar</label>
+                            <label class="form-check-label" for="opcGC"><b>Guardar y cerrar</b></label>
                             </div>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="id_location">Ubicacion:</label>
+                                <label for="id_location"><b>Ubicación:</b></label>
                                 <select name="id_location" id="id_location" class="form-control" disabled>
                                 <option value="1">Tlaquiltenango</option>
                                 <option value="2">Zacatepec</option>
@@ -43,7 +43,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="c_date">Fecha:</label>
+                                <label for="c_date"><b>Fecha:</b></label>
                                 <input type="text" class="form-control" name="c_date" id="c_date" value="" disabled>
                             </div>
                         </div>
@@ -51,14 +51,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="phone">* Télefono:</label>
+                                <label for="phone"><b>* Télefono:</b></label>
                                 <input type="text" class="form-control" name="phone" id="phone" value="" autocomplete="off" >
                             </div>
                             <div id="coincidencias" style="display: none;"></div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="receiver">* Nombre:</label>
+                                <label for="receiver"><b>* Nombre:</b></label>
                                 <input type="receiver" class="form-control" name="receiver" id="receiver" value="" autocomplete="off">
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="tracking">* Guía:</label>
+                                <label for="tracking"><b>* Guía:</b></label>
                                 <input type="text" class="form-control" name="tracking" id="tracking" value="" autocomplete="off">
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                     <div class="row" id="div-status">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="id_status">Status:</label>
+                                <label for="id_status"><b>Estatus:</b></label>
                                 <select name="id_status" id="id_status" class="form-control">
                                     <option value="1">Nuevo</option>
                                     <option value="2">SMS Enviado</option>
@@ -86,7 +86,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="note">Nota:</label>
+                                <label for="note"><b>Nota:</b></label>
                                 <input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
                             </div>
                         </div>

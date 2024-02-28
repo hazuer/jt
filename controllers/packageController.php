@@ -327,9 +327,12 @@ switch ($_POST['option']) {
 
 		$listIds = explode(",", $ids);
 		foreach ($listIds as $id_package) {
+			$nDate = date("Y-m-d H:i:s");
 			$data['id_package']  = $id_package;
-			$data['n_date']      = date("Y-m-d H:i:s");
+			$data['n_date']      = $nDate;
 			$db->insert('notification',$data);
+			$upData['n_date']    = $nDate;
+			$upData['n_user_id'] = $_SESSION["uId"];
 			$upData['id_status'] = $statusPackage;
 			$db->update('package',$upData," `id_package` IN($id_package)");
 		}
@@ -419,4 +422,42 @@ switch ($_POST['option']) {
 		}
 		echo json_encode($result);
 	break;
+
+	case 'getRecordsSms':
+		try {
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al consultar sms enviados';
+		$id_package   = $_POST['id_package'];
+		$sql="SELECT 
+			n.n_date,
+			cc.phone,
+			cc.contact_name,
+			un.user,
+			n.message 
+			FROM 
+				notification n 
+			INNER JOIN users un ON un.id = n.n_user_id 
+			INNER JOIN package p  ON p.id_package = n.id_package 
+			INNER JOIN cat_contact cc ON cc.id_contact = p.id_contact 
+			WHERE 
+			n.id_package IN($id_package) 
+			ORDER  BY n.n_date DESC";
+		$success  = 'true';
+		$dataJson = $db->select($sql);
+		$message  = 'ok';
+		$result = [
+			'success'  => $success,
+			'dataJson' => $dataJson,
+			'message'  => $message
+		];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
 }

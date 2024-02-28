@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mfIdLocation">Ubicacion:</label>
+                            <label for="mfIdLocation"><b>Ubicación:</b></label>
                             <select name="mfIdLocation" id="mfIdLocation" class="form-control" disabled>
                                 <option value="1">Tlaquiltenango</option>
                                 <option value="2">Zacatepec</option>
@@ -20,9 +20,9 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mfModo">Modo:</label>
+                            <label for="mfModo"><b>Modo:</b></label>
                             <select name="mfModo" id="mfModo" class="form-control">
-                                <option value="1">Automatico</option>
+                                <option value="1">Automático</option>
                                 <option value="2">Personalizado</option>
                             </select>
                         </div>
@@ -31,13 +31,13 @@
                 <div class="row">
                 <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mfFolioActual">Folio Actual:</label>
+                            <label for="mfFolioActual"><b>Folio Actual:</b></label>
                             <input type="text" class="form-control" name="mfFolioActual" id="mfFolioActual" value="" autocomplete="off" disabled>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mfNumFolio">* Folio:</label>
+                            <label for="mfNumFolio"><b>* Folio:</b></label>
                             <input type="text" class="form-control" name="mfNumFolio" id="mfNumFolio" value="" autocomplete="off" >
                         </div>
                     </div>

@@ -37,7 +37,7 @@ $(document).ready(function() {
 				}
 			}, 1000);
 		}).fail(function(e) {
-			console.log("Something went wrong",e);
+			console.log("Algo salió  mal",e);
 		})
 	});
 

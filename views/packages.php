@@ -1,7 +1,4 @@
 <?php
-#error_reporting(E_ALL);
-#ini_set('display_errors', '1');
-
 define( '_VALID_MOS', 1 );
 
 session_start();
@@ -127,7 +124,7 @@ $packages = $db->select($sql);
 								<th>status_desc</th>
 								<th>note</th>
 								<th>id_contact</th>
-								<th>Opc.</th>
+								<th>Editar</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -160,7 +157,6 @@ $packages = $db->select($sql);
 				</form>
 			<?php endif; ?>
 		</div>
-
 		<?php
 		include('modal/folio.php');
 		include('modal/contact.php');

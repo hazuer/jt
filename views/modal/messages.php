@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="mMIdLocation">Ubicacion:</label>
+                            <label for="mMIdLocation"><b>Ubicación:</b></label>
                             <select name="mMIdLocation" id="mMIdLocation" class="form-control" disabled>
                                 <option value="1">Tlaquiltenango</option>
                                 <option value="2">Zacatepec</option>
@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="mMContactType">Tipo:</label>
+                            <label for="mMContactType"><b>Tipo:</b></label>
                             <select name="mMContactType" id="mMContactType" class="form-control" disabled>
                                 <option value="1">Sms</option>
                                 <option value="2">WhatsApp</option>
@@ -30,7 +30,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="mMEstatus">Estatus del Paquete:</label>
+                            <label for="mMEstatus"><b>Estatus del Paquete:</b></label>
                             <select name="mMEstatus" id="mMEstatus" class="form-control" disabled>
                                     <option value="1">Nuevo</option>
                             </select>
@@ -41,14 +41,14 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="mMMessage">Mensaje:</label>
+                            <label for="mMMessage"><b>Mensaje SMS:</b></label>
                             <textarea class="form-control" id="mMMessage" name="mMMessage" rows="4"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="row" style="overflow: auto; max-height: 250px; width: 100%;">
                     <div class="col-md-12">
-                        <table class="table" id="tbl-list-sms">
+                        <table class="table table-striped table-bordered nowrap table-hover">
                             <thead>
                             <tr>
                                 <th>#</th>
@@ -58,8 +58,7 @@
                                 <th>Guías</th>
                             </tr>
                             </thead>
-                            <tbody id="tbl-listPackage">
-                            <!-- Las filas de la tabla se generarán aquí -->
+                            <tbody id="tbl-list-package-sms">
                             </tbody>
                         </table>
                     </div>
@@ -67,7 +66,7 @@
             </div>
             <div class="modal-footer">
                 <button id="btn-save-messages" type="button" class="btn btn-success" title="Enviar">Enviar</button>
-                <button type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

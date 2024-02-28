@@ -17,9 +17,10 @@ $(document).ready(function() {
 		"bPaginate": true,
 		//"bFilter": false,
 		"bInfo" : true,
-		"scrollX": false,
-		"scrollY": '500px',
-        "scrollCollapse": true,
+		scrollCollapse: true,
+		scroller: true,
+		scrollY: 450,
+		scrollX: true,
 		"columns" : [
 			{title: `id_package`,   name : `id_package`,   data : `id_package`},  //0
 			{title: `Guía`,         name : `tracking`,     data : `tracking`},    //1
@@ -473,7 +474,6 @@ $(document).ready(function() {
 	});
 
 	$('#btn-send-messages').click(function(){
-		$("#tbl-list-sms").hide();
 		selectMessages();
 	});
 
@@ -502,12 +502,12 @@ Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás re
 Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
 ¡Gracias y esperamos que disfrutes de tu paquete!`;
 		$('#mMMessage').val(msj);
-		$('#modal-messages-title').html('Envio de Mensajes');
+		$('#modal-messages-title').html('Envío de Mensajes');
 		$('#modal-messages').modal({backdrop: 'static', keyboard: false}, 'show');
 	}
 
 	async function getPackageNewSms() {
-		let listPackage = [];
+		let list = [];
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('IdContactType', $('#mMContactType').val());
@@ -523,20 +523,19 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				processData: false
 			});
 			if(response.success=='true'){
-				listPackage = response;
+				list = response;
 			}
 		} catch (error) {
 			console.error(error);
 		}
-		return listPackage;
+		return list;
 	}
 
 	// Función para procesar el JSON y generar filas de tabla
 	function generateTable(data) {
 		// Limpiar la tabla
-		$('#tbl-listPackage').empty();
+		$('#tbl-list-package-sms').empty();
 		$('#btn-save-messages').show();
-		$("#tbl-list-sms").show();
 
 		// Iterar sobre los datos del JSON y generar filas de tabla
 		let c=1;
@@ -546,13 +545,13 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				<td>${item.phone}</td>
 				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
-				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver Paquetes" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
+				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
 			</tr>`;
-			$('#tbl-listPackage').append(row);
+			$('#tbl-list-package-sms').append(row);
 			c++;
 		});
 
-		$('#tbl-listPackage').on('click', '.btn-idx', function() {
+		$('#tbl-list-package-sms').on('click', '.btn-idx', function() {
 			let name = $(this).data('name');
 			let trackings = $(this).data('trackings');
 			swal(`${name}`,trackings, "success");
@@ -582,7 +581,7 @@ async function enviarNotificaciones() {
 	// Array para almacenar los ids de las filas seleccionadas
 	let arrayNotification = [];
 	// Iterar sobre las filas de la tabla
-	$('#tbl-listPackage tr').each(function(index, row) {
+	$('#tbl-list-package-sms tr').each(function(index, row) {
 		// Obtener el id de la fila actual
 		let phonex = $(row).find('.btn-idx').data('phone');
 		let idsx = $(row).find('.btn-idx').data('ids');
