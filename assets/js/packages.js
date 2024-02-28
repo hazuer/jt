@@ -479,12 +479,24 @@ $(document).ready(function() {
 
 	async function selectMessages() {
 		let listPackage = await getPackageNewSms();
+		let tmsj = listPackage.dataJson;
+		if(tmsj.length==0){
+			swal("Estás al día!", "No hay mensajes para enviar", "success");
+			$('.swal-button-container').hide();
+			$('#btn-save-messages').hide();
+			setTimeout(function(){
+				swal.close();
+				$('#modal-messages').modal('hide');
+			}, 2500);
+			return;
+		}
+
 		generateTable(listPackage);
 
 		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
+		let msj=`NodeJs-PHP: Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
 Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
 Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
 Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
@@ -524,17 +536,6 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 		// Limpiar la tabla
 		$('#tbl-listPackage').empty();
 		$('#btn-save-messages').show();
-		let tmsj = data.dataJson;
-		if(tmsj.length==0){
-			swal("Estás al día!", "No hay mensajes para enviar", "success");
-			$('.swal-button-container').hide();
-			$('#btn-save-messages').hide();
-			setTimeout(function(){
-				swal.close();
-				$('#modal-messages').modal('hide');
-			}, 2500);
-			return;
-		}
 		$("#tbl-list-sms").show();
 
 		// Iterar sobre los datos del JSON y generar filas de tabla
@@ -560,22 +561,6 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 	}
 
 	$('#btn-save-messages').click(function(){
-		// Array para almacenar los ids de las filas seleccionadas
-		let arrayNotification = [];
-		// Iterar sobre las filas de la tabla
-		$('#tbl-listPackage tr').each(function(index, row) {
-			// Obtener el id de la fila actual
-			let phonex = $(row).find('.btn-idx').data('phone');
-			let namex = $(row).find('.btn-idx').data('name');
-			let trackingsx = $(row).find('.btn-idx').data('trackings');
-			let idsx = $(row).find('.btn-idx').data('ids');
-			arrayNotification.push({phone:phonex,
-				name:namex,
-				trackings:trackingsx,
-				ids:idsx
-			});
-		});
-
 		swal({
 				title: "Enviar Mensajes",
 				text: "Está seguro?",
@@ -585,80 +570,45 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 			})
 			.then((weContinue) => {
 			  if (weContinue) {
-				enviarNotificaciones(arrayNotification);
+				enviarNotificaciones();
 			  } else {
 				return false;
 			  }
 			});
 	});
 
-	function sendAllMessages(arrayNotification) {
-		
-		//enviarNotificaciones(arrayNotification);
 
-
-		/*let formData = new FormData();
-		formData.append('id_location', $('#mCIdLocation').val());
-		formData.append('idContactType', $('#mCContactType').val());
-		formData.append('message', $('#mMMessage').val());
-		formData.append('arrayNotification', JSON.stringify(arrayNotification));
-		formData.append('option', 'sendMessages');
-
-		console.log(arrayNotification);*/
-		
-
-
-		return;
-
-		$.ajax({
-			url: `${base_url}/${baseController}`,
-			type: 'POST',
-			data: formData,
-			contentType: false,
-			processData: false,
-			beforeSend: function() {
-				showSwal();
-				$('.swal-button-container').hide();
-			}
-		})
-		.done(function(response) {
-				swal.close();
-				if(response.success==='true'){
-					swal("Exito!", response.message, "success");
-					$('#modal-messages').modal('hide');
-					$('.swal-button-container').hide();
-					setTimeout(function(){
-						swal.close();
-						window.location.reload();
-					}, 5500);
-				}else{
-					swal("Error!", "Ocurrio un error al enviar los sms", "error");
-				}
-		}).fail(function(e) {
-			console.log("Opps algo salio mal",e);
+async function enviarNotificaciones() {
+	// Array para almacenar los ids de las filas seleccionadas
+	let arrayNotification = [];
+	// Iterar sobre las filas de la tabla
+	$('#tbl-listPackage tr').each(function(index, row) {
+		// Obtener el id de la fila actual
+		let phonex = $(row).find('.btn-idx').data('phone');
+		let idsx = $(row).find('.btn-idx').data('ids');
+		arrayNotification.push({phone:phonex,
+			ids:idsx
 		});
-	}
+	});
 
-
-async function enviarNotificaciones(arrayNotification) {
 	let sentCount = 0;
     const totalNotifications = arrayNotification.length;
     swal({
-        title: 'Procesando',
-        text: `Enviando 1 de ${totalNotifications}`,
+        title: `Enviando mensajes 1 de ${totalNotifications}`,
+        text: 'Procesando, espere por favor ...',
         icon: 'info',
         buttons: false
     });
 
     for (let i = 0; i < totalNotifications; i++) {
-        const data = arrayNotification[i];
-		console.log(data);
-		return;
+        const item = arrayNotification[i];
+
 		let formData = new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('idContactType', $('#mCContactType').val());
 		formData.append('message', $('#mMMessage').val());
-		formData.append('arrayNotification', JSON.stringify(data));
+		formData.append('ids',item.ids);
+		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
 
 		try {
@@ -669,62 +619,33 @@ async function enviarNotificaciones(arrayNotification) {
 				contentType: false,
 				processData: false,
 			});
-			console.log(response);
 			if(response.success==='true'){
 				sentCount++;
                 swal({
-                    title: 'Procesando',
-                    text: `Enviando ${sentCount} de ${totalNotifications}`,
+                    title: `Enviando mensajes ${sentCount} de ${totalNotifications}`,
+					text: 'Procesando, espere por favor ...',
                     icon: 'info',
                     buttons: false
                 });
 
-                if (sentCount === totalNotifications) {
-                    swal({
-                        title: 'Proceso completado',
-                        text: 'Se han enviado todas las notificaciones',
-                        icon: 'success',
-                        button: 'Aceptar'
-                    });
-                }
+				if (sentCount === totalNotifications) {
+					$('#modal-messages').modal('hide');
+					swal({
+						title: 'Se han enviado todos los mensajes',
+						text: 'Operación finalizada',
+						icon: 'success',
+						buttons: false
+					});
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 5500);
+				}
 			}
-			
-			// Manejar la respuesta aquí
 		} catch (error) {
-			// Manejar errores aquí
+			console.log("Opps algo salio mal",error);
+
 		}
-       /* try {
-            const response = await fetch(`${base_url}/${baseController}`, {
-                method: 'POST',
-                data: formData,
-				contentType: false,
-				processData: false,
-            });
-			console.log(response);
-
-            if (response.ok) {
-                sentCount++;
-                swal({
-                    title: 'Procesando',
-                    text: `Enviando ${sentCount} de ${totalNotifications}`,
-                    icon: 'info',
-                    buttons: false
-                });
-
-                if (sentCount === totalNotifications) {
-                    swal({
-                        title: 'Proceso completado',
-                        text: 'Se han enviado todas las notificaciones',
-                        icon: 'success',
-                        button: 'Aceptar'
-                    });
-                }
-            } else {
-                console.error(`Error al enviar operación ${i + 1}`);
-            }
-        } catch (error) {
-            console.error(`Error al enviar operación ${i + 1}: ${error.message}`);
-        }*/
     }
 }
 
@@ -755,7 +676,6 @@ async function enviarNotificaciones(arrayNotification) {
 	});
 
 	$('#btn-mrp-save').click(function(){
-		
 		saveAndReleasePakage();
 	});
 
@@ -838,4 +758,9 @@ async function enviarNotificaciones(arrayNotification) {
 		}
 	});
 
+	// -- -------------------------
+
+	$('#btn-report').click(function(){
+		window.location.href = `${base_url}/views/reports.php`;
+	});
 });

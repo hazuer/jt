@@ -111,8 +111,8 @@ $packages = $db->select($sql);
 					</button>
 				</div
 			<?php else: ?>
-				<br />
 				<form id="frm-package">
+				<h3>Paquetes</h3>
 					<table id="tbl-packages" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 						<thead>
 							<tr>

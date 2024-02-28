@@ -5579,9 +5579,16 @@ UPDATE u611824705_jt.folio
 	WHERE id_folio=2;
 delete from cat_contact where id_contact > 5112;
 
+update package set id_status=1;
+
+
 -- truncate table cat_contact;
 
 -- ajustes
 Registrar paquete + un contacto nuevo
 Registrar paquete + conactto existente
 
+
+
+-- validar el codigo de sms para en caso de error
+status de las notificaciones para saber si se envio el mensaje

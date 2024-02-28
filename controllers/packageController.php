@@ -254,7 +254,6 @@ switch ($_POST['option']) {
 	break;
 
 	case 'sendMessages':
-
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
@@ -270,46 +269,76 @@ switch ($_POST['option']) {
 		$data['message']         = $smsMessage;
 		$data['id_contact_type'] = $idContactType;
 
-		$arrayNotification   = json_decode($_POST['arrayNotification'], true);
+		$ids   = $_POST['ids'];
+		$phone = $_POST['phone'];
 
-			$totalSms    = COUNT($arrayNotification);
-			$smsEnviados = 0;
-			//var_dump($arrayNotification);
-			foreach ($arrayNotification as $item) {
-				$phone = $item['phone'];
-				var_dump($item);
-				die();
 
-				#################################
-				$response = (object) ['sid' => true];
-				#################################
-				try {
-					if ($response->sid) {
-						$data['sid']   = $response->sid;
-						$statusPackage = 2; // SMS Enviado
-						$smsEnviados++;
-					}
-				} catch (Exception $e) {
-					$data['sid']   = $e->getMessage();
-					$statusPackage = 6; //Error al enviar SMS
+		$nameFile = "sms_".$phone;
+		$jsfile_content = 'const adb = require("adbkit");
+		const { spawn } = require("child_process");
+		const client = adb.createClient();
+		const phoneNumber = `'.$phone.'`;
+		const message = `'.$smsMessage.'`;
+		// Comando adb para enviar el SMS
+		const command = `am start -a android.intent.action.SENDTO -d sms:${phoneNumber} --es sms_body "${message}" --ez exit_on_sent true`;
+		client.listDevices()
+			.then((devices) => {
+				if (devices.length > 0) {
+					const deviceId = devices[0].id;
+					const child = spawn(`adb`, [`-s`, deviceId, `shell`, command], { stdio: `inherit` });
+					child.on(`exit`, (code) => {
+						console.log(`Proceso de envío de SMS finalizado con código de salida ${code}`);
+					});
+				} else {
+					console.error(`No se encontraron dispositivos conectados.`);
 				}
-
-				//Recorrer los ids y guardar su notificacion y actualizar su estatus
-				$listIds = explode(",", $item['ids']);
-				foreach ($listIds as $id_package) {
-					$data['id_package']  = $id_package;
-					$data['n_date']  = date("Y-m-d H:i:s");
-					$db->insert('notification',$data);
-					$upData['id_status'] = $statusPackage;
-					$db->update('package',$upData," `id_package` IN($id_package)");
-				}
+			})
+			.catch((err) => {
+				console.error(`Error al obtener la lista de dispositivos:`, err);
+			});';
+		$init = array(
+			"nameFile" => $nameFile,
+		);
+		require_once('../nodejs/NodeJs.php');
+		$nodeFile = new NodeJs($init);
+		$path_file = 'C:/laragon/www/jt/nodejs/';
+		$nodeFile->createContentFileJs($path_file, $jsfile_content);
+		//$nodeFile->getContentFile(true); # true:continue
+		$nodeJsPath = $nodeFile->getFullPathFile();
+		//var_dump($nodeJsPath);
+		$output = null;
+		$retval = null;
+		$rstNodeJs = null;
+		try {
+			exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
+			if (isset($output[0]) && !empty($output[0])) {
+				$rstNodeJs = $output[1];
+				$data['sid']   = $rstNodeJs;
+				$statusPackage = 2; // SMS Enviado
+			}else{
+				$data['sid']   = "Sin respueta de nodeJs";
+				$statusPackage = 6; //Error al enviar SMS
 			}
+		} catch (Exception $e) {
+			$data['sid']   = $e->getMessage();
+			$statusPackage = 6; //Error al enviar SMS
+		}
+		unlink($nodeJsPath);
 
-			$result = [
-				'success'  => 'true',
-				'dataJson' => [],
-				'message'  => "Se han enviado $smsEnviados mensajes de un total de $totalSms"
-			];
+		$listIds = explode(",", $ids);
+		foreach ($listIds as $id_package) {
+			$data['id_package']  = $id_package;
+			$data['n_date']      = date("Y-m-d H:i:s");
+			$db->insert('notification',$data);
+			$upData['id_status'] = $statusPackage;
+			$db->update('package',$upData," `id_package` IN($id_package)");
+		}
+		sleep(2);
+		$result = [
+			'success'  => 'true',
+			'dataJson' => [$rstNodeJs],
+			'message'  => "Enviados"
+		];
 
 		echo json_encode($result);
 	break;
