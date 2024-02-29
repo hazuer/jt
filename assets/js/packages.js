@@ -496,7 +496,7 @@ $(document).ready(function() {
 		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`NodeJs-PHP: Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
+		let msj=`Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
 Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
 Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
 Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
@@ -545,7 +545,7 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				<td>${item.phone}</td>
 				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
-				<td style="text-align:center"><button type="button" class="btn-info btn-sm btn-idx" title="Ver" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye" aria-hidden="true"></i></button></td>
+				<td style="text-align:center"><span class="badge badge-pill badge-info btn-idx" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span></td>
 			</tr>`;
 			$('#tbl-list-package-sms').append(row);
 			c++;
@@ -762,4 +762,22 @@ async function enviarNotificaciones() {
 	$('#btn-report').click(function(){
 		window.location.href = `${base_url}/views/reports.php`;
 	});
+
+	//--------------
+	$('#btn-template').click(function(){
+		console.log('clic');
+		loadModalTemplate();
+	});
+	async function loadModalTemplate() {
+		console.log('load');
+		//let foliActual= await getFolio('current');
+		//$('#mfFolioActual').val(foliActual);
+		//$('#mfIdLocation').val(idLocationSelected.val());
+		//$('#mfModo').val(1);
+		//$('#mfNumFolio').val(0);
+		//$('#mfNumFolio').prop('disabled', true);
+		$('#modal-template-title').html('Plantilla de Mensajes');
+		$('#modal-template').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
 });

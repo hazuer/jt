@@ -153,9 +153,11 @@ $packages = $db->select($sql);
 						<td><?php echo $d['status_desc']; ?></td>
 						<td><?php echo $d['n_date']; ?></td>
 						<td><?php echo $d['sms_by_user']; ?></td>
-						<td><button type="button" id='btn-details' class="btn-info btn-sm" title="Ver">
-							<i class="fa fa-eye" aria-hidden="true"> <?php echo $d['t_sms_sent']; ?></i>
-							</button>
+						<td>
+							<?php if($d['t_sms_sent']==0){ echo "0";}else{ ?>
+								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details" title="Ver"><?php echo $d['t_sms_sent']; ?></span>
+							<?php
+							} ?>
 						</td>
 						<td><?php echo $d['d_date']; ?></td>
 						<td><?php echo $d['user_libera']; ?></td>

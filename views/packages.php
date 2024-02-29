@@ -25,8 +25,10 @@ p.id_location,
 p.c_date,
 p.folio,
 CASE 
-    WHEN DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FF9999;'
-    WHEN DATEDIFF(NOW(), p.c_date) >= 2 THEN 'background-color: #FFFF99;'
+    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 5 THEN 'background-color: #FF9999;'
+    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 4 THEN 'background-color: #FFFF99;'
+    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FF9999;'
+    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) >= 2 THEN 'background-color: #FFFF99;'
     ELSE ''
 END AS styleCtrlDays,
 cc.contact_name receiver,
@@ -144,9 +146,9 @@ $packages = $db->select($sql);
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-12">
-											<button type="button" id='btn-records' class="btn-info btn-sm" title="Editar">
-												<i class="fa fa-edit" aria-hidden="true"></i>
-											</button>
+											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
+												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
+											</span>
 										</div>
 									</div>
 								</td>
@@ -160,6 +162,7 @@ $packages = $db->select($sql);
 		<?php
 		include('modal/folio.php');
 		include('modal/contact.php');
+		include('modal/template.php');
 		include('modal/package.php');
 		include('modal/messages.php');
 		include('modal/release.php');

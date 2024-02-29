@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div class="row">
-                <div class="col-md-6">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="mfFolioActual"><b>Folio Actual:</b></label>
                             <input type="text" class="form-control" name="mfFolioActual" id="mfFolioActual" value="" autocomplete="off" disabled>

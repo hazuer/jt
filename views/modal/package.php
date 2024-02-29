@@ -16,7 +16,7 @@
                         <input type="hidden" name="action" id="action" value="" >
                     </div>
 
-                    <div class="row" id="div-keep-modal">
+                    <div class="row" id="div-keep-modal" style="margin-bottom: 20px;">
                         <div class="col-md-6">
                             <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="keepModal" id="opcMA" value="option1">
