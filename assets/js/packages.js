@@ -545,7 +545,12 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				<td>${item.phone}</td>
 				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
-				<td style="text-align:center"><span class="badge badge-pill badge-info btn-idx" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span></td>
+				<td style="text-align:center">
+				<span class="badge badge-pill badge-info btn-idx btn-w" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span>
+
+				<span class="badge badge-pill badge-primary btn-w"  style="cursor: pointer;" data-phone="${item.phone}">
+				<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i></span>
+				</td>
 			</tr>`;
 			$('#tbl-list-package-sms').append(row);
 			c++;
@@ -556,6 +561,15 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 			let trackings = $(this).data('trackings');
 			swal(`${name}`,trackings, "success");
 			$('.swal-button-container').hide();
+		});
+
+		$('#tbl-list-package-sms').on('click', '.btn-w', function() {
+			let phone = $(this).data('phone');
+			var miVentana = window.open('https://api.whatsapp.com/send?phone=52'+phone+'&text=Te%20notificamos%20que%20tu%20paquete%20con%20J%26T%20-%20Zacatepec%20est%C3%A1%20listo%20para%20ser%20recogido.%20Podr%C3%A1s%20hacerlo%20en%20los%20siguientes%20d%C3%ADas%20y%20horarios%3A%20Martes%2027%20y%20Mi%C3%A9rcoles%2028%20de%20febrero%2C%20de%2010%3A00%20a.m.%20a%203%3A00%20p.m.%20Si%20no%20puedes%20hacerlo%20dentro%20de%20este%20plazo%2C%20tu%20paquete%20ser%C3%A1%20devuelto%20el%20jueves%2029%20de%20febrero%20de%202024%20a%20las%2011%3A00%20a.m.%0APor%20favor%2C%20aseg%C3%BArate%20de%20ajustarte%20a%20los%20d%C3%ADas%20y%20horarios%20mencionados.%20Recuerda%20que%20no%20hay%20servicio%20de%20entrega%20los%20s%C3%A1bados%20y%20domingos.%0ATen%20en%20cuenta%20que%20J%26T%20ya%20no%20realiza%20entregas%20a%20domicilio%2C%20por%20lo%20que%20deber%C3%A1s%20recoger%20tu%20paquete%20en%20el%20lugar%20indicado%3Ahttps%3A%2F%2Fmaps.app.goo.gl%2Fpj2QbZCFF3xcKzD7A%0ARecuerda%20presentar%20una%20identificaci%C3%B3n%20al%20momento%20de%20recoger%20el%20paquete.%20Puede%20ser%20cualquier%20persona%20que%20designes.%0A%C2%A1Gracias%20y%20esperamos%20que%20disfrutes%20de%20tu%20paquete!', '_blank');
+			setTimeout(function() {
+				miVentana.location.reload();
+				console.log('reload');
+			}, 1000);
 		});
 	}
 
@@ -609,7 +623,7 @@ async function enviarNotificaciones() {
 		formData.append('ids',item.ids);
 		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
-
+		var miVentana = window.open('https://api.whatsapp.com/send?phone=52'+item.phone+'&text=Te%20notificamos%20que%20tu%20paquete%20con%20J%26T%20-%20Zacatepec%20est%C3%A1%20listo%20para%20ser%20recogido.%20Podr%C3%A1s%20hacerlo%20en%20los%20siguientes%20d%C3%ADas%20y%20horarios%3A%20Martes%2027%20y%20Mi%C3%A9rcoles%2028%20de%20febrero%2C%20de%2010%3A00%20a.m.%20a%203%3A00%20p.m.%20Si%20no%20puedes%20hacerlo%20dentro%20de%20este%20plazo%2C%20tu%20paquete%20ser%C3%A1%20devuelto%20el%20jueves%2029%20de%20febrero%20de%202024%20a%20las%2011%3A00%20a.m.%0APor%20favor%2C%20aseg%C3%BArate%20de%20ajustarte%20a%20los%20d%C3%ADas%20y%20horarios%20mencionados.%20Recuerda%20que%20no%20hay%20servicio%20de%20entrega%20los%20s%C3%A1bados%20y%20domingos.%0ATen%20en%20cuenta%20que%20J%26T%20ya%20no%20realiza%20entregas%20a%20domicilio%2C%20por%20lo%20que%20deber%C3%A1s%20recoger%20tu%20paquete%20en%20el%20lugar%20indicado%3Ahttps%3A%2F%2Fmaps.app.goo.gl%2Fpj2QbZCFF3xcKzD7A%0ARecuerda%20presentar%20una%20identificaci%C3%B3n%20al%20momento%20de%20recoger%20el%20paquete.%20Puede%20ser%20cualquier%20persona%20que%20designes.%0A%C2%A1Gracias%20y%20esperamos%20que%20disfrutes%20de%20tu%20paquete!', '_blank');
 		try {
 			const response = await $.ajax({
 				url: `${base_url}/${baseController}`,
@@ -626,6 +640,11 @@ async function enviarNotificaciones() {
                     icon: 'info',
                     buttons: false
                 });
+				//setTimeout(function(){
+					//miVentana.close();
+					console.log('cerrar ventana');
+				//}, 2000);
+				
 
 				if (sentCount === totalNotifications) {
 					$('#modal-messages').modal('hide');
@@ -637,7 +656,7 @@ async function enviarNotificaciones() {
 					});
 					setTimeout(function(){
 						swal.close();
-						window.location.reload();
+						//window.location.reload();
 					}, 5500);
 				}
 			}

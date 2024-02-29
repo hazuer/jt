@@ -7,6 +7,24 @@ session_start();
 date_default_timezone_set('America/Mexico_City');
 
 
+//https://jt.test/controllers/packageController.php
+//C:\Program Files\nodejs
+/*$output = null;
+$retval = null;
+$path='D:/Programs/laragon/www/jt/nodejs/robots.js';
+
+try {
+	exec('C:\"Program Files"\nodejs\node.exe ' . $path . ' 2>&1', $output, $retval);
+	//exec('C:\"Program Files"\nodejs\node.exe -v', $output, $retval);
+} catch (\Throwable $th) {
+	var_dump('error:',$th);
+}
+
+var_dump($output);
+die();
+*/
+
+
 require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
@@ -273,57 +291,56 @@ switch ($_POST['option']) {
 		$phone = $_POST['phone'];
 
 
-		$nameFile = "sms_".$phone;
-		$jsfile_content = 'const adb = require("adbkit");
-		const { spawn } = require("child_process");
-		const client = adb.createClient();
-		const phoneNumber = `'.$phone.'`;
-		const message = `'.$smsMessage.'`;
-		// Comando adb para enviar el SMS
-		const command = `am start -a android.intent.action.SENDTO -d sms:${phoneNumber} --es sms_body "${message}" --ez exit_on_sent true`;
-		client.listDevices()
-			.then((devices) => {
-				if (devices.length > 0) {
-					const deviceId = devices[0].id;
-					const child = spawn(`adb`, [`-s`, deviceId, `shell`, command], { stdio: `inherit` });
-					child.on(`exit`, (code) => {
-						console.log(`Proceso de envío de SMS finalizado con código de salida ${code}`);
-					});
-				} else {
-					console.error(`No se encontraron dispositivos conectados.`);
-				}
-			})
-			.catch((err) => {
-				console.error(`Error al obtener la lista de dispositivos:`, err);
-			});';
-		$init = array(
-			"nameFile" => $nameFile,
-		);
-		require_once('../nodejs/NodeJs.php');
-		$nodeFile = new NodeJs($init);
-		$path_file = 'C:/laragon/www/jt/nodejs/';
-		$nodeFile->createContentFileJs($path_file, $jsfile_content);
+######		$nameFile = "sms_".$phone;
+######		$jsfile_content = 'const robot = require("robotjs");
+######		const { exec } = require("child_process");
+######		// Esperar un momento para que la ventana de WhatsApp de escritorio esté activa
+######		exec("sleep 5 && open /Applications/WhatsApp.app", () => {
+######		  setTimeout(() => {
+######			// Enviar la tecla "Enter"
+######			robot.keyTap("enter");
+######			console.log("0");
+######		  }, 3000);
+######		});';
+######		$init = array(
+######			"nameFile" => $nameFile,
+######		);
+######		require_once('../nodejs/NodeJs.php');
+######		$nodeFile = new NodeJs($init);
+		//$path_file = 'C:/laragon/www/jt/nodejs/';
+######		$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
+######		$nodeFile->createContentFileJs($path_file, $jsfile_content);
 		//$nodeFile->getContentFile(true); # true:continue
-		$nodeJsPath = $nodeFile->getFullPathFile();
+######		$nodeJsPath = $nodeFile->getFullPathFile();
 		//var_dump($nodeJsPath);
+		sleep(4);
+		$enter='D:/Programs/laragon/www/jt/nodejs/robots.js';
 		$output = null;
 		$retval = null;
 		$rstNodeJs = null;
 		try {
-			exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
-			if (isset($output[0]) && !empty($output[0])) {
-				$rstNodeJs = $output[1];
+			//exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
+			#exec('C:\"Program Files"\nodejs\node.exe ' . $enter . ' 2>&1', $output, $retval);
+			//var_dump($output[0]);
+			#$rstNodeJs = $output[0];
+			//var_dump($rstNodeJs);
+			/*if (isset($output[0]) && !empty($output[0])) {
+				$rstNodeJs = $output[0];
+				var_dump($rstNodeJs);
 				$data['sid']   = $rstNodeJs;
 				$statusPackage = 2; // SMS Enviado
 			}else{
 				$data['sid']   = "Sin respueta de nodeJs";
 				$statusPackage = 6; //Error al enviar SMS
-			}
+			}*/
+
+			$data['sid']   = 1;
+			$statusPackage = 2; // SMS Enviado
 		} catch (Exception $e) {
 			$data['sid']   = $e->getMessage();
 			$statusPackage = 6; //Error al enviar SMS
 		}
-		unlink($nodeJsPath);
+		// unlink($nodeJsPath);
 
 		$listIds = explode(",", $ids);
 		foreach ($listIds as $id_package) {
@@ -334,9 +351,8 @@ switch ($_POST['option']) {
 			$upData['n_date']    = $nDate;
 			$upData['n_user_id'] = $_SESSION["uId"];
 			$upData['id_status'] = $statusPackage;
-			$db->update('package',$upData," `id_package` IN($id_package)");
+			//$db->update('package',$upData," `id_package` IN($id_package)");
 		}
-		sleep(2);
 		$result = [
 			'success'  => 'true',
 			'dataJson' => [$rstNodeJs],
