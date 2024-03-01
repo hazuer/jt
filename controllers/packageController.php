@@ -1,29 +1,10 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+#error_reporting(E_ALL);
+#ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
 session_start();
 date_default_timezone_set('America/Mexico_City');
-
-
-//https://jt.test/controllers/packageController.php
-//C:\Program Files\nodejs
-/*$output = null;
-$retval = null;
-$path='D:/Programs/laragon/www/jt/nodejs/robots.js';
-
-try {
-	exec('C:\"Program Files"\nodejs\node.exe ' . $path . ' 2>&1', $output, $retval);
-	//exec('C:\"Program Files"\nodejs\node.exe -v', $output, $retval);
-} catch (\Throwable $th) {
-	var_dump('error:',$th);
-}
-
-var_dump($output);
-die();
-*/
-
 
 require_once('../system/configuration.php');
 require_once('../system/DB.php');
@@ -252,7 +233,8 @@ switch ($_POST['option']) {
 		AND p.id_status IN (1) 
 		AND cct.id_contact_type IN (1) 
 		GROUP BY cc.phone,main_name
-		ORDER BY cc.phone ASC";
+		ORDER BY cc.phone ASC
+		LIMIT 20";
 				$success  = 'true';
 				$dataJson = $db->select($sql);
 				$message  = 'ok';
@@ -290,57 +272,8 @@ switch ($_POST['option']) {
 		$ids   = $_POST['ids'];
 		$phone = $_POST['phone'];
 
-
-######		$nameFile = "sms_".$phone;
-######		$jsfile_content = 'const robot = require("robotjs");
-######		const { exec } = require("child_process");
-######		// Esperar un momento para que la ventana de WhatsApp de escritorio esté activa
-######		exec("sleep 5 && open /Applications/WhatsApp.app", () => {
-######		  setTimeout(() => {
-######			// Enviar la tecla "Enter"
-######			robot.keyTap("enter");
-######			console.log("0");
-######		  }, 3000);
-######		});';
-######		$init = array(
-######			"nameFile" => $nameFile,
-######		);
-######		require_once('../nodejs/NodeJs.php');
-######		$nodeFile = new NodeJs($init);
-		//$path_file = 'C:/laragon/www/jt/nodejs/';
-######		$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
-######		$nodeFile->createContentFileJs($path_file, $jsfile_content);
-		//$nodeFile->getContentFile(true); # true:continue
-######		$nodeJsPath = $nodeFile->getFullPathFile();
-		//var_dump($nodeJsPath);
-		sleep(4);
-		$enter='D:/Programs/laragon/www/jt/nodejs/robots.js';
-		$output = null;
-		$retval = null;
-		$rstNodeJs = null;
-		try {
-			//exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
-			#exec('C:\"Program Files"\nodejs\node.exe ' . $enter . ' 2>&1', $output, $retval);
-			//var_dump($output[0]);
-			#$rstNodeJs = $output[0];
-			//var_dump($rstNodeJs);
-			/*if (isset($output[0]) && !empty($output[0])) {
-				$rstNodeJs = $output[0];
-				var_dump($rstNodeJs);
-				$data['sid']   = $rstNodeJs;
-				$statusPackage = 2; // SMS Enviado
-			}else{
-				$data['sid']   = "Sin respueta de nodeJs";
-				$statusPackage = 6; //Error al enviar SMS
-			}*/
-
-			$data['sid']   = 1;
-			$statusPackage = 2; // SMS Enviado
-		} catch (Exception $e) {
-			$data['sid']   = $e->getMessage();
-			$statusPackage = 6; //Error al enviar SMS
-		}
-		// unlink($nodeJsPath);
+		$data['sid']   = 1;
+		$statusPackage = 2; // WhatsApp Enviado
 
 		$listIds = explode(",", $ids);
 		foreach ($listIds as $id_package) {
@@ -351,13 +284,14 @@ switch ($_POST['option']) {
 			$upData['n_date']    = $nDate;
 			$upData['n_user_id'] = $_SESSION["uId"];
 			$upData['id_status'] = $statusPackage;
-			//$db->update('package',$upData," `id_package` IN($id_package)");
+			$db->update('package',$upData," `id_package` IN($id_package)");
 		}
 		$result = [
 			'success'  => 'true',
-			'dataJson' => [$rstNodeJs],
+			'dataJson' => ['ok'],
 			'message'  => "Enviados"
 		];
+		sleep(1);
 
 		echo json_encode($result);
 	break;
@@ -444,7 +378,7 @@ switch ($_POST['option']) {
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error al consultar sms enviados';
+		$message  = 'Error al consultar mensajes enviados';
 		$id_package   = $_POST['id_package'];
 		$sql="SELECT 
 			n.n_date,

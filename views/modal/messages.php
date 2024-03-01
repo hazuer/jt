@@ -22,8 +22,8 @@
                         <div class="form-group">
                             <label for="mMContactType"><b>Tipo:</b></label>
                             <select name="mMContactType" id="mMContactType" class="form-control" disabled>
-                                <option value="1">Sms</option>
-                                <option value="2">WhatsApp</option>
+                                <option value="1">WhatsApp</option>
+                                <option value="2">Sms</option>
                                 <option value="3">Casa</option>
                             </select>
                         </div>
@@ -41,7 +41,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="mMMessage"><b>Mensaje SMS:</b></label>
+                            <label for="mMMessage"><b>Mensaje:</b></label>
                             <textarea class="form-control" id="mMMessage" name="mMMessage" rows="4"></textarea>
                         </div>
                     </div>

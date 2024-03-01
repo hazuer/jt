@@ -5593,6 +5593,115 @@ Registrar paquete + conactto existente
 -- validar el codigo de sms para en caso de error
 status de las notificaciones para saber si se envio el mensaje
 
+//https://jt.test/controllers/packageController.php
+//C:\Program Files\nodejs
+/*$output = null;
+$retval = null;
+$path='D:/Programs/laragon/www/jt/nodejs/robots.js';
+
+try {
+	exec('C:\"Program Files"\nodejs\node.exe ' . $path . ' 2>&1', $output, $retval);
+	//exec('C:\"Program Files"\nodejs\node.exe -v', $output, $retval);
+} catch (\Throwable $th) {
+	var_dump('error:',$th);
+}
+
+var_dump($output);
+die();
+*/
+
 
 var miVentana = window.open('https://api.whatsapp.com/send?phone=527341346283&text=Te%20notificamos%20que%20tu%20paquete%20con%20J%26T%20-%20Zacatepec%20est%C3%A1%20listo%20para%20ser%20recogido.%20Podr%C3%A1s%20hacerlo%20en%20los%20siguientes%20d%C3%ADas%20y%20horarios%3A%20Martes%2027%20y%20Mi%C3%A9rcoles%2028%20de%20febrero%2C%20de%2010%3A00%20a.m.%20a%203%3A00%20p.m.%20Si%20no%20puedes%20hacerlo%20dentro%20de%20este%20plazo%2C%20tu%20paquete%20ser%C3%A1%20devuelto%20el%20jueves%2029%20de%20febrero%20de%202024%20a%20las%2011%3A00%20a.m.%0APor%20favor%2C%20aseg%C3%BArate%20de%20ajustarte%20a%20los%20d%C3%ADas%20y%20horarios%20mencionados.%20Recuerda%20que%20no%20hay%20servicio%20de%20entrega%20los%20s%C3%A1bados%20y%20domingos.%0ATen%20en%20cuenta%20que%20J%26T%20ya%20no%20realiza%20entregas%20a%20domicilio%2C%20por%20lo%20que%20deber%C3%A1s%20recoger%20tu%20paquete%20en%20el%20lugar%20indicado%3Ahttps%3A%2F%2Fmaps.app.goo.gl%2Fpj2QbZCFF3xcKzD7A%0ARecuerda%20presentar%20una%20identificaci%C3%B3n%20al%20momento%20de%20recoger%20el%20paquete.%20Puede%20ser%20cualquier%20persona%20que%20designes.%0A%C2%A1Gracias%20y%20esperamos%20que%20disfrutes%20de%20tu%20paquete!', '_blank');
 miVentana.close();
+
+
+case 'sendMessages':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al enviar los mensajes';
+
+		$id_location   = $_POST['id_location'];
+		$idContactType = $_POST['idContactType'];
+		$smsMessage    = $_POST['message'];
+
+		$data['id_notification'] = null;
+		$data['id_location']     = $id_location;
+		$data['n_user_id']       = $_SESSION["uId"];
+		$data['message']         = $smsMessage;
+		$data['id_contact_type'] = $idContactType;
+
+		$ids   = $_POST['ids'];
+		$phone = $_POST['phone'];
+
+
+######		$nameFile = "sms_".$phone;
+######		$jsfile_content = 'const robot = require("robotjs");
+######		const { exec } = require("child_process");
+######		// Esperar un momento para que la ventana de WhatsApp de escritorio esté activa
+######		exec("sleep 5 && open /Applications/WhatsApp.app", () => {
+######		  setTimeout(() => {
+######			// Enviar la tecla "Enter"
+######			robot.keyTap("enter");
+######			console.log("0");
+######		  }, 3000);
+######		});';
+######		$init = array(
+######			"nameFile" => $nameFile,
+######		);
+######		require_once('../nodejs/NodeJs.php');
+######		$nodeFile = new NodeJs($init);
+		//$path_file = 'C:/laragon/www/jt/nodejs/';
+######		$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
+######		$nodeFile->createContentFileJs($path_file, $jsfile_content);
+		//$nodeFile->getContentFile(true); # true:continue
+######		$nodeJsPath = $nodeFile->getFullPathFile();
+		//var_dump($nodeJsPath);
+		sleep(4);
+		$enter='D:/Programs/laragon/www/jt/nodejs/robots.js';
+		$output = null;
+		$retval = null;
+		$rstNodeJs = null;
+		try {
+			//exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
+			#exec('C:\"Program Files"\nodejs\node.exe ' . $enter . ' 2>&1', $output, $retval);
+			//var_dump($output[0]);
+			#$rstNodeJs = $output[0];
+			//var_dump($rstNodeJs);
+			/*if (isset($output[0]) && !empty($output[0])) {
+				$rstNodeJs = $output[0];
+				var_dump($rstNodeJs);
+				$data['sid']   = $rstNodeJs;
+				$statusPackage = 2; // SMS Enviado
+			}else{
+				$data['sid']   = "Sin respueta de nodeJs";
+				$statusPackage = 6; //Error al enviar SMS
+			}*/
+
+			$data['sid']   = 1;
+			$statusPackage = 2; // SMS Enviado
+		} catch (Exception $e) {
+			$data['sid']   = $e->getMessage();
+			$statusPackage = 6; //Error al enviar SMS
+		}
+		// unlink($nodeJsPath);
+
+		$listIds = explode(",", $ids);
+		foreach ($listIds as $id_package) {
+			$nDate = date("Y-m-d H:i:s");
+			$data['id_package']  = $id_package;
+			$data['n_date']      = $nDate;
+			$db->insert('notification',$data);
+			$upData['n_date']    = $nDate;
+			$upData['n_user_id'] = $_SESSION["uId"];
+			$upData['id_status'] = $statusPackage;
+			$db->update('package',$upData," `id_package` IN($id_package)");
+		}
+		$result = [
+			'success'  => 'true',
+			'dataJson' => [$rstNodeJs],
+			'message'  => "Enviados"
+		];
+
+		echo json_encode($result);
+	break;

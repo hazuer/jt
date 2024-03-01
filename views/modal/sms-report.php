@@ -19,7 +19,7 @@
                                 <th>Télefono</th>
                                 <th>Destinatario</th>
                                 <th>Envió</th>
-                                <th>Mensaje SMS</th>
+                                <th>Mensaje</th>
                             </tr>
                         </thead>
                         <tbody id="tbl-sms-sent">

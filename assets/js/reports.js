@@ -22,9 +22,9 @@ $(document).ready(function() {
 			{title: `Télefono`,         name:`phone`,            data:`phone`},           //6
 			{title: `Destinatario`,     name:`receiver`,         data:`receiver`},        //7
 			{title: `Estatus`,          name:`status_desc`,      data:`status_desc`},     //8
-			{title: `Fecha SMS`,        name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //9
-			{title: `Envió SMS`,        name:`sms_enviado_por`,  data:`sms_enviado_por`}, //10
-			{title: `Total SMS`,        name:`total_sms`,        data:`total_sms`},       //11
+			{title: `Fecha WhatsApp`,        name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //9
+			{title: `Envió WhatsApp`,        name:`sms_enviado_por`,  data:`sms_enviado_por`}, //10
+			{title: `Total WhatsApp`,        name:`total_sms`,        data:`total_sms`},       //11
 			{title: `Fecha Liberación`, name:`fecha_liberacion`, data:`fecha_liberacion`},//12
 			{title: `Libero`,           name:`libero`,           data:`libero`},          //13
 			{title: `Nota`,             name:`note`,             data:`note`}             //14+ 1 last
@@ -84,7 +84,7 @@ $(document).ready(function() {
 			$('#tbl-sms-sent').append(row);
 			c++;
 		});
-		$('#modal-sms-report-title').html(`Sms Enviados ${phoneTitle}`);
+		$('#modal-sms-report-title').html(`WhatsApp Enviados ${phoneTitle}`);
 	}
 
 });

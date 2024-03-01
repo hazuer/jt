@@ -496,7 +496,7 @@ $(document).ready(function() {
 		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`Te notificamos que tu paquete con J&T - Zacatepec está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
+		let msj=`Te notificamos que tu paquete con J&T está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
 Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
 Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
 Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
@@ -546,10 +546,7 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				<td>${item.main_name}</td>
 				<td>${item.total_p}</td>
 				<td style="text-align:center">
-				<span class="badge badge-pill badge-info btn-idx btn-w" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span>
-
-				<span class="badge badge-pill badge-primary btn-w"  style="cursor: pointer;" data-phone="${item.phone}">
-				<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i></span>
+				<span class="badge badge-pill badge-info btn-idx" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span>
 				</td>
 			</tr>`;
 			$('#tbl-list-package-sms').append(row);
@@ -563,13 +560,16 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 			$('.swal-button-container').hide();
 		});
 
+		/**
+		<span class="badge badge-pill badge-primary btn-w"  style="cursor: pointer;" data-phone="${item.phone}">
+		<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i></span>
+		 */
 		$('#tbl-list-package-sms').on('click', '.btn-w', function() {
 			let phone = $(this).data('phone');
-			var miVentana = window.open('https://api.whatsapp.com/send?phone=52'+phone+'&text=Te%20notificamos%20que%20tu%20paquete%20con%20J%26T%20-%20Zacatepec%20est%C3%A1%20listo%20para%20ser%20recogido.%20Podr%C3%A1s%20hacerlo%20en%20los%20siguientes%20d%C3%ADas%20y%20horarios%3A%20Martes%2027%20y%20Mi%C3%A9rcoles%2028%20de%20febrero%2C%20de%2010%3A00%20a.m.%20a%203%3A00%20p.m.%20Si%20no%20puedes%20hacerlo%20dentro%20de%20este%20plazo%2C%20tu%20paquete%20ser%C3%A1%20devuelto%20el%20jueves%2029%20de%20febrero%20de%202024%20a%20las%2011%3A00%20a.m.%0APor%20favor%2C%20aseg%C3%BArate%20de%20ajustarte%20a%20los%20d%C3%ADas%20y%20horarios%20mencionados.%20Recuerda%20que%20no%20hay%20servicio%20de%20entrega%20los%20s%C3%A1bados%20y%20domingos.%0ATen%20en%20cuenta%20que%20J%26T%20ya%20no%20realiza%20entregas%20a%20domicilio%2C%20por%20lo%20que%20deber%C3%A1s%20recoger%20tu%20paquete%20en%20el%20lugar%20indicado%3Ahttps%3A%2F%2Fmaps.app.goo.gl%2Fpj2QbZCFF3xcKzD7A%0ARecuerda%20presentar%20una%20identificaci%C3%B3n%20al%20momento%20de%20recoger%20el%20paquete.%20Puede%20ser%20cualquier%20persona%20que%20designes.%0A%C2%A1Gracias%20y%20esperamos%20que%20disfrutes%20de%20tu%20paquete!', '_blank');
-			setTimeout(function() {
-				miVentana.location.reload();
-				console.log('reload');
-			}, 1000);
+			let txt = $('#mMMessage').val();
+			let messageEncoding = encodeURIComponent(txt);
+			let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${phone}&text=${messageEncoding}`;
+			window.open(fullUrlTxt, '_blank');
 		});
 	}
 
@@ -615,15 +615,19 @@ async function enviarNotificaciones() {
 
     for (let i = 0; i < totalNotifications; i++) {
         const item = arrayNotification[i];
+		let txt = $('#mMMessage').val();
 
 		let formData = new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('idContactType', $('#mCContactType').val());
-		formData.append('message', $('#mMMessage').val());
+		formData.append('message', txt);
 		formData.append('ids',item.ids);
 		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
-		var miVentana = window.open('https://api.whatsapp.com/send?phone=52'+item.phone+'&text=Te%20notificamos%20que%20tu%20paquete%20con%20J%26T%20-%20Zacatepec%20est%C3%A1%20listo%20para%20ser%20recogido.%20Podr%C3%A1s%20hacerlo%20en%20los%20siguientes%20d%C3%ADas%20y%20horarios%3A%20Martes%2027%20y%20Mi%C3%A9rcoles%2028%20de%20febrero%2C%20de%2010%3A00%20a.m.%20a%203%3A00%20p.m.%20Si%20no%20puedes%20hacerlo%20dentro%20de%20este%20plazo%2C%20tu%20paquete%20ser%C3%A1%20devuelto%20el%20jueves%2029%20de%20febrero%20de%202024%20a%20las%2011%3A00%20a.m.%0APor%20favor%2C%20aseg%C3%BArate%20de%20ajustarte%20a%20los%20d%C3%ADas%20y%20horarios%20mencionados.%20Recuerda%20que%20no%20hay%20servicio%20de%20entrega%20los%20s%C3%A1bados%20y%20domingos.%0ATen%20en%20cuenta%20que%20J%26T%20ya%20no%20realiza%20entregas%20a%20domicilio%2C%20por%20lo%20que%20deber%C3%A1s%20recoger%20tu%20paquete%20en%20el%20lugar%20indicado%3Ahttps%3A%2F%2Fmaps.app.goo.gl%2Fpj2QbZCFF3xcKzD7A%0ARecuerda%20presentar%20una%20identificaci%C3%B3n%20al%20momento%20de%20recoger%20el%20paquete.%20Puede%20ser%20cualquier%20persona%20que%20designes.%0A%C2%A1Gracias%20y%20esperamos%20que%20disfrutes%20de%20tu%20paquete!', '_blank');
+		let messageEncoding = encodeURIComponent(txt);
+		let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${item.phone}&text=${messageEncoding}`;
+
+		window.open(fullUrlTxt, '_blank');
 		try {
 			const response = await $.ajax({
 				url: `${base_url}/${baseController}`,
@@ -640,11 +644,6 @@ async function enviarNotificaciones() {
                     icon: 'info',
                     buttons: false
                 });
-				//setTimeout(function(){
-					//miVentana.close();
-					console.log('cerrar ventana');
-				//}, 2000);
-				
 
 				if (sentCount === totalNotifications) {
 					$('#modal-messages').modal('hide');
@@ -656,7 +655,7 @@ async function enviarNotificaciones() {
 					});
 					setTimeout(function(){
 						swal.close();
-						//window.location.reload();
+						window.location.reload();
 					}, 5500);
 				}
 			}

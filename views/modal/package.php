@@ -77,7 +77,7 @@
                                 <label for="id_status"><b>Estatus:</b></label>
                                 <select name="id_status" id="id_status" class="form-control">
                                     <option value="1">Nuevo</option>
-                                    <option value="2">SMS Enviado</option>
+                                    <option value="2">WhatsApp Enviado</option>
                                     <option value="4">Devuelto</option>
                                     <option value="5">Eliminado</option>
                                     <option value="7">Contactado</option>

@@ -4,4 +4,4 @@ const { exec } = require("child_process");
     // Enviar la tecla "Enter"
     robot.keyTap("enter");
     console.log("1");
-  }, 2000);
+  }, 4000);
