@@ -38,7 +38,7 @@
                         <div class="form-group">
                             <label for="mCContactType"><b>Tipo:</b></label>
                             <select name="mCContactType" id="mCContactType" class="form-control" >
-                                <option value="1">Sms</option>
+                                <option value="1">SMS</option>
                                 <option value="2">WhatsApp</option>
                                 <option value="3">Casa</option>
                                 <option value="4">Domicilio</option>

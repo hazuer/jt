@@ -11,6 +11,14 @@ require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 header('Content-Type: application/json; charset=utf-8');
+$path_file = 'C:/laragon/www/jt/nodejs/sms.js';
+$output = null;
+		$retval = null;
+		$rstNodeJs = null;
+			//exec("node " . $path_file . ' 2>&1', $output, $retval);
+			exec('node "C:/laragon/www/jt/nodejs/sms.js" 2>&1', $output, $retval);
+			var_dump($output);
+			die();
 
 switch ($_POST['option']) {
 
@@ -239,8 +247,7 @@ switch ($_POST['option']) {
 		AND p.id_status IN (1) 
 		AND cct.id_contact_type IN (1) 
 		GROUP BY cc.phone,main_name
-		ORDER BY cc.phone ASC
-		LIMIT 1";
+		ORDER BY cc.phone ASC";
 				$success  = 'true';
 				$dataJson = $db->select($sql);
 				$message  = 'ok';
@@ -278,26 +285,73 @@ switch ($_POST['option']) {
 		$ids   = $_POST['ids'];
 		$phone = $_POST['phone'];
 
-		$data['sid']   = 1;
-		$statusPackage = 2; // WhatsApp Enviado
+
+		$nameFile = "sms_".$phone;
+		$jsfile_content = 'const adb = require("adbkit");
+		const { spawn } = require("child_process");
+		const client = adb.createClient();
+		const phoneNumber = `'.$phone.'`;
+		const message = `'.$smsMessage.'`;
+		// Comando adb para enviar el SMS
+		const command = `am start -a android.intent.action.SENDTO -d sms:${phoneNumber} --es sms_body "${message}" --ez exit_on_sent true`;
+		client.listDevices()
+			.then((devices) => {
+				if (devices.length > 0) {
+					const deviceId = devices[0].id;
+					const child = spawn(`adb`, [`-s`, deviceId, `shell`, command], { stdio: `inherit` });
+					child.on(`exit`, (code) => {
+						console.log(`Proceso de envío de SMS finalizado con código de salida ${code}`);
+					});
+				} else {
+					console.error(`No se encontraron dispositivos conectados.`);
+				}
+			})
+			.catch((err) => {
+				console.error(`Error al obtener la lista de dispositivos:`, err);
+			});';
+		$init = array(
+			"nameFile" => $nameFile,
+		);
+		require_once('../nodejs/NodeJs.php');
+		$nodeFile = new NodeJs($init);
+		$path_file = 'C:/laragon/www/jt/nodejs/';
+		$nodeFile->createContentFileJs($path_file, $jsfile_content);
+		//$nodeFile->getContentFile(true); # true:continue
+		$nodeJsPath = $nodeFile->getFullPathFile();
+		//var_dump($nodeJsPath);
+		$output = null;
+		$retval = null;
+		$rstNodeJs = null;
+		try {
+			exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
+			if (isset($output[0]) && !empty($output[0])) {
+				$rstNodeJs = $output[1];
+				$data['sid']   = $rstNodeJs;
+				$statusPackage = 2; // SMS Enviado
+			}else{
+				$data['sid']   = "Sin respueta de nodeJs";
+				$statusPackage = 6; //Error al enviar SMS
+			}
+		} catch (Exception $e) {
+			$data['sid']   = $e->getMessage();
+			$statusPackage = 6; //Error al enviar SMS
+		}
+		//unlink($nodeJsPath);
 
 		$listIds = explode(",", $ids);
 		foreach ($listIds as $id_package) {
-			$nDate = date("Y-m-d H:i:s");
 			$data['id_package']  = $id_package;
-			$data['n_date']      = $nDate;
+			$data['n_date']      = date("Y-m-d H:i:s");
 			$db->insert('notification',$data);
-			$upData['n_date']    = $nDate;
-			$upData['n_user_id'] = $_SESSION["uId"];
 			$upData['id_status'] = $statusPackage;
-			$db->update('package',$upData," `id_package` IN($id_package)");
+			//$db->update('package',$upData," `id_package` IN($id_package)");
 		}
+		sleep(2);
 		$result = [
 			'success'  => 'true',
-			'dataJson' => ['ok'],
+			'dataJson' => [$rstNodeJs],
 			'message'  => "Enviados"
 		];
-		sleep(1);
 
 		echo json_encode($result);
 	break;

@@ -22,8 +22,8 @@
                         <div class="form-group">
                             <label for="mMContactType"><b>Tipo:</b></label>
                             <select name="mMContactType" id="mMContactType" class="form-control" disabled>
-                                <option value="1">WhatsApp</option>
-                                <option value="2">Sms</option>
+                                <option value="1">SMS</option>
+                                <option value="2">WhatsApp</option>
                                 <option value="3">Casa</option>
                             </select>
                         </div>

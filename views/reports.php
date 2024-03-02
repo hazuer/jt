@@ -90,7 +90,7 @@ $packages = $db->select($sql);
 							<select name="rFstatus" id="rFstatus" class="form-control">
 								<option value="99" <?php echo ($rFstatus==99) ? 'selected': ''; ?>>Todos</option>
 								<option value="1" <?php echo ($rFstatus==1) ? 'selected': ''; ?>>Nuevo</option>
-								<option value="2" <?php echo ($rFstatus==2) ? 'selected': ''; ?>>WhatsApp Enviado</option>
+								<option value="2" <?php echo ($rFstatus==2) ? 'selected': ''; ?>>Mensaje Enviado</option>
 								<option value="3" <?php echo ($rFstatus==3) ? 'selected': ''; ?>>Entregado</option>
 								<option value="4" <?php echo ($rFstatus==4) ? 'selected': ''; ?>>Devuelto</option>
 								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Deleted</option>

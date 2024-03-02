@@ -11,7 +11,7 @@ client.listDevices()
             // Obtener información del dispositivo utilizando el ID
             client.getProperties(device.id)
                 .then(properties => {
-                    console.log('Nombre del fabricante:', properties['ro.product.manufacturer']);
+                    console.log('::::::::::::::::::::::', properties['ro.product.manufacturer'],'CONECTADO','::::::::::::::::::::::');
                 })
                 .catch(err => {
                     console.error('Error al obtener propiedades del dispositivo:', err);

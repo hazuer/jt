@@ -554,22 +554,10 @@ $(document).ready(function() {
 			swal(`${name}`,trackings, "success");
 			$('.swal-button-container').hide();
 		});
-
-		/**
-		<span class="badge badge-pill badge-primary btn-w"  style="cursor: pointer;" data-phone="${item.phone}">
-		<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i></span>
-		 */
-		$('#tbl-list-package-sms').on('click', '.btn-w', function() {
-			let phone = $(this).data('phone');
-			let txt = $('#mMMessage').val();
-			let messageEncoding = encodeURIComponent(txt);
-			let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${phone}&text=${messageEncoding}`;
-			window.open(fullUrlTxt, '_blank');
-		});
 	}
 
 	$('#btn-save-messages').click(function(){
-		/*swal({
+		swal({
 				title: "Enviar Mensajes",
 				text: "Está seguro?",
 				icon: "info",
@@ -577,12 +565,12 @@ $(document).ready(function() {
 				dangerMode: false,
 			})
 			.then((weContinue) => {
-			  if (weContinue) {*/
+			  if (weContinue) {
 				enviarNotificaciones();
-			  /*} else {
+			  } else {
 				return false;
 			  }
-			});*/
+			});
 	});
 
 
@@ -619,10 +607,10 @@ async function enviarNotificaciones() {
 		formData.append('ids',item.ids);
 		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
-		let messageEncoding = encodeURIComponent(txt);
-		let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${item.phone}&text=${messageEncoding}`;
+		//let messageEncoding = encodeURIComponent(txt);
+		//let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${item.phone}&text=${messageEncoding}`;
 
-		window.open(fullUrlTxt, '_blank');
+		//window.open(fullUrlTxt, '_blank');
 		try {
 			const response = await $.ajax({
 				url: `${base_url}/${baseController}`,
@@ -650,7 +638,7 @@ async function enviarNotificaciones() {
 					});
 					setTimeout(function(){
 						swal.close();
-						window.location.reload();
+						//window.location.reload();
 					}, 5500);
 				}
 			}
