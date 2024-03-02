@@ -54,6 +54,7 @@
                                 <th>#</th>
                                 <th>Télefono</th>
                                 <th>Nombre</th>
+                                <th>Folio</th>
                                 <th>Paquetes</th>
                                 <th>Guías</th>
                             </tr>

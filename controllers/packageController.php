@@ -84,24 +84,29 @@ switch ($_POST['option']) {
 					$message  = 'Actualizado';
 				break;
 				case 'new':
-
-					$data['id_package']  = null;
-					$data['folio']       = $_POST['folio'];
-					$data['c_date']      = date("Y-m-d H:i:s");
-					$data['c_user_id']   = $_SESSION["uId"];
-					$data['tracking']    = $_POST['tracking'];
-					$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
-					$rstCheck = $db->select($sqlCheck);
-					$total = $rstCheck[0]['total'];
-					if($total==0){
-						//TODO: check if folio was delivered or canceled| reconsider
-						$success  = 'true';
-						$dataJson = $db->insert('package',$data);
-						$message  = 'Registrado';
-					}else{
+					if (empty($data['id_contact']) || $data['id_contact'] == 0 || $data['id_contact'] === null) {
 						$success  = 'false';
 						$dataJson = [];
-						$message  = 'El código ya esta registrado';
+						$message  = 'No se registro el usuario, vuelve a intentarlo';
+					}else{
+						$data['id_package']  = null;
+						$data['folio']       = $_POST['folio'];
+						$data['c_date']      = date("Y-m-d H:i:s");
+						$data['c_user_id']   = $_SESSION["uId"];
+						$data['tracking']    = $_POST['tracking'];
+						$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
+						$rstCheck = $db->select($sqlCheck);
+						$total = $rstCheck[0]['total'];
+						if($total==0){
+							//TODO: check if folio was delivered or canceled| reconsider
+							$success  = 'true';
+							$dataJson = $db->insert('package',$data);
+							$message  = 'Registrado';
+						}else{
+							$success  = 'false';
+							$dataJson = [];
+							$message  = 'El código ya esta registrado';
+						}
 					}
 
 				break;
@@ -224,7 +229,8 @@ switch ($_POST['option']) {
 		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
 		COUNT(p.tracking) AS total_p,
 		GROUP_CONCAT(p.tracking) AS trackings,
-		GROUP_CONCAT(p.id_package) AS ids 
+		GROUP_CONCAT(p.id_package) AS ids,
+		GROUP_CONCAT(p.folio) AS folios 
 		FROM package p 
 		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
@@ -234,7 +240,7 @@ switch ($_POST['option']) {
 		AND cct.id_contact_type IN (1) 
 		GROUP BY cc.phone,main_name
 		ORDER BY cc.phone ASC
-		LIMIT 20";
+		LIMIT 1";
 				$success  = 'true';
 				$dataJson = $db->select($sql);
 				$message  = 'ok';

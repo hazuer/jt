@@ -37,8 +37,8 @@ cs.status_desc,
 p.note,
 p.id_contact 
 FROM package p 
-INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
 WHERE 1 
 AND p.id_location IN ($id_location)
 AND p.id_status IN(1,2,6,7)";

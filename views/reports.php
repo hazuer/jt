@@ -50,10 +50,10 @@ p.d_date,
 ud.user user_libera,
 p.note 
 FROM package p 
-INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-INNER JOIN cat_status cs ON cs.id_status=p.id_status 
-INNER JOIN users uc ON uc.id = p.c_user_id 
-INNER JOIN cat_location cl ON cl.id_location = p.id_location 
+LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
+LEFT JOIN users uc ON uc.id = p.c_user_id 
+LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
 LEFT JOIN users un ON un.id = p.n_user_id 
 LEFT JOIN users ud ON ud.id = p.d_user_id 
 WHERE 1 
@@ -90,7 +90,7 @@ $packages = $db->select($sql);
 							<select name="rFstatus" id="rFstatus" class="form-control">
 								<option value="99" <?php echo ($rFstatus==99) ? 'selected': ''; ?>>Todos</option>
 								<option value="1" <?php echo ($rFstatus==1) ? 'selected': ''; ?>>Nuevo</option>
-								<option value="2" <?php echo ($rFstatus==2) ? 'selected': ''; ?>>SMS Enviado</option>
+								<option value="2" <?php echo ($rFstatus==2) ? 'selected': ''; ?>>WhatsApp Enviado</option>
 								<option value="3" <?php echo ($rFstatus==3) ? 'selected': ''; ?>>Entregado</option>
 								<option value="4" <?php echo ($rFstatus==4) ? 'selected': ''; ?>>Devuelto</option>
 								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Deleted</option>

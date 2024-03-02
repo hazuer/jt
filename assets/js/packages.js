@@ -15,6 +15,8 @@ $(document).ready(function() {
 
   	let table = $('#tbl-packages').DataTable({
 		"bPaginate": true,
+        "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
+        "pageLength": 50, // Establecer el número de registros por página predeterminado
 		//"bFilter": false,
 		"bInfo" : true,
 		scrollCollapse: true,
@@ -465,14 +467,6 @@ $(document).ready(function() {
 		}
 	});
 
-// ----------------------------------------------------
-	$('#mMMessage').on('input', function() {
-		var message = $(this).val();
-		if (message.length > 160) {
-		$(this).val(message.slice(0, 160));
-		}
-	});
-
 	$('#btn-send-messages').click(function(){
 		selectMessages();
 	});
@@ -496,11 +490,11 @@ $(document).ready(function() {
 		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`Te notificamos que tu paquete con J&T está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: Martes 27 y Miércoles 28 de febrero, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el jueves 29 de febrero de 2024 a las 11:00 a.m.
-Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
-Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
-Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
-¡Gracias y esperamos que disfrutes de tu paquete!`;
+		let msj=`Te notificamos que tu paquete con J&T está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: DIA1 y DIA2, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el DIA_DEVOLUCION de 2024 a las 11:00 a.m.
+	Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
+	Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado.
+	Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
+	¡Gracias y esperamos que disfrutes de tu paquete!`;
 		$('#mMMessage').val(msj);
 		$('#modal-messages-title').html('Envío de Mensajes');
 		$('#modal-messages').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -544,6 +538,7 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				<td><b>${c}</b></td>
 				<td>${item.phone}</td>
 				<td>${item.main_name}</td>
+				<td>${item.folios}</td>
 				<td>${item.total_p}</td>
 				<td style="text-align:center">
 				<span class="badge badge-pill badge-info btn-idx" title="Ver" style="cursor: pointer;" data-phone="${item.phone}" data-name="${item.main_name}" data-trackings="${item.trackings}" data-ids="${item.ids}"><i class="fa fa-eye fa-lg" aria-hidden="true"></i></span>
@@ -574,7 +569,7 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 	}
 
 	$('#btn-save-messages').click(function(){
-		swal({
+		/*swal({
 				title: "Enviar Mensajes",
 				text: "Está seguro?",
 				icon: "info",
@@ -582,12 +577,12 @@ Recuerda presentar una identificación al momento de recoger el paquete. Puede s
 				dangerMode: false,
 			})
 			.then((weContinue) => {
-			  if (weContinue) {
+			  if (weContinue) {*/
 				enviarNotificaciones();
-			  } else {
+			  /*} else {
 				return false;
 			  }
-			});
+			});*/
 	});
 
 
