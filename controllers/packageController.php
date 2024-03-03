@@ -11,14 +11,14 @@ require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 header('Content-Type: application/json; charset=utf-8');
-$path_file = 'C:/laragon/www/jt/nodejs/sms.js';
+/*$path_file = 'C:/laragon/www/jt/nodejs/sms.js';
 $output = null;
 		$retval = null;
 		$rstNodeJs = null;
-			//exec("node " . $path_file . ' 2>&1', $output, $retval);
-			exec('node "C:/laragon/www/jt/nodejs/sms.js" 2>&1', $output, $retval);
-			var_dump($output);
-			die();
+			exec("node " . $path_file . ' 2>&1', $output, $retval);
+			//exec('node -v', $output, $retval);
+			echo json_encode($output);
+			die();*/
 
 switch ($_POST['option']) {
 
@@ -344,7 +344,7 @@ switch ($_POST['option']) {
 			$data['n_date']      = date("Y-m-d H:i:s");
 			$db->insert('notification',$data);
 			$upData['id_status'] = $statusPackage;
-			//$db->update('package',$upData," `id_package` IN($id_package)");
+			$db->update('package',$upData," `id_package` IN($id_package)");
 		}
 		sleep(2);
 		$result = [
@@ -470,4 +470,32 @@ switch ($_POST['option']) {
 			];
 		}
 		echo json_encode($result);
+	break;
+
+	case 'saveTemplate':
+	$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al guardar el folio';
+
+		$id_location      = $_POST['id_location'];
+		$data['template']    = $_POST['mTTemplate'];
+		try {
+			$success  = 'true';
+			$dataJson = $db->update('cat_template',$data," `id_location` = $id_location");
+			$message  = 'Actualizado';
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
 }

@@ -18,7 +18,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <!--<div class="col-md-4">
                         <div class="form-group">
                             <label for="mTDia"><b>Día:</b></label>
                             <select name="mTDia" id="mTDia" class="form-control">
@@ -38,9 +38,9 @@
                             <label for="mTName"><b>* Nombre:</b></label>
                             <input type="text" class="form-control" name="mTName" id="mTName" value="" autocomplete="off">
                         </div>
-                    </div>
+                    </div>-->
                 </div>
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-md-2"  style="margin-bottom: 20px;">
                         <label for="mTTemplate"><b>Variables:</b></label>
                     </div>
@@ -60,21 +60,18 @@
                         <span class="badge badge-dark">_Año_</span>
                     </div>
                 </div>
+-->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="mTTemplate"><b>Plantilla:</b></label>
-                            <textarea class="form-control" id="mTTemplate" name="mTTemplate" rows="5">Te notificamos que tu paquete con J&T - _Ubicación_ está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: _Día_entrega_1_ y _Día_entrega_2_, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el _Día_devolución_ de _Año_ a las 11:00 a.m.
-Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
-Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado:https://maps.app.goo.gl/pj2QbZCFF3xcKzD7A
-Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
-¡Gracias y esperamos que disfrutes de tu paquete!</textarea>
+                            <label for="mTTemplate"><b>* Plantilla:</b></label>
+                            <textarea class="form-control" id="mTTemplate" name="mTTemplate" rows="8"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btn-save-folio" type="button" class="btn btn-success" title="Guardar">Guardar</button>
+                <button id="btn-save-template" type="button" class="btn btn-success" title="Guardar">Guardar</button>
                 <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
             </div>
         </div>

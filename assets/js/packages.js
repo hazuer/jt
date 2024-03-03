@@ -490,14 +490,13 @@ $(document).ready(function() {
 		$('#mMIdLocation').val(idLocationSelected.val());
 		$('#mMContactType').val(1);
 		$('#mMEstatus').val(1);
-		let msj=`Te notificamos que tu paquete con J&T está listo para ser recogido. Podrás hacerlo en los siguientes días y horarios: DIA1 y DIA2, de 10:00 a.m. a 3:00 p.m. Si no puedes hacerlo dentro de este plazo, tu paquete será devuelto el DIA_DEVOLUCION de 2024 a las 11:00 a.m.
-	Por favor, asegúrate de ajustarte a los días y horarios mencionados. Recuerda que no hay servicio de entrega los sábados y domingos.
-	Ten en cuenta que J&T ya no realiza entregas a domicilio, por lo que deberás recoger tu paquete en el lugar indicado.
-	Recuerda presentar una identificación al momento de recoger el paquete. Puede ser cualquier persona que designes.
-	¡Gracias y esperamos que disfrutes de tu paquete!`;
+		let msj=`${templateMsj}`;
 		$('#mMMessage').val(msj);
 		$('#modal-messages-title').html('Envío de Mensajes');
 		$('#modal-messages').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			$('#mMMessage').focus();
+		}, 600);
 	}
 
 	async function getPackageNewSms() {
@@ -638,7 +637,7 @@ async function enviarNotificaciones() {
 					});
 					setTimeout(function(){
 						swal.close();
-						//window.location.reload();
+						window.location.reload();
 					}, 5500);
 				}
 			}
@@ -766,19 +765,58 @@ async function enviarNotificaciones() {
 
 	//--------------
 	$('#btn-template').click(function(){
-		console.log('clic');
 		loadModalTemplate();
 	});
 	async function loadModalTemplate() {
-		console.log('load');
 		//let foliActual= await getFolio('current');
 		//$('#mfFolioActual').val(foliActual);
 		//$('#mfIdLocation').val(idLocationSelected.val());
 		//$('#mfModo').val(1);
 		//$('#mfNumFolio').val(0);
 		//$('#mfNumFolio').prop('disabled', true);
+		$('#mTTemplate').val(templateMsj)
 		$('#modal-template-title').html('Plantilla de Mensajes');
 		$('#modal-template').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			$('#mTTemplate').focus();
+		}, 600);
 	}
+
+	$('#btn-save-template').click(function(){
+		if($('#mTTemplate').val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
+		}
+		
+		let formData =  new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('mTTemplate', $('#mTTemplate').val());
+		formData.append('option', 'saveTemplate');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+			})
+			.done(function(response) {
+				if(response.success=='true'){
+					swal(`${response.message}`, "", "success");
+					$('.swal-button-container').hide();
+					$('#modal-template').modal('hide');
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 1500);
+				}
+			}).fail(function(e) {
+				console.log("Opps algo salio mal",e);
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	});
 
 });

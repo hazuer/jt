@@ -37,10 +37,9 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 			<button id="btn-contacto" type="button" class="btn-sm btn-warning" title="Agregar contacto">
 				<i class="fa fa-user fa-lg" aria-hidden="true"></i>
 			</button>
-			<!--<button id="btn-template" type="button" class="btn-sm btn-warning" title="Plantillas">
+			<button id="btn-template" type="button" class="btn-sm btn-warning" title="Plantillas">
 				<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>
 			</button>
-			-->
 			<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>

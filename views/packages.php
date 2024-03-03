@@ -44,11 +44,18 @@ AND p.id_location IN ($id_location)
 AND p.id_status IN(1,2,6,7)";
 $packages = $db->select($sql);
 
+$sqlTemp ="SELECT template FROM cat_template WHERE id_location IN ($id_location) LIMIT 1";
+$user = $db->select($sqlTemp);
+$templateMsj=$user[0]['template']
+
 ?>
 <!doctype html>
 <html lang = "en">
 	<head>
 		<?php include '../views/header.php'; ?>
+		<script>
+    	let templateMsj =`<?php echo $templateMsj;?>`;
+		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
 		<style>
