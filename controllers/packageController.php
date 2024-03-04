@@ -336,7 +336,7 @@ switch ($_POST['option']) {
 			$data['sid']   = $e->getMessage();
 			$statusPackage = 6; //Error al enviar SMS
 		}
-		//unlink($nodeJsPath);
+		unlink($nodeJsPath);
 
 		$listIds = explode(",", $ids);
 		foreach ($listIds as $id_package) {
