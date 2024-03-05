@@ -49,6 +49,9 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 			<button id="btn-release-package" type="button" class="btn-sm btn-success" title="Entrega de paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
+				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
+			</button>
 			<?php }?>
 		</div>
 	</div>

@@ -606,10 +606,6 @@ async function enviarNotificaciones() {
 		formData.append('ids',item.ids);
 		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
-		//let messageEncoding = encodeURIComponent(txt);
-		//let fullUrlTxt = `https://api.whatsapp.com/send?phone=52${item.phone}&text=${messageEncoding}`;
-
-		//window.open(fullUrlTxt, '_blank');
 		try {
 			const response = await $.ajax({
 				url: `${base_url}/${baseController}`,
@@ -768,12 +764,6 @@ async function enviarNotificaciones() {
 		loadModalTemplate();
 	});
 	async function loadModalTemplate() {
-		//let foliActual= await getFolio('current');
-		//$('#mfFolioActual').val(foliActual);
-		//$('#mfIdLocation').val(idLocationSelected.val());
-		//$('#mfModo').val(1);
-		//$('#mfNumFolio').val(0);
-		//$('#mfNumFolio').prop('disabled', true);
 		$('#mTTemplate').val(templateMsj)
 		$('#modal-template-title').html('Plantilla de Mensajes');
 		$('#modal-template').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -819,4 +809,30 @@ async function enviarNotificaciones() {
 		}
 	});
 
+
+	$('#btn-bot').click(function(){
+		let msj=`${templateMsj}`;
+		let formData = new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('idContactType', 1);
+		formData.append('message', msj);
+		formData.append('option', 'bot');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+			})
+			.done(function(response) {
+				console.log(response);
+				swal(`Script`,`${response.message}`, "success");
+			});
+		} catch (error) {
+			console.log("Opps algo salio mal",error);
+
+		}
+	});
 });
