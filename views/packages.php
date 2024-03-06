@@ -17,6 +17,15 @@ if(isset($_SESSION['uLocation'])){
 }
 $id_location = $_SESSION['uLocation'];
 
+
+/*CASE 
+    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 5 THEN '5 dias FDS'
+    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) = 4 THEN '3 dias FDS'
+    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) = 3 THEN '3 dias'
+    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) = 2 THEN '2 dias'
+    ELSE DATEDIFF(NOW(), p.c_date)
+END AS diasTrans,*/
+
 $sql = "SELECT 
 p.id_package,
 p.tracking,
@@ -25,16 +34,62 @@ p.id_location,
 p.c_date,
 p.folio,
 CASE 
-    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 5 THEN 'background-color: #FF9999;'
-    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 4 THEN 'background-color: #FFFF99;'
-    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) >= 3 THEN 'background-color: #FF9999;'
-    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) >= 2 THEN 'background-color: #FFFF99;'
-    ELSE ''
+	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 3,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=4,
+			'background-color: #FFFF99;',
+			'background-color: #FF9999;')
+	) 
+	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 2,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=3,
+			'background-color: #FFFF99;',
+			'background-color: #FF9999;')
+	) 
+	WHEN DAYOFWEEK(p.c_date) = 1 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=2,
+			'background-color: #FFFF99;',
+			'background-color: #FF9999;')
+	) 
+	ELSE IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=2,
+			'background-color: #FFFF99;',
+			'background-color: #FF9999;')
+	) 
 END AS styleCtrlDays,
+CASE 
+	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 3,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=4,
+			'2DT',
+			'3DT')
+	) 
+	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 2,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=3,
+			'2DT',
+			'3DT')
+	) 
+	WHEN DAYOFWEEK(p.c_date) = 1 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=2,
+			'2DT',
+			'3DT')
+	) 
+	ELSE IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
+		'',
+		IF(DATEDIFF(NOW(), p.c_date)=2,
+			'2DT',
+			'3DT')
+	) 
+END AS diasTrans,
 cc.contact_name receiver,
 cs.id_status,
 cs.status_desc,
 p.note,
+IF(p.n_date is null,'', CONCAT('el ',p.n_date)) n_date,
 p.id_contact 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
@@ -147,7 +202,7 @@ $templateMsj=$user[0]['template']
 								<td><?php echo $d['folio']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
-								<td><?php echo $d['status_desc']; ?></td>
+								<td><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?></td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">

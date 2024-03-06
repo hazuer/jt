@@ -41,6 +41,10 @@ $(document).ready(function() {
 	$('#btn-report').click(function(){
 		window.location.href = `${base_url}/views/reports.php`;
 	});
+
+	$('#btn-inspect').click(function(){
+		window.location.href = `${base_url}/views/inspect.php`;
+	});
 });
 
 const showSwal = () => {

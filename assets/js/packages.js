@@ -16,7 +16,7 @@ $(document).ready(function() {
   	let table = $('#tbl-packages').DataTable({
 		"bPaginate": true,
         "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
-        "pageLength": 50, // Establecer el número de registros por página predeterminado
+        "pageLength": 100, // Establecer el número de registros por página predeterminado
 		//"bFilter": false,
 		"bInfo" : true,
 		scrollCollapse: true,
@@ -28,7 +28,7 @@ $(document).ready(function() {
 			{title: `Guía`,         name : `tracking`,     data : `tracking`},    //1
 			{title: `Télefono`,     name : `phone`,        data : `phone`},       //2
 			{title: `id_location`,  name : `id_location`,  data : `id_location`}, //3
-			{title: `c_date`,       name : `c_date`,       data : `c_date`},      //4
+			{title: `Fecha Registro`,        name : `c_date`,       data : `c_date`},      //4
 			{title: `Folio`,        name : `folio`,        data : `folio`},       //5
 			{title: `Destinatario`, name : `receiver`,     data : `receiver`},    //6
 			{title: `id_status`,    name : `id_status`,    data : `id_status`},   //7
@@ -38,7 +38,7 @@ $(document).ready(function() {
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,3,4,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
+			{ "targets": [0,3,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
 			{ "orderable": false,"targets": 11 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
@@ -751,12 +751,6 @@ async function enviarNotificaciones() {
 		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 			$('#btn-mrp-save').click();
 		}
-	});
-
-	// -- -------------------------
-
-	$('#btn-report').click(function(){
-		window.location.href = `${base_url}/views/reports.php`;
 	});
 
 	//--------------

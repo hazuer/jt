@@ -23,6 +23,9 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 			<button id="btn-report" type="button" class="btn-sm btn-primary" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-inspect" type="button" class="btn-sm btn-primary"  title="Revisión">
+				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
+			</button>
 			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
 			<select name="option-location" id="option-location" class="form-control">
 				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
@@ -43,15 +46,19 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 			<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
+			<?php if($host!='buildingsolutionspro.net'){?>
 			<button id="btn-send-messages" type="button" class="btn-sm btn-success" title="Enviar mensajes">
 				<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i>
 			</button>
+			<?php }?>
 			<button id="btn-release-package" type="button" class="btn-sm btn-success" title="Entrega de paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button>
+			<?php if($host!='buildingsolutionspro.net'){?>
 			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
 				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>
+			<?php }?>
 			<?php }?>
 		</div>
 	</div>

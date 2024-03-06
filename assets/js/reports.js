@@ -4,7 +4,7 @@ $(document).ready(function() {
   	let table = $('#tbl-reports').DataTable({
 		"bPaginate": true,
 		"lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
-        "pageLength": 50, // Establecer el número de registros por página predeterminado
+        "pageLength": 500, // Establecer el número de registros por página predeterminado
         "bInfo" : true,
 		scrollCollapse: true,
 		scroller: true,

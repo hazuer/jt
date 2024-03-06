@@ -11,7 +11,7 @@ require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 header('Content-Type: application/json; charset=utf-8');
-/*$path_file = 'C:/laragon/www/jt/nodejs/sms.js';
+/*$path_file = NODE_PATH_FILE;
 $output = null;
 		$retval = null;
 		$rstNodeJs = null;
@@ -314,7 +314,7 @@ switch ($_POST['option']) {
 		);
 		require_once('../nodejs/NodeJs.php');
 		$nodeFile = new NodeJs($init);
-		$path_file = 'C:/laragon/www/jt/nodejs/';
+		$path_file = NODE_PATH_FILE;
 		$nodeFile->createContentFileJs($path_file, $jsfile_content);
 		//$nodeFile->getContentFile(true); # true:continue
 		$nodeJsPath = $nodeFile->getFullPathFile();
@@ -605,8 +605,7 @@ switch ($_POST['option']) {
 		);
 		require_once('../nodejs/NodeJs.php');
 		$nodeFile = new NodeJs($init);
-		#$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
-		$path_file = 'C:/laragon/www/jt/nodejs/';
+		$path_file = NODE_PATH_FILE;
 		$nodeFile->createContentFileJs($path_file, $jsfile_content);
 		//$nodeFile->getContentFile(true); # true:continue
 		$nodeJsPath = $nodeFile->getFullPathFile();
