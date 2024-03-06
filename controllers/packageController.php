@@ -325,7 +325,7 @@ switch ($_POST['option']) {
 		try {
 			exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
 			if (isset($output[0]) && !empty($output[0])) {
-				$rstNodeJs = $output[0];
+				$rstNodeJs = $output[1];
 				$data['sid']   = $rstNodeJs;
 				$statusPackage = 2; // SMS Enviado
 			}else{
@@ -538,7 +538,6 @@ switch ($_POST['option']) {
 		GROUP BY cc.phone,main_name
 		ORDER BY cc.phone ASC";
 
-
 		$nameFile = "whats";
 		$jsfile_content = 'const qrcode = require("qrcode-terminal");
 		const mysql = require("mysql");
@@ -546,10 +545,10 @@ switch ($_POST['option']) {
 		const client = new Client();
 
 		const connection = mysql.createConnection({
-			host: `localhost`,
-			user: `root`,
-			password: "",
-			database: `jt_local`,
+			host: `'.HOST.'`,
+			user: `'.USERNAME.'`,
+			password: `'.PASSWD.'`,
+			database: `'.DBNAME.'`,
 			port: 3306,
 			socketPath: null // Si no estás usando un socket, deja esto como null
 		});
@@ -606,7 +605,8 @@ switch ($_POST['option']) {
 		);
 		require_once('../nodejs/NodeJs.php');
 		$nodeFile = new NodeJs($init);
-		$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
+		#$path_file = 'D:/Programs/laragon/www/jt/nodejs/';
+		$path_file = 'C:/laragon/www/jt/nodejs/';
 		$nodeFile->createContentFileJs($path_file, $jsfile_content);
 		//$nodeFile->getContentFile(true); # true:continue
 		$nodeJsPath = $nodeFile->getFullPathFile();
