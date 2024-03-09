@@ -22,7 +22,8 @@ $sql="SELECT
 		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
 		COUNT(p.tracking) AS total_p,
 		GROUP_CONCAT(p.tracking) AS trackings,
-		GROUP_CONCAT(p.folio) AS folios 
+		GROUP_CONCAT(p.folio) AS folios,
+		GROUP_CONCAT(p.id_package) AS ids 
 		FROM package p 
 		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
@@ -62,6 +63,7 @@ $packages = $db->select($sql);
 						<th>total_p</th>
 						<th>folios</th>
 						<th>trackings</th>
+						<th>ids</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -69,9 +71,14 @@ $packages = $db->select($sql);
 						<tr>
 						<td><?php echo $d['phone']; ?></td>
 						<td><?php echo $d['main_name']; ?></td>
-						<td><?php echo $d['total_p']; ?></td>
+						<td>
+							<span class="badge badge-pill badge-info btn-pull-realise" style="cursor: pointer;" title="Liberar Paquetes" data-tpaquetes="<?php echo $d['total_p']; ?>" data-tphone="<?php echo $d['phone']; ?>" data-tname="<?php echo $d['main_name']; ?>" data-tids="<?php echo $d['ids']; ?>">
+								Liberar <?php echo $d['total_p']; ?> Paquetes
+							</span>
+						</td>
 						<td><?php echo $d['folios']; ?></td>
 						<td><?php echo $d['trackings']; ?></td>
+						<td><?php echo $d['ids']; ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

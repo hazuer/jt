@@ -106,10 +106,25 @@ switch ($_POST['option']) {
 						$rstCheck = $db->select($sqlCheck);
 						$total = $rstCheck[0]['total'];
 						if($total==0){
-							//TODO: check if folio was delivered or canceled| reconsider
+							$id_location = $data['id_location'];
+							$sqlCanBeAgrouped = "SELECT COUNT(tracking) tgroup 
+							FROM package p 
+							LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+							LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
+							WHERE 1 
+							AND cc.phone IN('$phone')
+							AND p.id_location IN ($id_location)
+							AND p.id_status IN(1,2,6,7)";
+							$rstCanBeAgrouped = $db->select($sqlCanBeAgrouped);
+							$tgroup = $rstCanBeAgrouped[0]['tgroup'];
+							$txtAgrouped='';
+							if($tgroup>=1){
+								$txtAgrouped=", este paquete puede ser agrupado con otros ".$tgroup;
+							}
+
 							$success  = 'true';
 							$dataJson = $db->insert('package',$data);
-							$message  = 'Registrado';
+							$message  = 'Registrado'.$txtAgrouped;
 						}else{
 							$success  = 'false';
 							$dataJson = [];
@@ -618,4 +633,39 @@ switch ($_POST['option']) {
 
 		echo json_encode($result);
 	break;
+
+	case 'pullRealise':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error liberar el pull de paquetes';
+		$id_location = $_POST['id_location'];
+		$trackings    = $_POST['tracking'];
+		try {
+
+			$sql="SELECT id_status
+		   	FROM package
+		   	WHERE id_package IN ($trackings)
+			AND id_location IN ($id_location)";
+			$checkRelease = $db->select($sql);
+			if(count($checkRelease)==0){
+
+			}else{
+
+			}
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $sql
+			];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+
+		echo json_encode($result);
+		break;
 }

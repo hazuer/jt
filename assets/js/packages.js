@@ -581,8 +581,10 @@ async function enviarNotificaciones() {
 		// Obtener el id de la fila actual
 		let phonex = $(row).find('.btn-idx').data('phone');
 		let idsx = $(row).find('.btn-idx').data('ids');
+		let trackingsx = $(row).find('.btn-idx').data('trackings');
 		arrayNotification.push({phone:phonex,
-			ids:idsx
+			ids:idsx,
+			lstrakings:trackingsx
 		});
 	});
 
@@ -598,11 +600,12 @@ async function enviarNotificaciones() {
     for (let i = 0; i < totalNotifications; i++) {
         const item = arrayNotification[i];
 		let txt = $('#mMMessage').val();
+		let txtguias= `${txt} Guías listas para recoger: ${item.lstrakings}`;
 
 		let formData = new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('idContactType', $('#mCContactType').val());
-		formData.append('message', txt);
+		formData.append('message', txtguias);
 		formData.append('ids',item.ids);
 		formData.append('phone',item.phone);
 		formData.append('option', 'sendMessages');
