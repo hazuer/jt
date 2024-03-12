@@ -83,6 +83,55 @@ $(document).ready(function() {
 		loadPackageForm(row);
 	});
 
+	$(`#tbl-packages tbody`).on( `click`, `#btn-tbl-liberar`, function () {
+		let  listPackageRelease=[];
+		let row = table.row( $(this).closest('tr') ).data();
+			swal({
+			title: `Folio:${row.folio} - ${row.receiver}`,
+			text: `Desea liberar la guía ${row.tracking}?`,
+			icon: "info",
+			buttons: true,
+			dangerMode: false,
+		})
+		.then((weContinue) => {
+		  if (weContinue) {
+			let guia = row.tracking;
+			listPackageRelease.push(`'${guia}'`);
+
+			let formData = new FormData();
+			formData.append('id_location',idLocationSelected.val());
+			formData.append('tracking',guia);
+			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
+			formData.append('option','releasePackage');
+			$.ajax({
+				url: `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+		})
+		.done(function(response) {
+			if(response.success==='true'){
+				swal(guia, response.message, "success");
+			}else {
+				swal(guia, response.message, "warning");
+			}
+			$('.swal-button-container').hide();
+			setTimeout(function(){
+				swal.close();
+				window.location.reload();
+			}, 3500);
+
+		}).fail(function(e) {
+			console.log("Opps algo salio mal",e);
+		});
+		  } else {
+			return false;
+		  }
+		});
+	});
+
 	async function loadPackageForm(row){
 		let titleModal = '';
 		$('#form-modal-package')[0].reset();
@@ -665,9 +714,9 @@ async function enviarNotificaciones() {
 		}, 600);
 	});
 
-	$('#btn-mrp-scan').click(function(){
+	/*$('#btn-mrp-scan').click(function(){
 		loadReaderScan()
-	});
+	});*/
 
 	$('#close-mrp-x,#close-mrp-b').click(function(){
 		window.location.reload();

@@ -640,23 +640,46 @@ switch ($_POST['option']) {
 		$dataJson = [];
 		$message  = 'Error liberar el pull de paquetes';
 		$id_location = $_POST['id_location'];
-		$trackings    = $_POST['tracking'];
+		$idsx    = $_POST['idsx'];
+		$listIds = explode(",", $idsx);
+		$totPaqPorLiberar = count($listIds);
 		try {
-
-			$sql="SELECT id_status
-		   	FROM package
-		   	WHERE id_package IN ($trackings)
-			AND id_location IN ($id_location)";
+			$sql="SELECT p.id_status,p.folio,cs.status_desc 
+		   	FROM package p 
+		   	INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+		   	WHERE p.id_package IN ($idsx) 
+			AND p.id_location IN ($id_location) 
+			AND p.id_status IN (2,7)";
 			$checkRelease = $db->select($sql);
-			if(count($checkRelease)==0){
+			$totalPaqueteDisponibles = count($checkRelease);
 
+			if($totPaqPorLiberar==$totalPaqueteDisponibles){
+				$success="true";
+				$message="Paquetes liberados";
+				$data['id_status']  = 3; //Liberado
+				$data['d_date']     = date("Y-m-d H:i:s");
+				$data['d_user_id']  = $_SESSION["uId"];
+				$rst = $db->update('package',$data," `id_package` IN ($idsx)");
 			}else{
-
+				$sql="SELECT p.id_status,p.folio,cs.status_desc 
+				FROM package p 
+				INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+				WHERE p.id_package IN ($idsx) 
+				AND p.id_location IN ($id_location) 
+				AND p.id_status NOT IN (2,7)";
+				$noAvailable = $db->select($sql);
+				$success="error";
+				$mensaje="No es posible liberar el grupo de paquetes, por favor verifica el estatus de los paquetes:\n";
+				foreach ($noAvailable as $resultado) {
+					$mensaje .= "Folio:" . $resultado['folio'] . ", Estatus:" . $resultado['status_desc'] . "\n";
+				}
+				$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado o contactado pueden ser liberados.";
 			}
+
 			$result = [
 				'success'  => $success,
-				'dataJson' => $dataJson,
-				'message'  => $sql
+				'dataJson' => [],
+				'message'  => $message
 			];
 		} catch (Exception $e) {
 			$result = [

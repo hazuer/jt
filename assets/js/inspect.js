@@ -43,11 +43,10 @@ $(document).ready(function() {
 		})
 		.then((weContinue) => {
 		  if (weContinue) {
-			console.log('continuar',tids);
 
 			let formData = new FormData();
 			formData.append('id_location', idLocationSelected.val());
-			formData.append('tracking', tids);
+			formData.append('idsx', tids);
 			formData.append('option', 'pullRealise');
 			try {
 				$.ajax({
@@ -59,12 +58,19 @@ $(document).ready(function() {
 					processData: false,
 				})
 				.done(function(response) {
-					console.log(response);
-					swal(`Script`,`${response.message}`, "success");
+					if(response.success==='true'){
+						swal('Éxito', response.message, "success");
+						setTimeout(function(){
+							swal.close();
+							window.location.reload();
+						}, 3500);
+					}else {
+						swal('Atención', response.message, "warning");
+					}
+					$('.swal-button-container').hide();
 				});
 			} catch (error) {
 				console.log("Opps algo salio mal",error);
-
 			}
 		  } else {
 			return false;

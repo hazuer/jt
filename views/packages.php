@@ -114,10 +114,10 @@ $templateMsj=$user[0]['template']
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
 		<style>
-		.dataTables_scrollBody
-			{
-				overflow-x:hidden !important;
-				overflow-y:auto !important;
+			@media only screen and (max-width: 768px) {
+				table.dataTable {
+					font-size: 11px; /* Reducción del tamaño de letra en un 25% */
+				}
 			}
 			.label-info {
 				padding: 0.2em 0.6em 0.3em;
@@ -188,7 +188,7 @@ $templateMsj=$user[0]['template']
 								<th>status_desc</th>
 								<th>note</th>
 								<th>id_contact</th>
-								<th>Editar</th>
+								<th>Opciones</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -207,11 +207,18 @@ $templateMsj=$user[0]['template']
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
-										<div class="col-md-12">
+										<div class="col-md-6">
 											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
 												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
 											</span>
 										</div>
+										<?php if($d['id_status']==2 || $d['id_status']==7){ ?>
+											<div class="col-md-6">
+											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
+												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
+											</span>
+										</div>
+										<?php }?>
 									</div>
 								</td>
 								</tr>
