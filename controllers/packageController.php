@@ -106,29 +106,38 @@ switch ($_POST['option']) {
 						$rstCheck = $db->select($sqlCheck);
 						$total = $rstCheck[0]['total'];
 						if($total==0){
+
 							$id_location = $data['id_location'];
-							$sqlCanBeAgrouped = "SELECT COUNT(tracking) tgroup 
+							$sqlCanBeAgrouped = "SELECT p.folio 
 							FROM package p 
 							LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 							LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
 							WHERE 1 
 							AND cc.phone IN('$phone')
 							AND p.id_location IN ($id_location)
-							AND p.id_status IN(1,2,6,7)";
+							AND p.id_status IN(1,2,6,7) ORDER BY p.folio DESC";
 							$rstCanBeAgrouped = $db->select($sqlCanBeAgrouped);
-							$tgroup = $rstCanBeAgrouped[0]['tgroup'];
-							$txtAgrouped='';
-							if($tgroup>=1){
-								$txtAgrouped=", este paquete puede ser agrupado con otros ".$tgroup;
+							$totalPaquetesAgrouped = count($rstCanBeAgrouped);
+
+							$titleMsj  = 'Registrado';
+							$msjFolios = "";
+							if($totalPaquetesAgrouped>=1){
+								$titleMsj  = 'Paquete listo para Agrupar';
+								$msjFolios = $phone." - ".$receiver."\n Folios: ";
+								foreach ($rstCanBeAgrouped as $resultado) {
+									$msjFolios .= $resultado['folio'] . ", ";
+								}
+								$msjFolios = rtrim($msjFolios, ', ');
 							}
+							$db->insert('package',$data);
 
 							$success  = 'true';
-							$dataJson = $db->insert('package',$data);
-							$message  = 'Registrado'.$txtAgrouped;
+							$dataJson = $msjFolios;
+							$message  = $titleMsj;
 						}else{
 							$success  = 'false';
 							$dataJson = [];
-							$message  = 'El código ya esta registrado';
+							$message  = 'El número de guía: '.$data['tracking'].' ya está registrado';
 						}
 					}
 

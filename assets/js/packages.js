@@ -275,9 +275,16 @@ $(document).ready(function() {
 		.done(function(response) {
 
 			if(response.success=='true'){
-				swal(`${response.message}`, "", "success");
+				let timex = 1500;
+				if(response.message=='Paquete listo para Agrupar'){
+					swal(`${response.message}`, `${response.dataJson}`, "success");
+					timex = 10000;
+				}else{
+					swal(`${response.message}`, "", "success");
+				}
 				$('.swal-button-container').hide();
 				$('#modal-package').modal('hide');
+
 				if(action.val()=="update"){
 					setTimeout(function(){
 						swal.close();
@@ -296,13 +303,15 @@ $(document).ready(function() {
 									phone.focus();
 								}, 100);
 							}, 300);
-						}, 500);
+						}, timex);
 						return;
 					} else{
+						let timez = 1500;
+						if(response.message=='Paquete listo para Agrupar'){timez = 10000;}
 						setTimeout(function(){
 							swal.close();
 							window.location.reload();
-						}, 1500);
+						}, timez);
 						return;
 					}
 				}

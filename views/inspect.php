@@ -76,7 +76,12 @@ $packages = $db->select($sql);
 								Liberar <?php echo $d['total_p']; ?> Paquetes
 							</span>
 						</td>
-						<td><?php echo $d['folios']; ?></td>
+						<td><?php
+							$folios_array = explode(",", $d['folios']);
+							rsort($folios_array);
+							$texto_folios_ordenados = implode(",", $folios_array);
+							echo $texto_folios_ordenados; // Mostrar los folios ordenados
+						?></td>
 						<td><?php echo $d['trackings']; ?></td>
 						<td><?php echo $d['ids']; ?></td>
 						</tr>
