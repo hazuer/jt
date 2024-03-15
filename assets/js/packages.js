@@ -45,7 +45,7 @@ $(document).ready(function() {
 		'select': {
 			'style': 'multi'
 		},
-		'order': [[5, 'desc']]
+		'order': [[4, 'desc']]
 	});
 
 	$("#btn-first-package, #btn-add-package").click(function(e){
@@ -385,9 +385,9 @@ $(document).ready(function() {
 		$('#tracking').focus();
 	});
 
-	$('#close-qr-b,#close-qr-x').click(function(){
+	/*$('#close-qr-b,#close-qr-x').click(function(){
 		window.location.reload();
-	});
+	});*/
 
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
@@ -865,12 +865,37 @@ async function enviarNotificaciones() {
 	});
 
 
+	$('#mBListTelefonos').on('keypress', function(event) {
+        var tecla = event.which;
+        // Permitir solo números y comas (código ASCII: 44 para la coma y del 48 al 57 para los números)
+        if ((tecla != 44 && tecla < 48) || (tecla > 57)) {
+            event.preventDefault();
+        }
+    });
+
 	$('#btn-bot').click(function(){
+		$('#mBListTelefonos').val('');
+		$('#modal-bot-title').html('Crear Chatbot 🤖');
+		$('#modal-bot').modal({backdrop: 'static', keyboard: false}, 'show');
 		let msj=`${templateMsj}`;
+		$('#mBMessage').val(msj);
+		setTimeout(function(){
+			$('#mBListTelefonos').focus();
+		}, 600);
+	});
+
+	$('#btn-bot-command').click(function(){
+
+		if($('#mBListTelefonos').val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
+		}
+
 		let formData = new FormData();
 		formData.append('id_location', idLocationSelected.val());
-		formData.append('idContactType', 1);
-		formData.append('message', msj);
+		formData.append('idContactType', 2);
+		formData.append('messagebot', $('#mBMessage').val());
+		formData.append('phonelistbot', $('#mBListTelefonos').val());
 		formData.append('option', 'bot');
 		try {
 			$.ajax({
@@ -882,8 +907,13 @@ async function enviarNotificaciones() {
 				processData: false,
 			})
 			.done(function(response) {
+				$('#modal-bot').modal('hide');
 				console.log(response);
-				swal(`Script`,`${response.message}`, "success");
+				swal(`🤖`,`${response.message}`, "success");
+				$('.swal-button-container').hide();
+				setTimeout(function(){
+					swal.close();
+				}, 3500);
 			});
 		} catch (error) {
 			console.log("Opps algo salio mal",error);

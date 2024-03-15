@@ -534,96 +534,53 @@ switch ($_POST['option']) {
 
 		$id_location   = $_POST['id_location'];
 		$idContactType = $_POST['idContactType'];
-		$smsMessage    = $_POST['message'];
-
-		$data['id_notification'] = null;
-		$data['id_location']     = $id_location;
-		$data['n_user_id']       = $_SESSION["uId"];
-		$data['message']         = $smsMessage;
-		$data['id_contact_type'] = $idContactType;
-
-		//$ids   = $_POST['ids'];
-		//$phone = $_POST['phone'];
-		
-		$sqlMessages="SELECT 
-		cc.phone,
-		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
-		COUNT(p.tracking) AS total_p,
-		GROUP_CONCAT(p.tracking) AS trackings,
-		GROUP_CONCAT(p.id_package) AS ids,
-		GROUP_CONCAT(p.folio) AS folios 
-		FROM package p 
-		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
-		WHERE 
-		p.id_location IN ($id_location) 
-		AND p.id_status IN (1) 
-		AND cct.id_contact_type IN (1) 
-		GROUP BY cc.phone,main_name
-		ORDER BY cc.phone ASC";
-
-		$nameFile = "whats";
-		$jsfile_content = 'const qrcode = require("qrcode-terminal");
-		const mysql = require("mysql");
-		const { Client } = require("whatsapp-web.js");
-		const client = new Client();
-
-		const connection = mysql.createConnection({
-			host: `'.HOST.'`,
-			user: `'.USERNAME.'`,
-			password: `'.PASSWD.'`,
-			database: `'.DBNAME.'`,
-			port: 3306,
-			socketPath: null // Si no estás usando un socket, deja esto como null
-		});
-		connection.connect((err) => {
-			if (err) {
-				console.error(`Error al conectar a la base de datos:`, err);
-				return;
-			}
-			console.log(`Conexión exitosa a la base de datos MySQL`);
-		});
-		client.on(`qr`, (qr) => {
-			qrcode.generate(qr, { small: true });
-		});
-		client.on(`ready`, async () => {
-			console.log(`Client is ready!`);
-			const query = `'.$sqlMessages.'`;
-			console.log(query);
-			connection.query(query, async (error, results, fields) => {
-				if (error) {
-					console.error(`Error al ejecutar la consulta:`, error);
-					return;
-				}
-				const numbers = results.map(result => result.phone); 
-				const message = `'.$smsMessage.'`;
-				for (let i = 0; i < numbers.length; i++) {
-					const number = numbers[i];
-					const number_details = await client.getNumberId(number); // Obtener detalles del número de teléfono
-					if (number_details) {
-						const result = results[i]; // Obtener el registro correspondiente a este número de teléfono
-						const trackings = result.trackings;
-						// Concatenar los campos trackings y folios al final de la variable message
-						const updatedMessage = `${message} Guías: ${trackings}`;
-						await client.sendMessage(number_details._serialized, updatedMessage); // Enviar mensaje
-						//console.log(updatedMessage);
-						console.log(`Mensaje enviado con éxito a`, number);
-					} else {
-						console.log(number, `Número de móvil no registrado`);
-					}
-					if (i < numbers.length - 1) {
-						await sleep(3000);
-					}
-				}
-				console.log(`Proceso Finalizado`);
-				connection.end();
-			});
-		});
-		client.initialize();
-		function sleep(ms) {
-			return new Promise(resolve => setTimeout(resolve, ms));
+		$messagebot    = $_POST['messagebot'];
+		$plb  = $_POST['phonelistbot'];
+		// Separar los números utilizando la función explode()
+		$numeros = explode(',', $plb);
+		// Iterar sobre cada número y agregar comillas dobles alrededor de ellos
+		foreach ($numeros as &$numero) {
+			$numero = '"' . $numero . '"';
 		}
-		';
+		// Unir los números nuevamente en una cadena separada por comas
+		$phonelistbot = implode(',', $numeros);
+
+		$nameFile = "chat_bot";
+		$jsfile_content = 'const qrcode = require("qrcode-terminal");
+const { Client } = require("whatsapp-web.js");
+const client = new Client();
+client.on("qr", (qr) => {
+	qrcode.generate(qr, { small: true });
+});
+client.on("ready", async () => {
+	console.log("Client is ready!");
+	let iconBot= `🤖 `;
+	const numbers = ['.$phonelistbot.'];
+	const message = `'.$messagebot.'`;
+	let fullMessage = `${iconBot} ${message}`;
+	for (let i = 0; i < numbers.length; i++) {
+		const number = numbers[i];
+		try {
+			const number_details = await client.getNumberId(number); // get mobile number details
+			if (number_details) {
+				await client.sendMessage(number_details._serialized, fullMessage); // send message
+				console.log("Mensaje enviado con éxito a", number);
+			} else {
+				console.log(number, "Número de móvil no registrado");
+			}
+			if (i < numbers.length - 1) {
+				await sleep(3000); // Espera de 5 segundos entre cada envío
+			}
+		} catch (error) {
+			console.error("Ocurrió un error al procesar el número", number, ":", error.message);
+		}
+	}
+	console.log("Proceso finalizado...");
+});
+client.initialize();
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}';
 		$init = array(
 			"nameFile" => $nameFile,
 		);
@@ -636,8 +593,8 @@ switch ($_POST['option']) {
 
 		$result = [
 			'success'  => true,
-			'dataJson' => '',
-			'message'  => $nodeJsPath
+			'dataJson' => $nodeJsPath,
+			'message'  => 'Chatbot creado .!'
 		];
 
 		echo json_encode($result);

@@ -32,7 +32,6 @@ $sql="SELECT
 		AND p.id_status IN (1,2,7) 
 		AND cct.id_contact_type IN (1) 
 		GROUP BY cc.phone,main_name
-		HAVING total_p > 1
 		ORDER BY total_p DESC";
 $packages = $db->select($sql);
 ?>

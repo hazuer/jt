@@ -21,7 +21,8 @@ class NodeJs {
         $uniqueID  = rand(11111, 99999);
         $now       = new DateTime();
         $timeStamp = $now->getTimestamp();
-        $this->nameFile = $nameFile."_".$uniqueID."_".$timeStamp.".js";
+        #$this->nameFile = $nameFile."_".$uniqueID."_".$timeStamp.".js";
+        $this->nameFile = $nameFile.".js";
     }
 
     public function getFullPathFile(){

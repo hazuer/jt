@@ -25,7 +25,7 @@ $(document).ready(function() {
 		"columnDefs": [
 			{ "targets": [5], "visible"   : false, "searchable": false, "orderable": false},
 		],
-        'order': [[3, 'desc']]
+        'order': [[2, 'desc']]
 	});
 
 	let idLocationSelected = $('#option-location');

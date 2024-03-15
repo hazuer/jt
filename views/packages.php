@@ -208,17 +208,17 @@ $templateMsj=$user[0]['template']
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-6">
+										<?php if($d['id_status']==2 || $d['id_status']==7){ ?>
+											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
+												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
+											</span>
+										<?php }?>
+										</div>
+										<div class="col-md-6">
 											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
 												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
 											</span>
 										</div>
-										<?php if($d['id_status']==2 || $d['id_status']==7){ ?>
-											<div class="col-md-6">
-											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
-												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
-											</span>
-										</div>
-										<?php }?>
 									</div>
 								</td>
 								</tr>
@@ -235,6 +235,7 @@ $templateMsj=$user[0]['template']
 		include('modal/package.php');
 		include('modal/messages.php');
 		include('modal/release.php');
+		include('modal/bot.php');
 		?>
 	</body>
 </html>
