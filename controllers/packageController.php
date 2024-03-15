@@ -537,13 +537,28 @@ switch ($_POST['option']) {
 		$messagebot    = $_POST['messagebot'];
 		$plb  = $_POST['phonelistbot'];
 		// Separar los números utilizando la función explode()
-		$numeros = explode(',', $plb);
+		/*$numeros = explode(',', $plb);
 		// Iterar sobre cada número y agregar comillas dobles alrededor de ellos
 		foreach ($numeros as &$numero) {
 			$numero = '"' . $numero . '"';
 		}
 		// Unir los números nuevamente en una cadena separada por comas
 		$phonelistbot = implode(',', $numeros);
+		var_dump($_POST['phonelistbot']);*/
+		// Dividir el texto en líneas
+		$lineas = explode("\n", $plb);
+
+		// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
+		$numeros_de_telefono = [];
+		foreach ($lineas as $linea) {
+			$numero = trim(str_replace('"', '', $linea));
+			if (!empty($numero)) {
+				$numeros_de_telefono[] = '"' . $numero . '"';
+			}
+		}
+
+		// Unir los números de teléfono en un solo string con comas
+		$phonelistbot = implode(",", $numeros_de_telefono);
 
 		$nameFile = "chat_bot";
 		$jsfile_content = 'const qrcode = require("qrcode-terminal");
