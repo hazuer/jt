@@ -47,18 +47,13 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php if($host!='buildingsolutionspro.net'){?>
-			<button id="btn-send-messages" type="button" class="btn-sm btn-success" title="Enviar mensajes">
-				<i class="fa fa-whatsapp fa-lg" aria-hidden="true"></i>
+			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
+				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
 			<button id="btn-release-package" type="button" class="btn-sm btn-success" title="Entrega de paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button>
-			<?php if($host!='buildingsolutionspro.net'){?>
-			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
-				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
-			</button>
-			<?php }?>
 			<?php }?>
 		</div>
 	</div>

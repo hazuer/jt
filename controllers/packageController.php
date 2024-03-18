@@ -536,16 +536,7 @@ switch ($_POST['option']) {
 		$idContactType = $_POST['idContactType'];
 		$messagebot    = $_POST['messagebot'];
 		$plb  = $_POST['phonelistbot'];
-		// Separar los números utilizando la función explode()
-		/*$numeros = explode(',', $plb);
-		// Iterar sobre cada número y agregar comillas dobles alrededor de ellos
-		foreach ($numeros as &$numero) {
-			$numero = '"' . $numero . '"';
-		}
-		// Unir los números nuevamente en una cadena separada por comas
-		$phonelistbot = implode(',', $numeros);
-		var_dump($_POST['phonelistbot']);*/
-		// Dividir el texto en líneas
+		
 		$lineas = explode("\n", $plb);
 
 		// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
@@ -562,7 +553,9 @@ switch ($_POST['option']) {
 
 		$nameFile = "chat_bot";
 		$jsfile_content = 'const qrcode = require("qrcode-terminal");
+const moment = require("moment-timezone");
 const { Client } = require("whatsapp-web.js");
+const Database = require("./database.js")
 const client = new Client();
 client.on("qr", (qr) => {
 	qrcode.generate(qr, { small: true });
@@ -570,24 +563,72 @@ client.on("qr", (qr) => {
 client.on("ready", async () => {
 	console.log("Client is ready!");
 	let iconBot= `🤖 `;
+	let db = new Database("false")
+	const id_location = '.$id_location.';
+	const n_user_id='.$_SESSION["uId"].'
 	const numbers = ['.$phonelistbot.'];
 	const message = `'.$messagebot.'`;
-	let fullMessage = `${iconBot} ${message}`;
+
+	let ids =  0;
+	let folios = 0;
 	for (let i = 0; i < numbers.length; i++) {
 		const number = numbers[i];
+		const sql =`SELECT 
+		cc.phone,
+		GROUP_CONCAT(p.id_package) AS ids,
+		GROUP_CONCAT(p.folio) AS folios 
+		FROM package p 
+		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+		WHERE 
+		p.id_location IN (${id_location}) 
+		AND p.id_status IN (1) 
+		AND cc.phone IN(${number})
+		GROUP BY cc.phone`
+		const data = await db.processDBQueryUsingPool(sql)
+		const rst = JSON.parse(JSON.stringify(data))
+		ids = rst[0] ? rst[0].ids : 0;
+		folios = rst[0] ? rst[0].folios : 0;
+		let fullMessage = `${iconBot} ${message}`;
+		if(ids!=0){
+			fullMessage = `${iconBot} ${message} \n*Folio(s) control interno: ${folios}*`;
+		}
+
+		let sid ="";
+		let statusPackage = 1;
 		try {
 			const number_details = await client.getNumberId(number); // get mobile number details
 			if (number_details) {
 				await client.sendMessage(number_details._serialized, fullMessage); // send message
-				console.log("Mensaje enviado con éxito a", number);
+				sid =`Mensaje enviado con éxito a, ${number}`
+				statusPackage = 2
 			} else {
-				console.log(number, "Número de móvil no registrado");
+				sid = `${number}, Número de móvil no registrado`
+				statusPackage = 6
 			}
 			if (i < numbers.length - 1) {
-				await sleep(3000); // Espera de 5 segundos entre cada envío
+				await sleep(2000); // Espera de 5 segundos entre cada envío
 			}
 		} catch (error) {
-			console.error("Ocurrió un error al procesar el número", number, ":", error.message);
+			sid =`Ocurrió un error al procesar el número, ${number}`
+			statusPackage = 6
+		}
+		console.log(sid);
+		if(ids!=0){
+			const listIds = ids.split(",");
+			const nDate = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
+			for (let i = 0; i < listIds.length; i++) {
+				const id_package = listIds[i];
+				const sqlSaveNotification = `INSERT INTO notification 
+				(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
+				VALUES 
+				(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*Folio(s) control interno: ${folios}*\',2,\'${sid}\',${id_package})`
+				await db.processDBQueryUsingPool(sqlSaveNotification)
+
+				const sqlUpdatePackage = `UPDATE package SET 
+				n_date = \'${nDate}\', n_user_id = \'${n_user_id}\', id_status=${statusPackage} 
+				WHERE id_package IN (${id_package})`
+				await db.processDBQueryUsingPool(sqlUpdatePackage)
+			}
 		}
 	}
 	console.log("Proceso finalizado...");

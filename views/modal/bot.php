@@ -47,7 +47,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="mBListTelefonos"><b>Lista de Telefonos Separados por Coma:</b></label>
+                            <label for="mBListTelefonos"><b>Lista de Telefonos (Excel):</b></label>
                             <textarea class="form-control" id="mBListTelefonos" name="mBListTelefonos" rows="4"></textarea>
                         </div>
                     </div>
