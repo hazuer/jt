@@ -354,11 +354,11 @@ switch ($_POST['option']) {
 				$statusPackage = 2; // SMS Enviado
 			}else{
 				$data['sid']   = "Sin respueta de nodeJs";
-				$statusPackage = 6; //Error al enviar SMS
+				$statusPackage = 6; //Error al enviar mensaje
 			}
 		} catch (Exception $e) {
 			$data['sid']   = $e->getMessage();
-			$statusPackage = 6; //Error al enviar SMS
+			$statusPackage = 6; //Error al enviar mensaje
 		}
 		unlink($nodeJsPath);
 
@@ -606,7 +606,7 @@ client.on("ready", async () => {
 				statusPackage = 6
 			}
 			if (i < numbers.length - 1) {
-				await sleep(2000); // Espera de 5 segundos entre cada envío
+				await sleep(2000); // tiempo de espera en segundos entre cada envío
 			}
 		} catch (error) {
 			sid =`Ocurrió un error al procesar el número, ${number}`
