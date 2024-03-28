@@ -80,6 +80,7 @@
                                     <option value="2">Mensaje Enviado</option>
                                     <option value="4">Devuelto</option>
                                     <option value="5">Eliminado</option>
+                                    <option value="6">Error al enviar mensaje</option>
                                     <option value="7">Contactado</option>
                                 </select>
                             </div>

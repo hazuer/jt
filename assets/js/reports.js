@@ -17,7 +17,7 @@ $(document).ready(function() {
 		"columns" : [
 			{title: `Id`,               name:`id_package`,       data:`id_package`},      //0
 			{title: `Ubicación`,        name:`location_desc`,    data:`location_desc`},   //1
-			{title: `Fecha`,            name:`fecha_registro`,   data:`fecha_registro`},  //2
+			{title: `Fecha Registro`,   name:`fecha_registro`,   data:`fecha_registro`},  //2
 			{title: `Registró`,         name:`registrado_por`,   data:`registrado_por`},  //3
 			{title: `Guía`,             name:`guia`,             data:`guia`},            //4
 			{title: `Folio`,            name:`folio`,            data:`folio`},           //5
@@ -89,4 +89,27 @@ $(document).ready(function() {
 		$('#modal-sms-report-title').html(`Mensajes Enviados ${phoneTitle}`);
 	}
 
+	$('#btn-f-erase').click(function(){
+		$('#rFstatus').val(99);
+		$('#rFIni').val('');
+		$('#rFFin').val('');
+		$('#rGuia').val('');
+		$('#rFolio').val('');
+		$('#rTelefono').val('');
+		$('#rFIniLib').val('');
+		$('#rFFinLib').val('');
+		$('#rGuia').focus();
+	});
+
+	$('#rTelefono').on('input', function() {
+		let input = $(this).val();
+		input = input.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+		$(this).val(input);
+	});
+
+	$('#rFolio').on('input', function() {
+        let input = $(this).val();
+        input = input.replace(/\D/g, '').slice(0, 5); // Elimina caracteres no numéricos y limita a 10 dígitos
+        $(this).val(input);
+    });
 });

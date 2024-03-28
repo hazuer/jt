@@ -18,8 +18,14 @@ if(isset($_SESSION['uLocation'])){
 $id_location = $_SESSION['uLocation'];
 
 $rFstatus = $_POST['rFstatus'] ?? null;
-$rFIni    = $_POST['rFIni'] ?? null;
-$rFFin    = $_POST['rFFin'] ?? null;
+$rFIni    = $_POST['rFIni'] ?? date('Y-m-d', strtotime('-10 days'));
+$rFFin    = $_POST['rFFin'] ?? date('Y-m-d');
+$rGuia    = $_POST['rGuia'] ?? null;
+$rFolio   = $_POST['rFolio'] ?? null;
+$rTelefono   = $_POST['rTelefono'] ?? null;
+
+$rFIniLib    = $_POST['rFIniLib'] ?? null;
+$rFFinLib    = $_POST['rFFinLib'] ?? null;
 
 $andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
 if(isset($rFstatus)){
@@ -28,25 +34,45 @@ if(isset($rFstatus)){
 	}
 }
 
-$andFechas = "";
+$andFechasRegistro = "";
 if(!empty($rFIni) && !empty($rFFin)){
-	$andFechas = " AND p.c_date BETWEEN '$rFIni 00:00:00' AND '$rFFin 23:59:59'";
+	$andFechasRegistro = " AND p.c_date BETWEEN '$rFIni 00:00:00' AND '$rFFin 23:59:59'";
+}
+
+$andGuia ='';
+if(!empty($rGuia)){
+	$andGuia = " AND p.tracking IN('$rGuia')";
+}
+
+$andFolio ='';
+if(!empty($rFolio)){
+	$andFolio = " AND p.folio IN('$rFolio')";
+}
+
+$andTelefono ='';
+if(!empty($rTelefono)){
+	$andTelefono = " AND cc.phone IN('$rTelefono')";
+}
+
+$andFechasLiberacion = "";
+if(!empty($rFIniLib) && !empty($rFFinLib)){
+	$andFechasLiberacion = " AND p.d_date BETWEEN '$rFIniLib 00:00:00' AND '$rFFinLib 23:59:59'";
 }
 
 $sql = "SELECT 
 p.id_package,
 cl.location_desc,
-p.c_date,
+DATE_FORMAT(p.c_date, '%Y-%m-%d') c_date,
 uc.user registro,
 p.tracking,
 cc.phone,
 p.folio,
 cc.contact_name receiver,
 cs.status_desc,
-p.n_date,
+DATE_FORMAT(p.n_date, '%Y-%m-%d') n_date,
 un.user sms_by_user,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
-p.d_date,
+DATE_FORMAT(p.d_date, '%Y-%m-%d') d_date,
 ud.user user_libera,
 p.note 
 FROM package p 
@@ -59,9 +85,14 @@ LEFT JOIN users ud ON ud.id = p.d_user_id
 WHERE 1 
 AND p.id_location IN ($id_location) 
 $andStatusIn 
-$andFechas 
+$andFechasRegistro 
+$andGuia 
+$andFolio 
+$andTelefono 
+$andFechasLiberacion 
 ORDER BY p.id_package DESC";
 $packages = $db->select($sql);
+//echo $sql;
 ?>
 <!doctype html>
 <html lang = "en">
@@ -94,27 +125,62 @@ $packages = $db->select($sql);
 								<option value="3" <?php echo ($rFstatus==3) ? 'selected': ''; ?>>Entregado</option>
 								<option value="4" <?php echo ($rFstatus==4) ? 'selected': ''; ?>>Devuelto</option>
 								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Deleted</option>
-								<option value="6" <?php echo ($rFstatus==6) ? 'selected': ''; ?>>Error al enviar SMS</option>
+								<option value="6" <?php echo ($rFstatus==6) ? 'selected': ''; ?>>Error al enviar mensaje</option>
 								<option value="7" <?php echo ($rFstatus==7) ? 'selected': ''; ?>>Contactado</option>
 							</select>
 						</div>
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<div class="form-group">
-							<label for="rFIni"><b>* Fecha Inicio:</b></label>
+							<label for="rFIni"><b>Fecha Inicio Registro:</b></label>
 							<input type="date" class="form-control" name="rFIni" id="rFIni" value="<?php echo $rFIni; ?>">
 						</div>
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<div class="form-group">
-							<label for="rFFin"><b>* Fecha Fin:</b></label>
+							<label for="rFFin"><b>Fecha Fin Registro:</b></label>
 							<input type="date" class="form-control" name="rFFin" id="rFFin" value="<?php echo $rFFin; ?>">
 						</div>
 					</div>
 					<div class="col-md-3">
 						<div class="form-group">
+							<label for="rGuia"><b>Guía:</b></label>
+							<input type="text" class="form-control" name="rGuia" id="rGuia" value="<?php echo $rGuia; ?>" autocomplete="off">
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="rFolio"><b>Folio:</b></label>
+							<input type="text" class="form-control" name="rFolio" id="rFolio" value="<?php echo $rFolio; ?>" autocomplete="off">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="rTelefono"><b>Télefono:</b></label>
+							<input type="text" class="form-control" name="rTelefono" id="rTelefono" value="<?php echo $rTelefono; ?>" autocomplete="off">
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="rFIniLib"><b>Fecha Inicio Liberación:</b></label>
+							<input type="date" class="form-control" name="rFIniLib" id="rFIniLib" value="<?php echo $rFIniLib; ?>">
+						</div>
+					</div>
+					<div class="col-md-2">
+						<div class="form-group">
+							<label for="rFFinLib"><b>Fecha Fin Liberación:</b></label>
+							<input type="date" class="form-control" name="rFFinLib" id="rFFinLib" value="<?php echo $rFFinLib; ?>">
+						</div>
+					</div>
+					<div class="col-md-1"><br>
+						<div class="form-group">
 							<button id="btn-filter-rep" type="submit" class="btn btn-success" title="Filtrar" data-dismiss="modal">Filtrar</button>
 						</div>
+					</div>
+					<div class="col-md-1"><br>
+						<button id="btn-f-erase" type="button" class="btn btn-default" title="Borrar">Borrar</button>
 					</div>
 				</div>
 			</form>

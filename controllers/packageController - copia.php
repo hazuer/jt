@@ -354,11 +354,11 @@ switch ($_POST['option']) {
 				$statusPackage = 2; // SMS Enviado
 			}else{
 				$data['sid']   = "Sin respueta de nodeJs";
-				$statusPackage = 6; //Error al enviar SMS
+				$statusPackage = 6; //Error al enviar mensaje
 			}
 		} catch (Exception $e) {
 			$data['sid']   = $e->getMessage();
-			$statusPackage = 6; //Error al enviar SMS
+			$statusPackage = 6; //Error al enviar mensaje
 		}
 		unlink($nodeJsPath);
 

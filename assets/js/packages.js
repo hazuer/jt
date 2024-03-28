@@ -16,13 +16,17 @@ $(document).ready(function() {
   	let table = $('#tbl-packages').DataTable({
 		"bPaginate": true,
         "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
-        "pageLength": 100, // Establecer el número de registros por página predeterminado
+        "pageLength": 500, // Establecer el número de registros por página predeterminado
 		//"bFilter": false,
 		"bInfo" : true,
 		scrollCollapse: true,
 		scroller: true,
 		scrollY: 450,
 		scrollX: true,
+		dom: 'Bfrtip',
+		buttons: [
+			'excel'
+		],
 		"columns" : [
 			{title: `id_package`,   name : `id_package`,   data : `id_package`},  //0
 			{title: `Guía`,         name : `tracking`,     data : `tracking`},    //1
@@ -278,7 +282,7 @@ $(document).ready(function() {
 				let timex = 1500;
 				if(response.message=='Paquete listo para Agrupar'){
 					swal(`${response.message}`, `${response.dataJson}`, "success");
-					timex = 10000;
+					timex = 4000;
 				}else{
 					swal(`${response.message}`, "", "success");
 				}
@@ -307,7 +311,7 @@ $(document).ready(function() {
 						return;
 					} else{
 						let timez = 1500;
-						if(response.message=='Paquete listo para Agrupar'){timez = 10000;}
+						if(response.message=='Paquete listo para Agrupar'){timez = 4000;}
 						setTimeout(function(){
 							swal.close();
 							window.location.reload();

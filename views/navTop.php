@@ -20,11 +20,11 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 			<button id="home" type="button" class="btn-sm btn-primary"  title="Paquetes">
 				<i class="fa fa-cubes fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-inspect" type="button" class="btn-sm btn-primary"  title="Usuarios y Paquetes Pendientes de Entrega">
+				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
+			</button>
 			<button id="btn-report" type="button" class="btn-sm btn-primary" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
-			</button>
-			<button id="btn-inspect" type="button" class="btn-sm btn-primary"  title="Revisión">
-				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
 			</button>
 			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
 			<select name="option-location" id="option-location" class="form-control">

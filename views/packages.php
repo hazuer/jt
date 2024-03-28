@@ -17,15 +17,6 @@ if(isset($_SESSION['uLocation'])){
 }
 $id_location = $_SESSION['uLocation'];
 
-
-/*CASE 
-    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) >= 5 THEN '5 dias FDS'
-    WHEN DAYOFWEEK(p.c_date) = 6 AND DATEDIFF(NOW(), p.c_date) = 4 THEN '3 dias FDS'
-    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) = 3 THEN '3 dias'
-    WHEN DAYOFWEEK(p.c_date) != 6 AND DATEDIFF(NOW(), p.c_date) = 2 THEN '2 dias'
-    ELSE DATEDIFF(NOW(), p.c_date)
-END AS diasTrans,*/
-
 $sql = "SELECT 
 p.id_package,
 p.tracking,
@@ -87,9 +78,10 @@ CASE
 END AS diasTrans,
 cc.contact_name receiver,
 cs.id_status,
+IF(cs.id_status=6,'color:#FFA500;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
-IF(p.n_date is null,'', CONCAT('el ',p.n_date)) n_date,
+IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
 p.id_contact 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
@@ -113,6 +105,12 @@ $templateMsj=$user[0]['template']
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
+		<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
+		<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+		<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 		<style>
 			@media only screen and (max-width: 768px) {
 				table.dataTable {
@@ -202,7 +200,7 @@ $templateMsj=$user[0]['template']
 								<td><?php echo $d['folio']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
-								<td><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?></td>
+								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?></td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
