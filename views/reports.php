@@ -132,7 +132,7 @@ $packages = $db->select($sql);
 					</div>
 					<div class="col-md-2">
 						<div class="form-group">
-							<label for="rFIni"><b>Fecha Inicio Registro:</b></label>
+							<label for="rFIni"><b>Fecha Ini. Registro:</b></label>
 							<input type="date" class="form-control" name="rFIni" id="rFIni" value="<?php echo $rFIni; ?>">
 						</div>
 					</div>
@@ -156,7 +156,7 @@ $packages = $db->select($sql);
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<div class="form-group">
 							<label for="rTelefono"><b>Télefono:</b></label>
 							<input type="text" class="form-control" name="rTelefono" id="rTelefono" value="<?php echo $rTelefono; ?>" autocomplete="off">
@@ -164,13 +164,13 @@ $packages = $db->select($sql);
 					</div>
 					<div class="col-md-2">
 						<div class="form-group">
-							<label for="rFIniLib"><b>Fecha Inicio Liberación:</b></label>
+							<label for="rFIniLib"><b>Fecha Ini. Entrega:</b></label>
 							<input type="date" class="form-control" name="rFIniLib" id="rFIniLib" value="<?php echo $rFIniLib; ?>">
 						</div>
 					</div>
 					<div class="col-md-2">
 						<div class="form-group">
-							<label for="rFFinLib"><b>Fecha Fin Liberación:</b></label>
+							<label for="rFFinLib"><b>Fecha Fin Entrega:</b></label>
 							<input type="date" class="form-control" name="rFFinLib" id="rFFinLib" value="<?php echo $rFFinLib; ?>">
 						</div>
 					</div>
