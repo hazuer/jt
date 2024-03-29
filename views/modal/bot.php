@@ -40,7 +40,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="mBMessage"><b>Mensaje:</b></label>
-                            <textarea class="form-control" id="mBMessage" name="mBMessage" rows="4"></textarea>
+                            <textarea class="form-control" id="mBMessage" name="mBMessage" rows="4" readonly></textarea>
                         </div>
                     </div>
                 </div>

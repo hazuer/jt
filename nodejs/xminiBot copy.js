@@ -21,18 +21,13 @@ client.on('message', async (message) => {
 
     // Verificar si ya se ha enviado el mensaje de bienvenida en esta conversación
     if (!conversationState[message.from]) {
-        await client.sendMessage(message.from, `${iconBot} ¡Hola!
-
-Soy el asistente virtual de J&T-Tlaquiltenango, y estaré encantado de ayudarte hoy.
-
-Por favor, escribe la palabra *si* si eres usuario de J&T-Tlaquiltenango y deseas consultar información de tus paquetes. De lo contrario, déjame tu mensaje y me pondré en contacto contigo lo antes posible.
-`);
+        await client.sendMessage(message.from, `${iconBot} Buen día, Te escribe el asistente virtual de JT. ¿En qué puedo ayudarte hoy?`);
         conversationState[message.from] = true; // Marcar la conversación como iniciada
     }
 
     // Esperar la respuesta del usuario
-    if (lowerCaseBody === 'si') {
-        await client.sendMessage(message.from, `${iconBot} Por favor ingresa tu *número de teléfono de 10 dígitos* para consultar si tus paquetes están listos para entrega`);
+    if (lowerCaseBody === '1') {
+        await client.sendMessage(message.from, `${iconBot} Por favor, ingresa tu número de teléfono de 10 dígitos:`);
     } else if (!isNaN(lowerCaseBody) && lowerCaseBody.length === 10) {
         phoneNumber = lowerCaseBody; // Guardar el número de teléfono en la variable
         const sql = `SELECT 
@@ -52,15 +47,12 @@ Por favor, escribe la palabra *si* si eres usuario de J&T-Tlaquiltenango y desea
         const trackings = rst[0] ? rst[0].trackings : 0;
 
         if(trackings!=0){
-            await client.sendMessage(message.from, `${iconBot} *Atención:*
-El día viernes 29 y sábado 30 de marzo no habrá servicio de entrega.
-Recuerde que los domingos no hay servicio de entrega.
-Tienes paquetes pendientes por recoger y podrás pasar por ellos en el siguiente horario:
-*Lunes 01 de abril de 10 de la mañana a 3 de la tarde y de 5 de la tarde a 7 de la noche.*
-Tus guías de entrega son las siguientes: *${trackings}*`);
+            await client.sendMessage(message.from, `${iconBot} Tus paquetes estan listos para entrega, tus guías de entrega son las siguientes: *${trackings}*`);
         }else{
             await client.sendMessage(message.from, `Lo sentimos, no tienes paquetes para entrega`);
         }
+    } else if (conversationState[message.from]) { // Verificar si el mensaje de bienvenida ya se ha enviado
+        await client.sendMessage(message.from, `Ingresa *1* para consultar tus paquetes o tu *número de teléfono de 10 dígitos* para consultar si tus paquetes estan listos para entrega`);
     }
 });
 
