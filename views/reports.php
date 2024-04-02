@@ -17,20 +17,24 @@ if(isset($_SESSION['uLocation'])){
 }
 $id_location = $_SESSION['uLocation'];
 
-$rFstatus = $_POST['rFstatus'] ?? null;
-$rFIni    = $_POST['rFIni'] ?? date('Y-m-d', strtotime('-10 days'));
-$rFFin    = $_POST['rFFin'] ?? date('Y-m-d');
+$rFstatus = $_POST['rFstatus'] ?? 3;
+#$rFIni    = $_POST['rFIni'] ?? date('Y-m-d', strtotime('-10 days'));
+#$rFFin    = $_POST['rFFin'] ?? date('Y-m-d');
+$rFIni    = $_POST['rFIni'] ?? null;
+$rFFin    = $_POST['rFFin'] ?? null;
 $rGuia    = $_POST['rGuia'] ?? null;
 $rFolio   = $_POST['rFolio'] ?? null;
 $rTelefono   = $_POST['rTelefono'] ?? null;
 
-$rFIniLib    = $_POST['rFIniLib'] ?? null;
-$rFFinLib    = $_POST['rFFinLib'] ?? null;
+$rFIniLib    = $_POST['rFIniLib'] ?? date('Y-m-d');
+$rFFinLib    = $_POST['rFFinLib'] ?? date('Y-m-d');
 
-$andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
+# $andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
 if(isset($rFstatus)){
 	if($rFstatus!='99'){
 		$andStatusIn = " AND p.id_status IN ($rFstatus)";
+	}else{
+		$andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
 	}
 }
 
@@ -72,7 +76,7 @@ cs.status_desc,
 DATE_FORMAT(p.n_date, '%Y-%m-%d') n_date,
 un.user sms_by_user,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
-DATE_FORMAT(p.d_date, '%Y-%m-%d') d_date,
+p.d_date,
 ud.user user_libera,
 p.note 
 FROM package p 

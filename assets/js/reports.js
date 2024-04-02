@@ -31,7 +31,7 @@ $(document).ready(function() {
 			{title: `Entregó`,          name:`libero`,           data:`libero`},          //13
 			{title: `Nota`,             name:`note`,             data:`note`}             //14+ 1 last
 		],
-        'order': [[0, 'desc']]
+        'order': [[12, 'desc']]
 	});
 
 	$(`#tbl-reports tbody`).on( `click`, `#btn-details`, function () {
