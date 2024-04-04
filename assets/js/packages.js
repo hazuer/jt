@@ -924,4 +924,60 @@ async function enviarNotificaciones() {
 
 		}
 	});
+
+	$(`#tbl-packages tbody`).on( `click`, `#btn-details-p`, function () {
+		let row = table.row( $(this).closest('tr') ).data();
+		loadSmsDetail(row.id_package);
+	});
+
+	async function loadSmsDetail(id_package) {
+		let listSms = await getRecordsSms(id_package);
+		createTableSmsSent(listSms);
+
+		$('#modal-sms-report').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
+	async function getRecordsSms(id_package) {
+		let list = [];
+		let formData =  new FormData();
+		formData.append('id_package', id_package);
+		formData.append('option','getRecordsSms');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+			if(response.success=='true'){
+				list = response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+		return list;
+	}
+
+	function createTableSmsSent(data) {
+		$('#tbl-sms-sent').empty();
+		let c=1;
+		let phoneTitle='';
+		$.each(data.dataJson, function(index, item) {
+			phoneTitle = item.phone;
+			let row = `<tr>
+				<td><b>${c}</b></td>
+				<td>${item.n_date}</td>
+				<td>${item.phone}</td>
+				<td>${item.contact_name}</td>
+				<td>${item.user}</td>
+				<td>${item.message}</td>
+			</tr>`;
+			$('#tbl-sms-sent').append(row);
+			c++;
+		});
+		$('#modal-sms-report-title').html(`Mensajes Enviados ${phoneTitle}`);
+	}
+
 });

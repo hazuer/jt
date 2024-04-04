@@ -647,6 +647,45 @@ function sleep(ms) {
 		//$nodeFile->getContentFile(true); # true:continue
 		$nodeJsPath = $nodeFile->getFullPathFile();
 
+		//handler emergency
+
+		$nombreArchivo = '../views/modal/handler.php';
+	$contenidoHTML='<div class="col-md-6">
+	<div class="form-group">
+		<div class="form-group">
+		<textarea class="form-control" id="msjbt" name="msjbt" rows="4" readonly="">'.$messagebot.'</textarea>
+		</div>
+	</div>
+</div>
+<div class="col-md-6">
+	<div class="form-group">
+		<div class="form-group">
+		<input type="hidden" class="form-control" name="idlocbt" id="idlocbt" value="'.$id_location.'" autocomplete="off" >
+		</div>
+	</div>
+</div>
+<div class="col-md-6">
+	<div class="form-group">
+		<div class="form-group">
+		<input type="hidden" class="form-control" name="uidbt" id="uidbt" value="'.$_SESSION["uId"].'" autocomplete="off" >
+		</div>
+	</div>
+</div>';
+		foreach ($lineas as $telefono) {
+			$contenidoHTML .="<a href='#' class='mensaje'  data-phone='$telefono'>Enviar mensaje a $telefono</a> <br>";
+		}
+
+		// Intenta abrir el archivo para escritura
+		if ($archivo = fopen($nombreArchivo, 'w')) {
+			// Escribe el contenido en el archivo
+			fwrite($archivo, $contenidoHTML);
+			// Cierra el archivo
+			fclose($archivo);
+			#echo "El archivo $nombreArchivo ha sido creado con éxito.";
+		} else {
+			#echo "No se pudo crear el archivo $nombreArchivo.";
+		}
+
 		$result = [
 			'success'  => true,
 			'dataJson' => $nodeJsPath,
@@ -713,4 +752,73 @@ function sleep(ms) {
 
 		echo json_encode($result);
 		break;
+
+		case 'mensajeManual':
+			$result   = [];
+			$success  = 'false';
+			$dataJson = [];
+			$message  = 'Error envio de mensaje';
+			$id_location   = $_POST['id_location'];
+			$uidbt    = $_POST['uidbt'];
+			$msjbt    = $_POST['msjbt'];
+			$telefono = $_POST['telefono'];
+			try {
+				$sql="SELECT 
+				cc.phone,
+				GROUP_CONCAT(p.id_package) AS ids,
+				GROUP_CONCAT(p.folio) AS folios 
+				FROM package p 
+				INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+				WHERE 
+				p.id_location IN ($id_location) 
+				AND p.id_status IN (1) 
+				AND cc.phone IN ($telefono)
+				GROUP BY cc.phone";
+				$rst = $db->select($sql);
+				$exist = count($rst);
+				$txtFolios='';
+				if($exist!=0){
+					$success="true";
+					$ids = $rst[0]['ids'];
+					$folios = $rst[0]['folios'];
+					$txtFolios="\n*Folio(s) control interno: $folios*";
+					$fullMesage= $msjbt." ".$txtFolios;
+
+					$listIds = explode(",", $ids);
+					foreach ($listIds as $id_package) {
+						$sid ="Mensaje enviado con éxito a, $telefono";
+						$nDate = date("Y-m-d H:i:s");
+						$data['id_location']  = $id_location;
+						$data['n_date']      = $nDate;
+						$data['n_user_id']   = $uidbt;
+						$data['message']  = $fullMesage;
+						$data['id_contact_type']  = 2;
+						$data['sid']  = $sid;
+						$data['id_package']  = $id_package;
+						$db->insert('notification',$data);
+
+						$upData['n_date']    = $nDate;
+						$upData['n_user_id'] = $uidbt;
+						$upData['id_status'] = 2;
+						$db->update('package',$upData," `id_package` IN($id_package)");
+					}
+
+				}
+
+				$result = [
+					'success'  => $success,
+					'dataJson' => [],
+					'message'  => $txtFolios
+				];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+	
+		echo json_encode($result);
+		break;
+		
 }

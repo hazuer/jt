@@ -82,6 +82,7 @@ IF(cs.id_status=6,'color:#FFA500;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
 IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
+(SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
 p.id_contact 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
@@ -200,7 +201,10 @@ $templateMsj=$user[0]['template']
 								<td><?php echo $d['folio']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
-								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?></td>
+								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>
+								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Ver"><?php echo $d['t_sms_sent']; ?></span>
+							<?php
+							} ?></td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
@@ -234,6 +238,7 @@ $templateMsj=$user[0]['template']
 		include('modal/messages.php');
 		include('modal/release.php');
 		include('modal/bot.php');
+		include('modal/sms-report.php');
 		?>
 	</body>
 </html>
