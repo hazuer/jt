@@ -2,6 +2,7 @@
 define( '_VALID_MOS', 1 );
 
 session_start();
+date_default_timezone_set('America/Mexico_City');
 if(!isset($_SESSION["uActive"])){
 	header('Location: '.BASE_URL);
 	die();
