@@ -88,6 +88,8 @@ $id_location = $_SESSION['uLocation'];
 						let fullMessage = encodeURIComponent(`🤖 ${msjbt} ${folios}`);
 						var url = `https://api.whatsapp.com/send/?phone=${telefono}&text=${fullMessage}`;
 						window.open(url);
+					}else{
+						swal('Atención.!', 'Ya has procesado el número'+ telefono, "warning");
 					}
 				}).fail(function(e) {
 					console.log("Opps algo salio mal",e);
