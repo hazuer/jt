@@ -11,14 +11,6 @@ require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 header('Content-Type: application/json; charset=utf-8');
-/*$path_file = NODE_PATH_FILE;
-$output = null;
-		$retval = null;
-		$rstNodeJs = null;
-			exec("node " . $path_file . ' 2>&1', $output, $retval);
-			//exec('node -v', $output, $retval);
-			echo json_encode($output);
-			die();*/
 
 switch ($_POST['option']) {
 
@@ -246,7 +238,7 @@ switch ($_POST['option']) {
 		}
 		echo json_encode($result);
 	break;
-
+/*
 	case 'getPackageNewSms':
 		try {
 		$result   = [];
@@ -289,6 +281,7 @@ switch ($_POST['option']) {
 		}
 		echo json_encode($result);
 	break;
+	*/
 
 	case 'sendMessages':
 		$result   = [];
@@ -576,7 +569,7 @@ client.on("ready", async () => {
 		const sql =`SELECT 
 		cc.phone,
 		GROUP_CONCAT(p.id_package) AS ids,
-		GROUP_CONCAT(p.folio) AS folios 
+		GROUP_CONCAT(\'(\',p.folio,\')-\',p.tracking) AS folioGuias 
 		FROM package p 
 		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 		WHERE 
@@ -587,10 +580,10 @@ client.on("ready", async () => {
 		const data = await db.processDBQueryUsingPool(sql)
 		const rst = JSON.parse(JSON.stringify(data))
 		ids = rst[0] ? rst[0].ids : 0;
-		folios = rst[0] ? rst[0].folios : 0;
+		folioGuias = rst[0] ? rst[0].folioGuias : 0;
 		let fullMessage = `${iconBot} ${message}`;
 		if(ids!=0){
-			fullMessage = `${iconBot} ${message} \n*Folio(s) control interno: ${folios}*`;
+			fullMessage = `${iconBot} ${message} \n*(Folio)-Guía: ${folioGuias}*`;
 		}
 
 		let sid ="";
@@ -621,7 +614,7 @@ client.on("ready", async () => {
 				const sqlSaveNotification = `INSERT INTO notification 
 				(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 				VALUES 
-				(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*Folio(s) control interno: ${folios}*\',2,\'${sid}\',${id_package})`
+				(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía: ${folioGuias}*\',2,\'${sid}\',${id_package})`
 				await db.processDBQueryUsingPool(sqlSaveNotification)
 
 				const sqlUpdatePackage = `UPDATE package SET 
@@ -766,7 +759,7 @@ function sleep(ms) {
 				$sql="SELECT 
 				cc.phone,
 				GROUP_CONCAT(p.id_package) AS ids,
-				GROUP_CONCAT(p.folio) AS folios 
+				GROUP_CONCAT('(',p.folio,')-',p.tracking) AS folioGuias
 				FROM package p 
 				INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 				WHERE 
@@ -780,8 +773,8 @@ function sleep(ms) {
 				if($exist!=0){
 					$success="true";
 					$ids = $rst[0]['ids'];
-					$folios = $rst[0]['folios'];
-					$txtFolios="\n*Folio(s) control interno: $folios*";
+					$folioGuias = $rst[0]['folioGuias'];
+					$txtFolios="\n*(Folio)-Guía: $folioGuias*";
 					$fullMesage= $msjbt." ".$txtFolios;
 
 					$listIds = explode(",", $ids);
