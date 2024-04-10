@@ -19,7 +19,10 @@ $id_location = $_SESSION['uLocation'];
 
 $sql="SELECT 
 		cc.phone,
-		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
+		IF((SELECT count(cc1.contact_name) FROM cat_contact cc1 WHERE cc1.phone = cc.phone AND cc1.id_location IN($id_location) AND cc1.id_contact_status IN (1))=1,
+			(SELECT cc2.contact_name FROM cat_contact cc2 WHERE cc2.phone = cc.phone AND cc2.id_location IN($id_location) AND cc2.id_contact_status IN (1) limit 1),
+			CONCAT((SELECT cc3.contact_name FROM cat_contact cc3 WHERE cc3.phone = cc.phone AND cc3.id_location IN($id_location) AND cc3.id_contact_status IN (1) LIMIT 1),' <b>+',(SELECT count(cc4.contact_name) FROM cat_contact cc4 WHERE cc4.phone = cc.phone AND cc4.id_location IN($id_location) AND cc4.id_contact_status IN (1))-1,'</b>')
+		) AS main_name,
 		COUNT(p.tracking) AS total_p,
 		GROUP_CONCAT(p.tracking) AS trackings,
 		GROUP_CONCAT(p.folio) AS folios,

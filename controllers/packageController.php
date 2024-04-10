@@ -569,7 +569,7 @@ client.on("ready", async () => {
 		const sql =`SELECT 
 		cc.phone,
 		GROUP_CONCAT(p.id_package) AS ids,
-		GROUP_CONCAT(\'(\',p.folio,\')-\',p.tracking) AS folioGuias 
+		GROUP_CONCAT(\'*(\',p.folio,\')-\',p.tracking,\'*\' SEPARATOR \'\n\') AS folioGuias 
 		FROM package p 
 		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 		WHERE 
@@ -583,7 +583,7 @@ client.on("ready", async () => {
 		folioGuias = rst[0] ? rst[0].folioGuias : 0;
 		let fullMessage = `${iconBot} ${message}`;
 		if(ids!=0){
-			fullMessage = `${iconBot} ${message} \n*(Folio)-Guía: ${folioGuias}*`;
+			fullMessage = `${iconBot} ${message} \n*(Folio)-Guía:*\n${folioGuias}`;
 		}
 
 		let sid ="";
@@ -614,7 +614,7 @@ client.on("ready", async () => {
 				const sqlSaveNotification = `INSERT INTO notification 
 				(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 				VALUES 
-				(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía: ${folioGuias}*\',2,\'${sid}\',${id_package})`
+				(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía:*\n${folioGuias}\',2,\'${sid}\',${id_package})`
 				await db.processDBQueryUsingPool(sqlSaveNotification)
 
 				const sqlUpdatePackage = `UPDATE package SET 
@@ -759,7 +759,7 @@ function sleep(ms) {
 				$sql="SELECT 
 				cc.phone,
 				GROUP_CONCAT(p.id_package) AS ids,
-				GROUP_CONCAT('(',p.folio,')-',p.tracking) AS folioGuias
+				GROUP_CONCAT('*(',p.folio,')-',p.tracking,'*' SEPARATOR '\n') AS folioGuias 
 				FROM package p 
 				INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 				WHERE 
@@ -774,7 +774,7 @@ function sleep(ms) {
 					$success="true";
 					$ids = $rst[0]['ids'];
 					$folioGuias = $rst[0]['folioGuias'];
-					$txtFolios="\n*(Folio)-Guía: $folioGuias*";
+					$txtFolios="\n*(Folio)-Guía:*\n$folioGuias";
 					$fullMesage= $msjbt." ".$txtFolios;
 
 					$listIds = explode(",", $ids);
