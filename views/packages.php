@@ -237,6 +237,7 @@ $templateMsj=$user[0]['template']
 		include('modal/package.php');
 		include('modal/messages.php');
 		include('modal/release.php');
+		include('modal/sync.php');
 		include('modal/bot.php');
 		include('modal/sms-report.php');
 		?>

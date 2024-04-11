@@ -980,4 +980,39 @@ async function enviarNotificaciones() {
 		$('#modal-sms-report-title').html(`Mensajes Enviados ${phoneTitle}`);
 	}
 
+
+	$('#btn-sync').click(async function(){
+		let result = await chekout('new');
+		/*$('#form-modal-sync-package')[0].reset();
+		$('#msyncp-id_location').val(idLocationSelected.val());
+		let fechaFormateada = getCurrentDate();
+		$('#msyncp-date-release').val(fechaFormateada);
+		$('#tbl-sync').hide();
+
+		$('#modal-sync-package-title').html('Synchronize J&T and Released Packages');
+		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');*/
+		console.log(result);
+	});
+
+
+	async function chekout(type) {
+		let result   = '';
+		let formData =  new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('option', 'chekout');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+			result = response;
+		} catch (error) {
+			console.error(error);
+		}
+		return result;
+	}
 });
