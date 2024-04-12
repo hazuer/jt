@@ -28,7 +28,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12" style="overflow: auto; max-height: 250px; width: 100%;">
-                        <table class="table" id="tbl-sync">
+                        <table class="table table-striped table-bordered nowrap table-hover" id="tbl-sync">
                         <thead>
                             <tr>
                                 <th>Guía</th>
