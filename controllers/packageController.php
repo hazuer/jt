@@ -828,15 +828,15 @@ function sleep(ms) {
 			LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 			LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
 			WHERE 1 
-			AND p.id_location IN ($id_location)
+			AND p.id_location IN ($id_location) 
 			AND p.id_status IN(1,2,6,7)";
 			$packages = $db->select($sql);
 			foreach($packages as $d){
-				$waybillNo = $d['tracking'];
+				$waybillNo   = $d['tracking'];
 				$phoneVerify = $d['last_four_digits'];
-				$phone = $d['phone'];
-				$receiver = $d['receiver'];
-				$folio = $d['folio'];
+				$phone       = $d['phone'];
+				$receiver    = $d['receiver'];
+				$folio       = $d['folio'];
 
 				$url = "https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=".$waybillNo."&langType=ES&phoneVerify=".$phoneVerify;
 				#$url ="https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=JMX300064944499&langType=ES&phoneVerify=2464";
@@ -845,47 +845,63 @@ function sleep(ms) {
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 				$response = curl_exec($curl);
 
+				$commonValues = [
+					'guia'     => $waybillNo,
+					'phone'    => $phone,
+					'receiver' => $receiver,
+					'folio'    => $folio
+				];
+
 				if ($response === false) {
-					echo "Error al realizar la solicitud";
+					$arrayRst[$waybillNo] = array_merge([
+						'status'      => 'Verificar',
+						'desc_status' => 'Error al realizar la solicitud, intenta nuevamente'
+					],$commonValues);
 				} else {
 					$jsonDecode = json_decode($response, true);
 					if ($jsonDecode && isset($jsonDecode['data']['details']) && count($jsonDecode['data']['details']) > 0) {
 						$details = $jsonDecode['data']['details'];
-						// Encontrar el último scanTime y su respectivo status
 						$lastScanTime = '';
 						$lastStatus = '';
 						foreach ($details as $detail) {
 							$scanTime = strtotime($detail['scanTime']);
 							if ($scanTime > strtotime($lastScanTime)) {
 								$lastScanTime = $detail['scanTime'];
-								$lastStatus = $detail['status'];
+								$lastStatus   = $detail['status'];
 							}
 						}
 
 						// Determinar el estatus final
 						if ($lastStatus === '已签收') {
-							//echo "El paquete ha sido firmado.";
-							//array_push($arrayRst, $waybillNo.'-El paquete ha sido firmado.');
-							$arrayRst[$waybillNo] = ['status'=>'Verificar','guia'=>$waybillNo,'phone'=>$phone,'receiver'=>$receiver,'folio'=>$folio];
+							$arrayRst[$waybillNo] = array_merge([
+								'status'      => 'Verificar',
+								'desc_status' => 'Liberado en J&T pero no en el sistema interno'
+							],$commonValues);
 						} elseif ($lastStatus === '派件中') {
-							//echo "El paquete está en proceso de entrega.";
-							$arrayRst[$waybillNo] = ['status'=>'Ok','guia'=>$waybillNo,'phone'=>$phone,'receiver'=>$receiver,'folio'=>$folio];
+							$arrayRst[$waybillNo] = array_merge([
+								'status'      => 'Ok',
+								'desc_status' => 'Entrega en curso'
+							],$commonValues);
 						} else {
-							//echo "El estatus del paquete no pudo ser determinado.";
-							$arrayRst[$waybillNo] = ['status'=>'Indeterminado','guia'=>$waybillNo,'phone'=>$phone,'receiver'=>$receiver,'folio'=>$folio];
+							$arrayRst[$waybillNo] = array_merge([
+								'status'      => 'Verificar',
+								'desc_status' => 'El estatus del paquete no pudo ser determinado'
+							],$commonValues);
 						}
 					} else {
-						//echo "No se encontraron detalles en la respuesta.";
-						$arrayRst[$waybillNo] = ['status'=>'Sin detalle','guia'=>$waybillNo,'phone'=>$phone,'receiver'=>$receiver,'folio'=>$folio];
+						$arrayRst[$waybillNo] = array_merge([
+							'status'      => 'Verificar',
+							'desc_status' => 'Sin detalles'
+						],$commonValues);
 					}
 				}
 
 				curl_close($curl);
 			}
 			$result = [
-				'success' => 'true',
-				'trackingList'   => $arrayRst,
-				'message' => 'ok'
+				'success'      => 'true',
+				'trackingList' => $arrayRst,
+				'message'      => 'ok'
 			];
 			echo json_encode($result);
 		break;

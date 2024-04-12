@@ -35,6 +35,7 @@
                                 <th>Télefono</th>
                                 <th>Destinatario</th>
                                 <th>Folio</th>
+                                <th>Estatus/Descripción</th>
                             </tr>
                         </thead>
                         <tbody>

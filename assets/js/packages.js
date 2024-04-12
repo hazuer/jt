@@ -982,20 +982,57 @@ async function enviarNotificaciones() {
 
 
 	$('#btn-sync').click(async function(){
-		let result = await chekout('new');
-		/*$('#form-modal-sync-package')[0].reset();
+		showSwal();
+		$('.swal-button-container').hide();
+		let result = await chekout();
+	
+		// Iterar sobre el trackingList y agregar las filas correspondientes
+		var trackingList = result.trackingList;
+		let t=0;
+		for (var guia in trackingList) {
+			if (trackingList.hasOwnProperty(guia)) {
+				var data = trackingList[guia];
+				if (data.status === 'Verificar') {
+					t++;
+					addRowToTable(data.guia, data.phone, data.receiver, data.folio,data.desc_status);
+				}
+			}
+		}
+		if(t==0){
+			swal("Éxito!", `Estas al día`, "success");
+			$('.swal-button-container').hide();
+			setTimeout(function(){
+				swal.close();
+			}, 3500);
+			return;
+		}
+
+		swal.close();
+		$('#form-modal-sync-package')[0].reset();
 		$('#msyncp-id_location').val(idLocationSelected.val());
 		let fechaFormateada = getCurrentDate();
 		$('#msyncp-date-release').val(fechaFormateada);
-		$('#tbl-sync').hide();
 
 		$('#modal-sync-package-title').html('Synchronize J&T and Released Packages');
-		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');*/
-		console.log(result);
+		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');
 	});
 
+	function addRowToTable(guia, telefono, destinatario, folio,desc_action) {
+		var table = document.getElementById("tbl-sync").getElementsByTagName('tbody')[0];
+		var newRow = table.insertRow(table.rows.length);
+		var cellGuia = newRow.insertCell(0);
+		var cellTelefono = newRow.insertCell(1);
+		var cellDestinatario = newRow.insertCell(2);
+		var cellFolio = newRow.insertCell(3);
+		var cellDescAtion = newRow.insertCell(4);
+		cellGuia.innerHTML = guia;
+		cellTelefono.innerHTML = telefono;
+		cellDestinatario.innerHTML = destinatario;
+		cellFolio.innerHTML = folio;
+		cellDescAtion.innerHTML = desc_action;
+	}
 
-	async function chekout(type) {
+	async function chekout() {
 		let result   = '';
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
