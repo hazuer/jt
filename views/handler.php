@@ -1,14 +1,16 @@
 <?php
+session_start();
 define( '_VALID_MOS', 1 );
 
-session_start();
+
+require_once('../system/configuration.php');
+require_once('../system/DB.php');
+$db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
+
 if(!isset($_SESSION["uActive"])){
 	header('Location: '.BASE_URL);
 	die();
 }
-require_once('../system/configuration.php');
-require_once('../system/DB.php');
-$db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 if(isset($_SESSION['uLocation'])){
 	$_SESSION['uLocation'] = $_SESSION['uLocation'];

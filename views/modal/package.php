@@ -23,13 +23,25 @@
                             <label class="form-check-label" for="opcMA"><b>Guardar y volver a registrar</b></label>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="keepModal" id="opcGC" value="option2">
                             <label class="form-check-label" for="opcGC"><b>Guardar y cerrar</b></label>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-check form-check-inline">
+                                <label for="id_marcador"><b>Marcador:</b></label>
+                                    <select name="id_marcador" id="id_marcador" class="form-control">
+                                    <option value="black" <?php if($_SESSION["uMarker"]=='black'){echo "selected ";} ?> style="background-color:black;">Negro</option>
+                                    <option value="red"  <?php if($_SESSION["uMarker"]=='red'){echo "selected ";} ?>style="background-color:red;">Rojo</option>
+                                    <option value="blue"  <?php if($_SESSION["uMarker"]=='blue'){echo "selected ";} ?>style="background-color:blue;">Azul</option>
+                                    <option value="green"  <?php if($_SESSION["uMarker"]=='green'){echo "selected ";} ?>style="background-color:green;">Verde</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
+
 
                     <div class="row">
                         <div class="col-md-6">

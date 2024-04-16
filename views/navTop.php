@@ -10,6 +10,20 @@ $fullUrl = $protocol . $host . $uri;
 $nombreArchivo = basename($fullUrl, ".php");
 // Dividir la cadena para obtener solo el nombre del archivo
 $paginaInUse = explode(".", $nombreArchivo)[0];
+
+#1	isidoroc
+#2	karena
+#3	ciriloa
+#4	josuea
+#5	paolap
+#6	jatziri
+#7	isabelc
+
+
+$selectDisabled='';
+if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
+	$selectDisabled='disabled';
+}
 ?>
 <div class="row">
 	<div class="col-md-12">
@@ -27,7 +41,7 @@ $paginaInUse = explode(".", $nombreArchivo)[0];
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>
 			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
-			<select name="option-location" id="option-location" class="form-control">
+			<select name="option-location" id="option-location" class="form-control" <?php echo $selectDisabled; ?> >
 				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
 				<option value="2" <?php echo ($_SESSION['uLocation']==2) ? 'selected': ''; ?> >Zacatepec</option>
 			</select>

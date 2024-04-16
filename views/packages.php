@@ -1,14 +1,17 @@
 <?php
+session_start();
+header("Cache-Control: max-age=3600"); // Almacena en caché durante 1 hora
+header("Expires: " . gmdate("D, d M Y H:i:s", time() + 3600) . " GMT");
 define( '_VALID_MOS', 1 );
 
-session_start();
+require_once('../system/configuration.php');
+require_once('../system/DB.php');
+$db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
+
 if(!isset($_SESSION["uActive"])){
 	header('Location: '.BASE_URL);
 	die();
 }
-require_once('../system/configuration.php');
-require_once('../system/DB.php');
-$db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 if(isset($_SESSION['uLocation'])){
 	$_SESSION['uLocation'] = $_SESSION['uLocation'];
@@ -25,15 +28,15 @@ p.id_location,
 p.c_date,
 p.folio,
 CASE 
-	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 3,
+	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
 		'',
-		IF(DATEDIFF(NOW(), p.c_date)=4,
+		IF(DATEDIFF(NOW(), p.c_date)=3,
 			'background-color: #FFFF99;',
 			'background-color: #FF9999;')
 	) 
-	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 2,
+	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
 		'',
-		IF(DATEDIFF(NOW(), p.c_date)=3,
+		IF(DATEDIFF(NOW(), p.c_date)=2,
 			'background-color: #FFFF99;',
 			'background-color: #FF9999;')
 	) 
@@ -51,15 +54,15 @@ CASE
 	) 
 END AS styleCtrlDays,
 CASE 
-	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 3,
+	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
 		'',
-		IF(DATEDIFF(NOW(), p.c_date)=4,
+		IF(DATEDIFF(NOW(), p.c_date)=3,
 			'2DT',
 			'3DT')
 	) 
-	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 2,
+	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
 		'',
-		IF(DATEDIFF(NOW(), p.c_date)=3,
+		IF(DATEDIFF(NOW(), p.c_date)=2,
 			'2DT',
 			'3DT')
 	) 
@@ -83,7 +86,8 @@ cs.status_desc,
 p.note,
 IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
-p.id_contact 
+p.id_contact,
+p.marker 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -94,7 +98,7 @@ $packages = $db->select($sql);
 
 $sqlTemp ="SELECT template FROM cat_template WHERE id_location IN ($id_location) LIMIT 1";
 $user = $db->select($sqlTemp);
-$templateMsj=$user[0]['template']
+$templateMsj=$user[0]['template'];
 
 ?>
 <!doctype html>
@@ -103,6 +107,7 @@ $templateMsj=$user[0]['template']
 		<?php include '../views/header.php'; ?>
 		<script>
     	let templateMsj =`<?php echo $templateMsj;?>`;
+		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
@@ -198,7 +203,7 @@ $templateMsj=$user[0]['template']
 								<td><?php echo $d['phone']; ?></td>
 								<td><?php echo $d['id_location']; ?></td>
 								<td><?php echo $d['c_date']; ?></td>
-								<td><?php echo $d['folio']; ?></td>
+								<td style="font-weight: bold; color: <?php echo $d['marker']; ?>;"><?php echo $d['folio']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
 								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>

@@ -1,6 +1,6 @@
 <?php
-define( '_VALID_MOS', 1 );
 session_start();
+define( '_VALID_MOS', 1 );
 
 if(isset($_SESSION["uActive"])){
 	header('Location: views/packages.php');

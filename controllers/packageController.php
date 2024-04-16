@@ -1,9 +1,10 @@
 <?php
+session_start();
 #error_reporting(E_ALL);
 #ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
-session_start();
+
 date_default_timezone_set('America/Mexico_City');
 
 require_once('../system/configuration.php');
@@ -98,6 +99,8 @@ switch ($_POST['option']) {
 						$rstCheck = $db->select($sqlCheck);
 						$total = $rstCheck[0]['total'];
 						if($total==0){
+							$data['marker']      = $_POST['id_marcador'];
+							$_SESSION["uMarker"] = $data['marker'];
 
 							$id_location = $data['id_location'];
 							$sqlCanBeAgrouped = "SELECT p.folio 

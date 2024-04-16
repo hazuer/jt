@@ -1,9 +1,9 @@
 <?php
+session_start();
 # ini_set('display_errors',1);
 # error_reporting(E_ALL);
 
 define( '_VALID_MOS', 1 );
-session_start();
 
 require_once('../system/configuration.php');
 require_once('../system/DB.php');
@@ -34,6 +34,7 @@ switch ($_REQUEST['option']) {
 					$_SESSION["uName"]     = $u;
 					$_SESSION["uLocationDefault"] = $user[0]['id_location_default'];
 					$_SESSION["uActive"]   = true;
+					$_SESSION["uMarker"]   = 'black';
 					$result                = ['success' => 'true'];
 				}
 

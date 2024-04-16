@@ -170,6 +170,7 @@ $(document).ready(function() {
 			}
 			$('#btn-erase').hide();
 		}else{
+			updateColors(uMarker);
 			$('#opcMA').prop('checked', true);
 			$('#div-keep-modal').show();
 			let newFolio = await getFolio('new');
@@ -264,6 +265,7 @@ $(document).ready(function() {
 		formData.append('id_contact',$('#id_contact').val());
 		formData.append('tracking',guia);
 		formData.append('id_status',id_status.val());
+		formData.append('id_marcador',$('#id_marcador').val());
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
 		formData.append('note',$('#note').val());
@@ -279,6 +281,7 @@ $(document).ready(function() {
 		.done(function(response) {
 
 			if(response.success=='true'){
+				uMarker = $('#id_marcador').val();
 				let timex = 1500;
 				if(response.message=='Paquete listo para Agrupar'){
 					swal(`${response.message}`, `${response.dataJson}`, "success");
@@ -880,6 +883,7 @@ async function enviarNotificaciones() {
 	$('#btn-bot').click(function(){
 		$('#mBListTelefonos').val('');
 		$('#modal-bot-title').html('Crear Chatbot 🤖');
+		$('#mBIdLocation').val(idLocationSelected.val());
 		$('#modal-bot').modal({backdrop: 'static', keyboard: false}, 'show');
 		let msj=`${templateMsj}`;
 		$('#mBMessage').val(msj);
@@ -999,7 +1003,7 @@ async function enviarNotificaciones() {
 			}
 		}
 		if(t==0){
-			swal("Éxito!", `Estas al día`, "success");
+			swal("Éxito!", `Estás al día`, "success");
 			$('.swal-button-container').hide();
 			setTimeout(function(){
 				swal.close();
@@ -1052,4 +1056,35 @@ async function enviarNotificaciones() {
 		}
 		return result;
 	}
+
+	updateColors(uMarker);
+
+	document.getElementById("id_marcador").addEventListener("change", function() {
+		let selectedColor = this.value;
+		updateColors(selectedColor);
+	});
 });
+
+function updateColors(selectedColor) {
+    let select = document.getElementById("id_marcador");
+
+    // Establecer el color seleccionado como seleccionado en el select
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === selectedColor) {
+            select.selectedIndex = i;
+            break;
+        }
+    }
+
+    // Actualizar los colores de las opciones
+    for (let i = 0; i < select.options.length; i++) {
+        let option = select.options[i];
+        option.style.backgroundColor = option.value;
+        option.style.color = option.value === selectedColor ? 'black' : 'white';
+    }
+
+    // Establecer el color de fondo del select
+    select.style.backgroundColor = selectedColor;
+    select.style.color = 'white'; // Cambiar el color del texto para que sea visible
+}
+
