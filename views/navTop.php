@@ -11,15 +11,6 @@ $nombreArchivo = basename($fullUrl, ".php");
 // Dividir la cadena para obtener solo el nombre del archivo
 $paginaInUse = explode(".", $nombreArchivo)[0];
 
-#1	isidoroc
-#2	karena
-#3	ciriloa
-#4	josuea
-#5	paolap
-#6	jatziri
-#7	isabelc
-
-
 $selectDisabled='';
 if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 	$selectDisabled='disabled';
@@ -70,6 +61,9 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			</button>
 			<button id="btn-sync" type="button" class="btn-sm btn-success" title="Sync">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
+			</button>
+			<button id="btn-ocurre" type="button" class="btn-sm btn-success" title="Ocurre">
+				<i class="fa fa-barcode fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
 		</div>

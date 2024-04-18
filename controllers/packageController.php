@@ -908,4 +908,97 @@ function sleep(ms) {
 			];
 			echo json_encode($result);
 		break;
+
+		case 'ocurre':
+			if(isset($_SESSION['uLocation'])){
+				$_SESSION['uLocation'] = $_SESSION['uLocation'];
+			}else{
+				$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
+			}
+			$id_location = $_SESSION['uLocation'];
+			$typeLocation='tlaqui';
+			if($id_location==2){$typeLocation='zaca';}
+
+			$result = [
+				'success'   => false,
+				'message'   => 'No se pudo abrir el archivo ZIP'
+			];
+
+			// Incluir la biblioteca PHPBarcode
+			require_once('barcode.php');
+
+			$sql ="SELECT
+			p.tracking
+			FROM
+				package p
+			LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact
+			LEFT JOIN cat_status cs ON cs.id_status = p.id_status
+			LEFT JOIN users uc ON uc.id = p.c_user_id
+			LEFT JOIN cat_location cl ON cl.id_location = p.id_location
+			LEFT JOIN users un ON un.id = p.n_user_id
+			LEFT JOIN users ud ON ud.id = p.d_user_id
+			WHERE
+				1
+				AND p.id_location IN ($id_location)
+				AND p.id_status IN (1, 2, 4, 5, 6, 7)
+				AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59'
+			ORDER BY p.id_package DESC";
+			$codigos = $db->select($sql);
+
+			$archivos = array();
+			// Iterar sobre cada código y generar el código de barras correspondiente
+			$c=1;
+			foreach ($codigos as $data) {
+				$codigo= $data['tracking'];
+				// Nombre del archivo para guardar el código de barras
+				$nombreImagen = $c.'_'.$codigo . '.png';
+
+				// Llamar a la función barcode() para generar el código de barras con un tamaño más grande
+				barcode($nombreImagen, $codigo, 80, 'horizontal', 'code128', true, 1);
+
+			   # aca agegar el nombreImagen al array archivos
+			   array_push($archivos,$nombreImagen);
+			   $c++;
+			}
+
+			$nameOcurre= 'ocurre_'.$typeLocation.'_'.date('Y-m-d');
+			// Nombre del archivo ZIP
+			$zipFilename = $nameOcurre.'.zip';
+
+			// Crear una instancia de ZipArchive
+			$zip = new ZipArchive();
+			
+
+			// Abrir el archivo ZIP para escritura
+			if ($zip->open($zipFilename, ZipArchive::CREATE) === TRUE) {
+				// Agregar cada archivo al archivo ZIP
+				foreach ($archivos as $archivo) {
+					// Crear un objeto SplFileInfo para el archivo
+					$fileInfo = new SplFileInfo($archivo);
+					// Agregar el archivo al ZIP usando el nombre base como nombre interno
+					$zip->addFile($archivo, $fileInfo->getBasename());
+				}
+				// Cerrar el archivo ZIP
+				$zip->close();
+
+				$result = [
+					'success'   => 'true',
+					'zip'       => $zipFilename,
+					'message'   => 'ok'
+				];
+			}
+
+			foreach ($archivos as $archivo) {
+				unlink($archivo);
+			}
+
+
+			echo json_encode($result);
+		break;
+
+		case 'deleteZip':
+			$zipFile=$_POST['zipFile'];
+			unlink($zipFile);
+		break;
+
 }

@@ -392,9 +392,6 @@ $(document).ready(function() {
 		$('#tracking').focus();
 	});
 
-	/*$('#close-qr-b,#close-qr-x').click(function(){
-		window.location.reload();
-	});*/
 
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
@@ -826,7 +823,8 @@ async function enviarNotificaciones() {
 		loadModalTemplate();
 	});
 	async function loadModalTemplate() {
-		$('#mTTemplate').val(templateMsj)
+		$('#mTTemplate').val(templateMsj);
+		$('#mTIdLocation').val(idLocationSelected.val());
 		$('#modal-template-title').html('Plantilla de Mensajes');
 		$('#modal-template').modal({backdrop: 'static', keyboard: false}, 'show');
 		setTimeout(function(){
@@ -1062,6 +1060,62 @@ async function enviarNotificaciones() {
 	document.getElementById("id_marcador").addEventListener("change", function() {
 		let selectedColor = this.value;
 		updateColors(selectedColor);
+	});
+
+	$('#btn-ocurre').click(function(){
+		let formData =  new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('option', 'ocurre');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+				beforeSend : function() {
+					showSwal();
+					$('.swal-button-container').hide();
+				}
+			})
+			.done(function(response) {
+				swal.close();
+				if (response.success=='true') {
+					// Crear un enlace temporal
+					let link = document.createElement('a');
+					link.href =`${base_url}/controllers/${response.zip}`,
+					link.download = response.zip; // Nombre del archivo ZIP
+					document.body.appendChild(link);
+					// Simular el clic en el enlace para iniciar la descarga
+					link.click();
+					// Eliminar el enlace temporal del DOM
+					document.body.removeChild(link);
+					swal("Éxito!", `Descarga finalizada`, "success");
+				$('.swal-button-container').hide();
+				setTimeout(function(){
+					swal.close();
+					let formData = new FormData();
+					formData.append('zipFile',`${response.zip}`);
+					formData.append('option','deleteZip');
+					$.ajax({
+						url        : `${base_url}/${baseController}`,
+						type       : 'POST',
+						data       : formData,
+						cache      : false,
+						contentType: false,
+						processData: false,
+					})
+				}, 2500);
+				} else {
+					console.error('Error al generar el archivo ZIP:', response.message);
+				}
+			}).fail(function(e) {
+				console.log("Opps algo salio mal",e);
+			});
+		} catch (error) {
+			console.error(error);
+		}
 	});
 });
 
