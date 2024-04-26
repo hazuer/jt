@@ -1073,8 +1073,38 @@ async function enviarNotificaciones() {
 	});
 
 	$('#btn-ocurre').click(function(){
+		swal({
+			title: "Crear Códigos de Barras",
+			text: "¿Que Opción Deseas Generar?",
+			icon: "info",
+			buttons: {
+				opcion1: {
+					text: "Punto de Autoservicio",
+					value: "opcion1",
+				},
+				opcion2: {
+					text: "Modo Ocurre",
+					value: "opcion2",
+				},
+			},
+			dangerMode: false,
+		})
+		.then((value) => {
+			switch (value) {
+				case "opcion1":
+						createBarCode('auto');
+					break;
+				case "opcion2":
+						createBarCode('ocurre');
+					break;
+			}
+		});
+	});
+
+	function createBarCode(mode) {
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
+		formData.append('type_mode', mode);
 		formData.append('option', 'ocurre');
 		try {
 			$.ajax({
@@ -1126,7 +1156,7 @@ async function enviarNotificaciones() {
 		} catch (error) {
 			console.error(error);
 		}
-	});
+}
 });
 
 function updateColors(selectedColor) {

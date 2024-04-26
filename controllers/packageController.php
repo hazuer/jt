@@ -919,6 +919,15 @@ function sleep(ms) {
 			$typeLocation='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
 
+			$type_mode = $_POST['type_mode'];
+			$nameTypeMode='ocurre';
+			$listEstatus='1, 2, 4, 5, 6, 7'; //except entregado
+			if($type_mode=='auto'){
+				$nameTypeMode='auto_servicio';
+				$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
+			}
+
+
 			$result = [
 				'success'   => false,
 				'message'   => 'No se pudo abrir el archivo ZIP'
@@ -940,7 +949,7 @@ function sleep(ms) {
 			WHERE
 				1
 				AND p.id_location IN ($id_location)
-				AND p.id_status IN (1, 2, 4, 5, 6, 7)
+				AND p.id_status IN ($listEstatus)
 				AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59'
 			ORDER BY p.id_package DESC";
 			$codigos = $db->select($sql);
@@ -961,13 +970,12 @@ function sleep(ms) {
 			   $c++;
 			}
 
-			$nameOcurre= 'ocurre_'.$typeLocation.'_'.date('Y-m-d');
+			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.date('Y-m-d');
 			// Nombre del archivo ZIP
 			$zipFilename = $nameOcurre.'.zip';
 
 			// Crear una instancia de ZipArchive
 			$zip = new ZipArchive();
-			
 
 			// Abrir el archivo ZIP para escritura
 			if ($zip->open($zipFilename, ZipArchive::CREATE) === TRUE) {

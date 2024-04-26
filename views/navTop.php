@@ -62,7 +62,7 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-sync" type="button" class="btn-sm btn-success" title="Sync">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-ocurre" type="button" class="btn-sm btn-success" title="Ocurre">
+			<button id="btn-ocurre" type="button" class="btn-sm btn-success" title="Crear Códigos de Barras">
 				<i class="fa fa-barcode fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
